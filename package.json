@@ -5,13 +5,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "global": "^4.4.0",
+    "nodemon": "^3.1.4"
+  },
   "devDependencies": {
     "concurrently": "^8.2.0",
     "prettier": "^3.0.0"
   },
   "scripts": {
-    "dev": "concurrently \"cd server && nodemon server.mjs\" \"cd client && yarn run dev\" \"cd client && yarn run sass\"",
+    "dev": "concurrently \"cd server && npx nodemon server.mjs\" \"cd client && yarn run dev\" \"cd client && yarn run sass\"",
     "dev-client": "concurrently \"cd client && yarn run dev\" \"cd client && yarn run sass\""
   }
 }
