@@ -230,8 +230,8 @@ function current_matchday_endpoint() {
     }
     wp_die();
 }
-add_action( 'wp_ajax_my_custom_api_endpoint', 'current_matchday_endpoint' );
-add_action( 'wp_ajax_nopriv_my_custom_api_endpoint', 'current_matchday_endpoint' );
+add_action( 'wp_ajax_current_matchday_endpoint', 'current_matchday_endpoint' );
+add_action( 'wp_ajax_nopriv_current_matchday_endpoint', 'current_matchday_endpoint' );
 
 
 function get_matchday_games(WP_REST_Request $request) {
@@ -251,8 +251,8 @@ function get_matchday_games(WP_REST_Request $request) {
     }
     wp_die();
 }
-add_action( 'wp_ajax_my_custom_api_endpoint', 'get_matchday_games' );
-add_action( 'wp_ajax_nopriv_my_custom_api_endpoint', 'get_matchday_games' );
+add_action( 'wp_ajax_get_matchday_games', 'get_matchday_games' );
+add_action( 'wp_ajax_nopriv_get_matchday_games', 'get_matchday_games' );
 
 // inject react app
 function enqueue_react_app() {

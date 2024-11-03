@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios';
 // import './App.css'
 
@@ -11,33 +11,32 @@ function App() {
   const [currentMatchDay, setCurrentMatchDay] = useState(0);
   // const [renderedMatchDay, setRenderedMatchDay] = useState(0);
   // const [matchList, updateMatchList] = useState([]);
-  const [appLoaded, setAppLoaded] = useState(0);
+  const [appLoaded, setAppLoaded] = useState(false);
+
+  // We used useCallback here because: The function is used in a useEffect dependency array. 
+  // We want to prevent unnecessary recreations of this function on every render
+  const getCurrentMatchDay = useCallback(async () => {
+    try {
+      // const response = await axios.get('/wp-admin/admin-ajax.php?action=current_matchday_endpoint');
+      setCurrentMatchDay(0 && response.data.currentSeason.currentMatchday);
+    } catch (error) {
+      console.error('Failed to fetch match day:', error);
+      // Consider adding error state handling here
+    }
+  }, []);
 
   useEffect(() => {
-    // determine
-    console.log("appLoaded", appLoaded);
-    if (appLoaded !== 1) getCurrentMatchDay();
-    setAppLoaded(() => 1);
-  });
-
-  async function getCurrentMatchDay() {
-    // let currentMatchDay; // the state variable does not get updated in time for the axios call so we need to use a local variable
-
-    await axios
-      .get('/wp-admin/admin-ajax.php?action=current_matchday_endpoint')
-      .then((res) => {
-        console.log("getcurrentMatchDay result", res)
-        setCurrentMatchDay(
-          () => res.data.currentSeason.currentMatchday
-        );        
+    if (!appLoaded) {
+      getCurrentMatchDay().then(() => {
+        setAppLoaded(true);
       })
-      .catch((err) => {
-        console.log("err", err);
-      });
-
-    getSpecificMatchDayGames(currentMatchDay);
-  }
-
+      .catch((error) => {
+        console.error('Failed to load match day:', error);
+      })
+      
+    }
+  }, [appLoaded, getCurrentMatchDay]);
+  
   async function getSpecificMatchDayGames(day: number) {
     let matchList;
     console.log("day: ", day)
