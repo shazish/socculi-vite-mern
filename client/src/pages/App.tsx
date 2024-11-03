@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import axios from 'axios';
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 // import './App.css'
 
 // place resources inside shaziblues.io/public folder
@@ -13,52 +13,51 @@ function App() {
   // const [matchList, updateMatchList] = useState([]);
   const [appLoaded, setAppLoaded] = useState(false);
 
-  // We used useCallback here because: The function is used in a useEffect dependency array. 
+  // We used useCallback here because: The function is used in a useEffect dependency array.
   // We want to prevent unnecessary recreations of this function on every render
   const getCurrentMatchDay = useCallback(async () => {
     try {
       // const response = await axios.get('/wp-admin/admin-ajax.php?action=current_matchday_endpoint');
       setCurrentMatchDay(0 && response.data.currentSeason.currentMatchday);
     } catch (error) {
-      console.error('Failed to fetch match day:', error);
+      console.error("Failed to fetch match day:", error);
       // Consider adding error state handling here
     }
   }, []);
 
   useEffect(() => {
     if (!appLoaded) {
-      getCurrentMatchDay().then(() => {
-        setAppLoaded(true);
-      })
-      .catch((error) => {
-        console.error('Failed to load match day:', error);
-      })
-      
+      getCurrentMatchDay()
+        .then(() => {
+          setAppLoaded(true);
+        })
+        .catch((error) => {
+          console.error("Failed to load match day:", error);
+        });
     }
   }, [appLoaded, getCurrentMatchDay]);
-  
+
   async function getSpecificMatchDayGames(day: number) {
     let matchList;
-    console.log("day: ", day)
-    await axios.get(`/wp-admin/admin-ajax.php?action=get_matchday_games?day=${day}`)
-    .then((res) => {
-      matchList = res.data;
-      console.log("football-data: ", matchList);
-    })
-    .catch((err) => {
-      console.log('err', err)
-    })
+    console.log("day: ", day);
+    await axios
+      .get(`/wp-admin/admin-ajax.php?action=get_matchday_games?day=${day}`)
+      .then((res) => {
+        matchList = res.data;
+        console.log("football-data: ", matchList);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
     return matchList;
   }
 
-  console.log('we ran!', window.location.origin);
+  console.log("we ran!", window.location.origin);
 
   return (
     <>
       <div>
-      currentMatchDay: {currentMatchDay}
-      
-      
+        currentMatchDay: {currentMatchDay}
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
@@ -66,11 +65,15 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+      <h1>Second Half Shenanigans</h1>
+      <h3>A small passion project</h3>
       <div className="card">
-
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}, currentMatchDay {currentMatchDay}
+        </button>
+
+        <button onClick={() => void getSpecificMatchDayGames(currentMatchDay)}>
+          Load this week's matches
         </button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
@@ -80,10 +83,8 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
-  )
+  );
 }
-
-
 
 // async function getSpecificMatczchDayGames(day) {
 //   console.log("getSpecificMatchDayGames", day);
@@ -97,6 +98,4 @@ function App() {
 //   });
 // }
 
-
-
-export default App
+export default App;
