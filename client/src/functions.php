@@ -14,6 +14,8 @@
  * 
  * Register block styles.
  */
+// Import the WP_CLI class
+use WP_CLI;
 
 if ( ! function_exists( 'twentytwentyfour_block_styles' ) ) :
 	/**
@@ -220,7 +222,9 @@ function current_matchday_endpoint() {
     
     $url = 'https://api.football-data.org/v4/competitions/PL';
     $response = wp_remote_get( $url, $args );
-    
+
+	error_log(' >> '. $response);
+
     if ( is_array( $response ) && ! is_wp_error( $response ) ) {
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body );
@@ -234,13 +238,18 @@ add_action( 'wp_ajax_current_matchday_endpoint', 'current_matchday_endpoint' );
 add_action( 'wp_ajax_nopriv_current_matchday_endpoint', 'current_matchday_endpoint' );
 
 
-function get_matchday_games(WP_REST_Request $request) {
+function get_matchday_games() {
     $headers = array('X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88');
     $args = array('headers' => $headers);
-    $day = $request->get_param('day');
+	error_log('POST Data: ' . var_export($_POST, true));
+
+    $day = isset($_POST['day']) ? sanitize_text_field($_POST['day']) : '';
     
     $url = 'https://api.football-data.org/v4/competitions/PL/matches?matchday=' . $day;
-    $response = wp_remote_get( $url, $args );
+
+	error_log(' >>>> '. $url);
+
+	$response = wp_remote_get( $url, $args );
     
     if ( is_array( $response ) && ! is_wp_error( $response ) ) {
         $body = wp_remote_retrieve_body( $response );
