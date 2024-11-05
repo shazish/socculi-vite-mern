@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import MatchListRender from "../components/match-list/matchListRenderer";
 // import './App.css'
 
 // place resources inside shaziblues.io/public folder
@@ -9,9 +10,11 @@ const reactLogo = `/react.svg`;
 function App() {
   const [count, setCount] = useState(0);
   const [currentMatchDay, setCurrentMatchDay] = useState(0);
+  const [renderedMatchDay, setRenderedMatchDay] = useState(0);
   // const [renderedMatchDay, setRenderedMatchDay] = useState(0);
-  const [matchList, setMatchList] = useState();
+  const [matchList, setMatchList] = useState<[]>([]);
   const [appLoaded, setAppLoaded] = useState(false);
+
 
   // We used useCallback here because: The function is used in a useEffect dependency array.
   // We want to prevent unnecessary recreations of this function on every render
@@ -32,6 +35,7 @@ function App() {
       getCurrentMatchDay()
         .then(() => {
           setAppLoaded(true);
+          setRenderedMatchDay(currentMatchDay);
         })
         .catch((error) => {
           console.error("Failed to load match day:", error);
@@ -40,30 +44,33 @@ function App() {
   }, [appLoaded, getCurrentMatchDay]);
 
   async function getSpecificMatchDayGames(day: number) {
+    const fakedata = await import('../assets/data-structure.json') 
+    console.log(fakedata)
     const formData = new FormData();
     formData.append("day", day.toString());
 
     console.log("day: ", day);
-    await axios
-      .post(
-        `/wp-admin/admin-ajax.php?action=get_matchday_games`,
-        // WP has issues with receiving JSON format OOB, therefore we use formData
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
-      .then((res) => {
-        console.log(res);
-        setMatchList(res.data.matches);
-        console.log("football-data: ", matchList);
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
-    return matchList;
+    // await axios
+    //   .post(
+    //     `/wp-admin/admin-ajax.php?action=get_matchday_games`,
+    //     // WP has issues with receiving JSON format OOB, therefore we use formData
+    //     formData,
+    //     {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data",
+    //       },
+    //     }
+    //   )
+    //   .then((res) => {
+    //     console.log(res);
+    //     // setMatchList(fakedata);
+    //     console.log("football-data: ", matchList);
+    //   })
+    //   .catch((err) => {
+    //     console.log("err", err);
+    //   });
+      setMatchList(fakedata.matches);
+      console.log(matchList)
   }
 
   console.log("we ran!", window.location.origin);
@@ -89,7 +96,17 @@ function App() {
         <button onClick={() => void getSpecificMatchDayGames(currentMatchDay)}>
           Load this week's matches
         </button>
-        <p>{matchList}</p>
+        
+        {matchList?.length > 0 && (
+          <>
+          <p>!!!</p>
+                    <MatchListRender
+            matchList={matchList}
+            renderedMatchDay={renderedMatchDay}
+          />
+          </>
+
+        )}
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>

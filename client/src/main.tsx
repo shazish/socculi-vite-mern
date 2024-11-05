@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-// @ts-ignore
-import Navbar from './components/navbar/navbar.jsx'
+import Navbar from './components/navbar/navbar.js'
 import About from './pages/About.tsx'
 import React from 'react'
 import ReactDOM from 'react-dom/client'

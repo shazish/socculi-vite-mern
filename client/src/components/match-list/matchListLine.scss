@@ -1,0 +1,28 @@
+.scoreline {
+    font-weight: 600;
+}
+
+.scoreline {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 200px;
+}
+
+.scoreline-inplay {    
+    animation: color-change 5s infinite;
+}
+
+@keyframes color-change {
+    0% { color: rgb(189, 189, 189); }
+    50% { color: rgb(50, 50, 50); }
+    100% { color: rgb(189, 189, 189); }
+ }
+
+.crest {
+    height: 50px;
+}
+
+input {
+    width: 1.5rem;
+}
