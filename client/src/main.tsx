@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/navbar/navbar.js'
 import About from './pages/About.tsx'
+import ThisWeek from './pages/ThisWeek.tsx'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './pages/App.tsx'
@@ -15,6 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/about" element={<About />} />
+        <Route path="/thisweek" element={<ThisWeek />} />
         <Route path="*" element={<App />} />
       </Routes>
     </BrowserRouter>

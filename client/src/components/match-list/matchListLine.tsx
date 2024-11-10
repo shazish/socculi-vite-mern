@@ -6,12 +6,12 @@ export default function MatchListLine({ matchLine }) {
 
   return (
     <>
-      <td className="team">
+      <td className="team flex-1">
         <span>{matchLine["homeTeam"]?.["name"]}</span>
       </td>
       <td
         className={
-          "scoreline " +
+          "flex-1 scoreline " +
           (matchLine["status"] == "IN_PLAY" && "scoreline-inplay")
         }
       >
@@ -42,7 +42,7 @@ export default function MatchListLine({ matchLine }) {
         <img className="crest" src={matchLine["awayTeam"]?.["crest"]}></img>
       </td>
 
-      <td className="team">
+      <td className="team flex-1">
         <span>{matchLine["awayTeam"]?.["name"]}</span>
       </td>
     </>

@@ -93,14 +93,14 @@ function App() {
           count is {count}, currentMatchDay {currentMatchDay}
         </button>
 
-        <button onClick={() => void getSpecificMatchDayGames(currentMatchDay)}>
+        <button className="border-black border-2 px-2" onClick={() => void getSpecificMatchDayGames(currentMatchDay)}>
           Load this week's matches
         </button>
         
         {matchList?.length > 0 && (
           <>
           <p>!!!</p>
-                    <MatchListRender
+            <MatchListRender
             matchList={matchList}
             renderedMatchDay={renderedMatchDay}
           />
