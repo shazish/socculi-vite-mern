@@ -17,7 +17,7 @@ export default function MatchListRender({ matchList, renderedMatchDay }) {
           {/* Match List */}
           <div className="flex flex-col gap-2">
             {matchList.map((matchLine, index) => (
-              <div key={index} className="flex flex-row items-center py-2 border-b border-gray-200">
+              <div key={index}>
                 <MatchListLine matchLine={matchLine} />
               </div>
             ))}
