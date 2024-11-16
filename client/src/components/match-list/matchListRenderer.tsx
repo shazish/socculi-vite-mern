@@ -7,6 +7,11 @@ export default function MatchListRender({ matchList, renderedMatchDay }) {
     return Date.now() - new Date(matchDate).getTime() < 3600000;
   }
 
+  function handleChildChange(home, away) {
+    console.log('>>>>>', home, away)
+    return;
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Week {renderedMatchDay}</h1>
@@ -26,6 +31,7 @@ export default function MatchListRender({ matchList, renderedMatchDay }) {
                 <MatchListLine 
                   matchLine={matchLine}
                   userSubmissionAllowed={ isSubmissionAllowed( matchLine["utcDate"] ) }
+                  broadcastChangeToParent={(a,b) => handleChildChange(a,b)}
                 
                 />
               </div>
