@@ -1,12 +1,11 @@
 import "./MatchListLine.scss";
 
-export default function MatchListLine({ matchLine }) {
+export default function MatchListLine(
+  { matchLine, userSubmissionAllowed }: 
+  { matchLine: any, userSubmissionAllowed: boolean}) {
   // console.log("matchLine", matchLine);
-  function handleChange(data) {}
-
-  function isSubmissionAllowed(): boolean {
-    // Less than an hour since match started, means second half has not started
-    return Date.now() - new Date(matchLine["utcDate"]) < 3600000;
+  function handleChange(home: number | null, away: number | null) {
+    console.log(home, away)
   }
 
   return (
@@ -56,22 +55,24 @@ export default function MatchListLine({ matchLine }) {
       </div>
 
       <div className="flex flex-row justify-center">
-        <span className="text-xs">Your selection:&nbsp; </span>
-        {isSubmissionAllowed() && (
+        <span className="text-xs self-center">Your prediction:&nbsp; </span>
+        {userSubmissionAllowed && (
           <div className="input-container border border-gray-200">
             <input
-              className="text-center"
-              type="text"
+              className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              min={0}
+              type="number"
               name={"home-input"}
-              onChange={handleChange}
+              onChange={(e) => handleChange(Number(e.target.value), null)}
               required
             />
             -
             <input
-              type="text"
-              className="text-center"
+              type="number"
+              min={0}
+              className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               name={"away-input"}
-              onChange={handleChange}
+              onChange={(e) => handleChange(null, Number(e.target.value))}
               required
             />
           </div>

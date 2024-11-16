@@ -2,6 +2,11 @@ import MatchListLine from "./matchListLine";
 
 export default function MatchListRender({ matchList, renderedMatchDay }) {
 
+  function isSubmissionAllowed(matchDate: string): boolean {
+    // Less than an hour since match started, means second half has not started
+    return Date.now() - new Date(matchDate).getTime() < 3600000;
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Week {renderedMatchDay}</h1>
@@ -18,10 +23,16 @@ export default function MatchListRender({ matchList, renderedMatchDay }) {
           <div className="flex flex-col gap-2">
             {matchList.map((matchLine, index) => (
               <div key={index}>
-                <MatchListLine matchLine={matchLine} />
+                <MatchListLine 
+                  matchLine={matchLine}
+                  userSubmissionAllowed={ isSubmissionAllowed( matchLine["utcDate"] ) }
+                
+                />
               </div>
             ))}
           </div>
+
+
         </div>
       </form>
     </div>
