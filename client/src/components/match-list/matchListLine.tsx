@@ -27,24 +27,7 @@ export default function MatchListLine({
           `}
         >
           <img className="crest" src={matchLine["homeTeam"]?.["crest"]}></img>
-          {/* not started yet */}
-          {matchLine["status"] == "TIMED" && (
-            <>
-              <input
-                type="text"
-                name={"home" + 2 + 2}
-                onChange={handleChange}
-                required
-              />{" "}
-              -
-              <input
-                type="text"
-                name={"away" + 2 + 2}
-                onChange={handleChange}
-                required
-              />
-            </>
-          )}
+
 
           {/* Match has ended - draw is inclusive here */}
           {matchLine["score"]?.["winner"] !== null &&

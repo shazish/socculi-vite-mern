@@ -1,13 +1,16 @@
 import MatchListLine from "./matchListLine";
 
-export default function MatchListRender({ matchList, renderedMatchDay }) {
+export default function MatchListRender({ matchList, renderedMatchDay }: {
+  matchList: any,
+  renderedMatchDay: number
+}) {
 
   function isSubmissionAllowed(matchDate: string): boolean {
     // Less than an hour since match started, means second half has not started
     return Date.now() - new Date(matchDate).getTime() < 3600000;
   }
 
-  function handleChildChange(home, away) {
+  function handleChildChange(home: number | null, away: number | null) {
     console.log('>>>>>', home, away)
     return;
   }
@@ -26,7 +29,7 @@ export default function MatchListRender({ matchList, renderedMatchDay }) {
           
           {/* Match List */}
           <div className="flex flex-col gap-2">
-            {matchList.map((matchLine, index) => (
+            {matchList.map((matchLine: any, index: number) => (
               <div key={index}>
                 <MatchListLine 
                   matchLine={matchLine}
