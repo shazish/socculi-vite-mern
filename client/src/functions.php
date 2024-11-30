@@ -1,283 +1,127 @@
 <?php
-/**
- * Twenty Twenty-Four functions and definitions
- *
- * @link https://developer.wordpress.org/themes/basics/theme-functions/
- *
- * @package Twenty Twenty-Four
- * @since Twenty Twenty-Four 1.0
- */
+/*
+Plugin Name: Succuli backend handler
+Description: Backend logic for custom functionality
+Version: 1.0
+Author: Shazi
+*/
 
-/**
- * SS: Due to laziness I've added my needed functions here inside 
- * the theme function instead of creating a separate plugin.
- * 
- * Register block styles.
- */
-// Import the WP_CLI class
-use WP_CLI;
 
-if ( ! function_exists( 'twentytwentyfour_block_styles' ) ) :
-	/**
-	 * Register custom block styles
-	 *
-	 * @since Twenty Twenty-Four 1.0
-	 * @return void
-	 */
-	function twentytwentyfour_block_styles() {
+// Prevent direct access to the plugin
+if (!defined('ABSPATH')) {
+    exit;
+}
 
-		register_block_style(
-			'core/details',
-			array(
-				'name'         => 'arrow-icon-details',
-				'label'        => __( 'Arrow icon', 'twentytwentyfour' ),
-				/*
-				 * Styles for the custom Arrow icon style of the Details block
-				 */
-				'inline_style' => '
-				.is-style-arrow-icon-details {
-					padding-top: var(--wp--preset--spacing--10);
-					padding-bottom: var(--wp--preset--spacing--10);
-				}
+add_action('init', 'plugin_init');
 
-				.is-style-arrow-icon-details summary {
-					list-style-type: "\2193\00a0\00a0\00a0";
-				}
+function plugin_init() {
+	console.log('Succuli backend handler')
+}
 
-				.is-style-arrow-icon-details[open]>summary {
-					list-style-type: "\2192\00a0\00a0\00a0";
-				}',
-			)
-		);
-		register_block_style(
-			'core/post-terms',
-			array(
-				'name'         => 'pill',
-				'label'        => __( 'Pill', 'twentytwentyfour' ),
-				/*
-				 * Styles variation for post terms
-				 * https://github.com/WordPress/gutenberg/issues/24956
-				 */
-				'inline_style' => '
-				.is-style-pill a,
-				.is-style-pill span:not([class], [data-rich-text-placeholder]) {
-					display: inline-block;
-					background-color: var(--wp--preset--color--base-2);
-					padding: 0.375rem 0.875rem;
-					border-radius: var(--wp--preset--spacing--20);
-				}
+function your_plugin_init() {
+    // Initialize your plugin logic
+}
 
-				.is-style-pill a:hover {
-					background-color: var(--wp--preset--color--contrast-3);
-				}',
-			)
-		);
-		register_block_style(
-			'core/list',
-			array(
-				'name'         => 'checkmark-list',
-				'label'        => __( 'Checkmark', 'twentytwentyfour' ),
-				/*
-				 * Styles for the custom checkmark list block style
-				 * https://github.com/WordPress/gutenberg/issues/51480
-				 */
-				'inline_style' => '
-				ul.is-style-checkmark-list {
-					list-style-type: "\2713";
-				}
-
-				ul.is-style-checkmark-list li {
-					padding-inline-start: 1ch;
-				}',
-			)
-		);
-		register_block_style(
-			'core/navigation-link',
-			array(
-				'name'         => 'arrow-link',
-				'label'        => __( 'With arrow', 'twentytwentyfour' ),
-				/*
-				 * Styles for the custom arrow nav link block style
-				 */
-				'inline_style' => '
-				.is-style-arrow-link .wp-block-navigation-item__label:after {
-					content: "\2197";
-					padding-inline-start: 0.25rem;
-					vertical-align: middle;
-					text-decoration: none;
-					display: inline-block;
-				}',
-			)
-		);
-		register_block_style(
-			'core/heading',
-			array(
-				'name'         => 'asterisk',
-				'label'        => __( 'With asterisk', 'twentytwentyfour' ),
-				'inline_style' => "
-				.is-style-asterisk:before {
-					content: '';
-					width: 1.5rem;
-					height: 3rem;
-					background: var(--wp--preset--color--contrast-2, currentColor);
-					clip-path: path('M11.93.684v8.039l5.633-5.633 1.216 1.23-5.66 5.66h8.04v1.737H13.2l5.701 5.701-1.23 1.23-5.742-5.742V21h-1.737v-8.094l-5.77 5.77-1.23-1.217 5.743-5.742H.842V9.98h8.162l-5.701-5.7 1.23-1.231 5.66 5.66V.684h1.737Z');
-					display: block;
-				}
-
-				/* Hide the asterisk if the heading has no content, to avoid using empty headings to display the asterisk only, which is an A11Y issue */
-				.is-style-asterisk:empty:before {
-					content: none;
-				}
-
-				.is-style-asterisk:-moz-only-whitespace:before {
-					content: none;
-				}
-
-				.is-style-asterisk.has-text-align-center:before {
-					margin: 0 auto;
-				}
-
-				.is-style-asterisk.has-text-align-right:before {
-					margin-left: auto;
-				}
-
-				.rtl .is-style-asterisk.has-text-align-left:before {
-					margin-right: auto;
-				}",
-			)
-		);
-	}
-endif;
-
-add_action( 'init', 'twentytwentyfour_block_styles' );
-
-/**
- * Enqueue block stylesheets.
- */
-
-if ( ! function_exists( 'twentytwentyfour_block_stylesheets' ) ) :
-	/**
-	 * Enqueue custom block stylesheets
-	 *
-	 * @since Twenty Twenty-Four 1.0
-	 * @return void
-	 */
-	function twentytwentyfour_block_stylesheets() {
-		/**
-		 * The wp_enqueue_block_style() function allows us to enqueue a stylesheet
-		 * for a specific block. These will only get loaded when the block is rendered
-		 * (both in the editor and on the front end), improving performance
-		 * and reducing the amount of data requested by visitors.
-		 *
-		 * See https://make.wordpress.org/core/2021/12/15/using-multiple-stylesheets-per-block/ for more info.
-		 */
-		wp_enqueue_block_style(
-			'core/button',
-			array(
-				'handle' => 'twentytwentyfour-button-style-outline',
-				'src'    => get_parent_theme_file_uri( 'assets/css/button-outline.css' ),
-				'ver'    => wp_get_theme( get_template() )->get( 'Version' ),
-				'path'   => get_parent_theme_file_path( 'assets/css/button-outline.css' ),
-			)
-		);
-	}
-endif;
-
-add_action( 'init', 'twentytwentyfour_block_stylesheets' );
-
-/**
- * Register pattern categories.
- */
-
-if ( ! function_exists( 'twentytwentyfour_pattern_categories' ) ) :
-	/**
-	 * Register pattern categories
-	 *
-	 * @since Twenty Twenty-Four 1.0
-	 * @return void
-	 */
-	function twentytwentyfour_pattern_categories() {
-
-		register_block_pattern_category(
-			'twentytwentyfour_page',
-			array(
-				'label'       => _x( 'Pages', 'Block pattern category', 'twentytwentyfour' ),
-				'description' => __( 'A collection of full page layouts.', 'twentytwentyfour' ),
-			)
-		);
-	}
-endif;
-
-add_action( 'init', 'twentytwentyfour_pattern_categories' );
 
 // create an endpoint for react to access
-function current_matchday_endpoint() {
-    $headers = array(
-        'X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88'
-    );
+function current_matchday_endpoint()
+{
+	$headers = array(
+		'X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88'
+	);
 
-    $args = array(
-        'headers' => $headers
-    );
-    
-    $url = 'https://api.football-data.org/v4/competitions/PL';
-    $response = wp_remote_get( $url, $args );
+	$args = array(
+		'headers' => $headers
+	);
 
-	error_log(' >> '. $response);
+	$url = 'https://api.football-data.org/v4/competitions/PL';
+	$response = wp_remote_get($url, $args);
 
-    if ( is_array( $response ) && ! is_wp_error( $response ) ) {
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body );
-        wp_send_json( $data );
-    } else {
-        wp_send_json_error( 'Error fetching data' );
-    }
-    wp_die();
+	error_log(' >> ' . $response);
+
+	if (is_array($response) && !is_wp_error($response)) {
+		$body = wp_remote_retrieve_body($response);
+		$data = json_decode($body);
+		wp_send_json($data);
+	} else {
+		wp_send_json_error('Error fetching data');
+	}
+	wp_die();
 }
-add_action( 'wp_ajax_current_matchday_endpoint', 'current_matchday_endpoint' );
-add_action( 'wp_ajax_nopriv_current_matchday_endpoint', 'current_matchday_endpoint' );
+add_action('wp_ajax_current_matchday_endpoint', 'current_matchday_endpoint');
+add_action('wp_ajax_nopriv_current_matchday_endpoint', 'current_matchday_endpoint');
 
 
-function get_matchday_games() {
-    $headers = array('X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88');
-    $args = array('headers' => $headers);
-	error_log('POST Data: ' . var_export($_POST, true));
+// function get_matchday_games()
+// {
+// 	$headers = array('X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88');
+// 	$args = array('headers' => $headers);
+// 	error_log('POST Data: ' . var_export($_POST, true));
 
-    $day = isset($_POST['day']) ? sanitize_text_field($_POST['day']) : '';
-    
-    $url = 'https://api.football-data.org/v4/competitions/PL/matches?matchday=' . $day;
+// 	$day = isset($_POST['day']) ? sanitize_text_field($_POST['day']) : '';
 
-	error_log(' >>>> '. $url);
+// 	$url = 'https://api.football-data.org/v4/competitions/PL/matches?matchday=' . $day;
 
-	$response = wp_remote_get( $url, $args );
-    
-    if ( is_array( $response ) && ! is_wp_error( $response ) ) {
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body );
-        wp_send_json( $data );
-    } else {
-        wp_send_json_error( 'Error fetching data' );
-    }
-    wp_die();
+// 	error_log(' >>>> ' . $url);
+
+// 	$response = wp_remote_get($url, $args);
+
+// 	if (is_array($response) && !is_wp_error($response)) {
+// 		$body = wp_remote_retrieve_body($response);
+// 		$data = json_decode($body);
+// 		wp_send_json($data);
+// 	} else {
+// 		wp_send_json_error('Error fetching data');
+// 	}
+// 	wp_die();
+// }
+// add_action('wp_ajax_get_matchday_games', 'get_matchday_games');
+// add_action('wp_ajax_nopriv_get_matchday_games', 'get_matchday_games');
+
+// Create custom table on plugin activation
+function create_submissions_table()
+{
+	global $wpdb;
+	// $wpdb->select('sql4sicculi');
+	// $different_db = new wpdb('sql4sicculi', 'Sickuel!', 'sql4sicculi', 'mysql.shaziblues.io');
+	$table_name = $wpdb->prefix . 'user_submissions';
+	$charset_collate = $wpdb->get_charset_collate();
+
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+		match_id INT PRIMARY KEY AUTO_INCREMENT,
+		week_id INT NOT NULL,
+		home_team VARCHAR(100) NOT NULL,
+		away_team VARCHAR(100) NOT NULL,
+		home_score_prediction INT,
+		away_score_prediction INT,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id)
+    ) $charset_collate;";
+
+	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	dbDelta($sql);
 }
-add_action( 'wp_ajax_get_matchday_games', 'get_matchday_games' );
-add_action( 'wp_ajax_nopriv_get_matchday_games', 'get_matchday_games' );
+
+add_action('wp_ajax_create_submissions_table', 'create_submissions_table');
+add_action('wp_ajax_nopriv_create_submissions_table', 'create_submissions_table');
 
 // inject react app
-function enqueue_react_app() {
-    wp_enqueue_script(
-        'react-app',
-        get_template_directory_uri() . '/index.js',
-        array(), 
-        null,
-        true
-    );
-    wp_enqueue_style(
-        'react-app',
-        get_template_directory_uri() . '/index.css',
-        null
-    );
-    // Make sure the root div is available. No more dealing with "incorrect mime type" error with this approach.
-    echo '<div id="root" class="bleh"></div>';
+function enqueue_react_app()
+{
+	wp_enqueue_script(
+		'react-app',
+		get_template_directory_uri() . '/index.js',
+		array(),
+		null,
+		true
+	);
+	wp_enqueue_style(
+		'react-app',
+		get_template_directory_uri() . '/index.css',
+		null
+	);
+	// Make sure the root div is available. No more dealing with "incorrect mime type" error with this approach.
+	echo '<div id="root" class="bleh"></div>';
 }
 add_action('wp_enqueue_scripts', 'enqueue_react_app');
