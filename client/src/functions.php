@@ -15,13 +15,8 @@ if (!defined('ABSPATH')) {
 add_action('init', 'plugin_init');
 
 function plugin_init() {
-	console.log('Succuli backend handler')
+	// echo plugin_dir_url(__FILE__);
 }
-
-function your_plugin_init() {
-    // Initialize your plugin logic
-}
-
 
 // create an endpoint for react to access
 function current_matchday_endpoint()
@@ -111,17 +106,25 @@ function enqueue_react_app()
 {
 	wp_enqueue_script(
 		'react-app',
-		get_template_directory_uri() . '/index.js',
+		plugin_dir_url(__FILE__) . 'index.js',
 		array(),
 		null,
 		true
 	);
 	wp_enqueue_style(
 		'react-app',
-		get_template_directory_uri() . '/index.css',
+		plugin_dir_url(__FILE__) . 'index.css',
 		null
 	);
 	// Make sure the root div is available. No more dealing with "incorrect mime type" error with this approach.
 	echo '<div id="root" class="bleh"></div>';
 }
 add_action('wp_enqueue_scripts', 'enqueue_react_app');
+
+// Replace page content
+// function replace_page_content($content) {
+// 	$content = '<div id="root"></div>';
+
+//     return $content;
+// }
+// add_action('template_redirect', 'replace_page_content');

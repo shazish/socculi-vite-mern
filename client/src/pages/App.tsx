@@ -11,7 +11,6 @@ function App() {
   const [count, setCount] = useState(0);
   const [currentMatchDay, setCurrentMatchDay] = useState(0);
   const [renderedMatchDay, setRenderedMatchDay] = useState(0);
-  // const [renderedMatchDay, setRenderedMatchDay] = useState(0);
   const [matchList, setMatchList] = useState<[]>([]);
   const [appLoaded, setAppLoaded] = useState(false);
 
@@ -30,7 +29,26 @@ function App() {
     }
   }, []);
 
+  const initPredictionTable = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        "/wp-admin/admin-ajax.php?action=create_submissions_table"
+      );
+      console.log('no error spotted creating table', response);
+    } catch (error) {
+      console.error("Failed to fetch match day:", error);
+      // Consider adding error state handling here
+    }
+  }, []);
+
   useEffect(() => {
+    initPredictionTable().then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+
     if (!appLoaded) {
       getCurrentMatchDay()
         .then(() => {
@@ -48,8 +66,8 @@ function App() {
     console.log(fakedata)
     const formData = new FormData();
     formData.append("day", day.toString());
-
     console.log("day: ", day);
+    
     // await axios
     //   .post(
     //     `/wp-admin/admin-ajax.php?action=get_matchday_games`,
@@ -69,7 +87,7 @@ function App() {
     //   .catch((err) => {
     //     console.log("err", err);
     //   });
-      setMatchList(fakedata.matches);
+      setMatchList(fakedata.matches as any);
       console.log(matchList)
   }
 
