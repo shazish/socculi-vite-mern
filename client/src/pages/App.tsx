@@ -61,6 +61,11 @@ function App() {
     }
   }, [appLoaded, getCurrentMatchDay]);
 
+  function submitToBackend(data: any) {
+    console.log('submitToBackend', data.target)
+    return;
+  }
+
   async function getSpecificMatchDayGames(day: number) {
     const fakedata = await import('../assets/data-structure.json') 
     console.log(fakedata)
@@ -121,6 +126,7 @@ function App() {
             <MatchListRender
             matchList={matchList}
             renderedMatchDay={renderedMatchDay}
+            broadcastSubmissionToParent={(data) => submitToBackend(data)}
           />
           </>
 

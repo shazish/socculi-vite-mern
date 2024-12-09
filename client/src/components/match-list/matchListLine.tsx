@@ -1,17 +1,24 @@
 import "./MatchListLine.scss";
 
 export default function MatchListLine({
+  index,
   matchLine,
   userSubmissionAllowed,
-  broadcastChangeToParent
+  broadcastChangeToParent  
 }: {
+  index: number,
   matchLine: any;
   userSubmissionAllowed: boolean;
   broadcastChangeToParent: (home: number | null, away: number | null) => void;
 }) {
+  let homeDirty: boolean;
+  let awayDirty: boolean;
   
-  function handleChange(home: number | null, away: number | null) {
-    broadcastChangeToParent(home, away);
+  function handleChange(home: number | null, away: number | null) {    
+    if (home) homeDirty = true;
+    if (away) awayDirty = true;
+    // todo: no need to send home and away values to parent, just a boolean
+    if (homeDirty && awayDirty) broadcastChangeToParent(home, away); 
   }
 
   return (
@@ -51,7 +58,7 @@ export default function MatchListLine({
               className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               min={0}
               type="number"
-              name="home-input"
+              name={`home-input-${index}`}
               onChange={(e) => handleChange(Number(e.target.value), null)}
               required
             />
@@ -60,7 +67,7 @@ export default function MatchListLine({
               type="number"
               min={0}
               className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              name="away-input"
+              name={`away-input-${index}`}
               onChange={(e) => handleChange(null, Number(e.target.value))}
               required
             />
