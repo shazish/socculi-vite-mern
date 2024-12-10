@@ -27,9 +27,9 @@ export default function MatchListRender({ matchList, renderedMatchDay, broadcast
     e.preventDefault();
     setFormIsDirty(false);
     const formData = new FormData(e.currentTarget);
+    formData.append("renderedMatchDay", renderedMatchDay.toString())
     const formValues = Object.fromEntries(formData);
     console.log("formValues?!", formValues);
-    // const payload = {} // may need to add add'l data in addition to user entries
     broadcastSubmissionToParent(formValues);
   }
 

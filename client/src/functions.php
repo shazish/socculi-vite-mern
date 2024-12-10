@@ -84,7 +84,7 @@ function create_submissions_table()
 
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
         id bigint(20) NOT NULL AUTO_INCREMENT,
-		match_id INT PRIMARY KEY AUTO_INCREMENT,
+		match_id INT NOT NULL,
 		week_id INT NOT NULL,
 		home_team VARCHAR(100) NOT NULL,
 		away_team VARCHAR(100) NOT NULL,
@@ -100,6 +100,12 @@ function create_submissions_table()
 
 add_action('wp_ajax_create_submissions_table', 'create_submissions_table');
 add_action('wp_ajax_nopriv_create_submissions_table', 'create_submissions_table');
+
+function submit_user_predictions() {
+	error_log('submit_user_predictions POST Data: ' . var_export($_POST, true));
+}
+add_action('wp_ajax_submit_user_predictions', 'submit_user_predictions');
+add_action('wp_ajax_nopriv_submit_user_predictions', 'submit_user_predictions');
 
 // inject react app
 function enqueue_react_app()

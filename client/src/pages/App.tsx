@@ -61,8 +61,27 @@ function App() {
     }
   }, [appLoaded, getCurrentMatchDay]);
 
-  function submitToBackend(data: any) {
-    console.log('submitToBackend', data.target)
+  async function submitToBackend(formData: FormData) {
+    console.log('submitToBackend', formData);
+
+    await axios
+      .post(
+        `/wp-admin/admin-ajax.php?action=submit_user_predictions`,
+        // WP has issues with receiving JSON format OOB, therefore we use formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        // setMatchList(fakedata);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });    
     return;
   }
 
