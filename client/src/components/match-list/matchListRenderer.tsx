@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { useState } from "react";
-import MatchListLine from "./matchListLine";
 
+import MatchListLine from "./matchListLine";
 export default function MatchListRender({ matchList, renderedMatchDay, broadcastSubmissionToParent }: {
   matchList: any;
   renderedMatchDay: number;
@@ -28,9 +28,19 @@ export default function MatchListRender({ matchList, renderedMatchDay, broadcast
     setFormIsDirty(false);
     const formData = new FormData(e.currentTarget);
     formData.append("renderedMatchDay", renderedMatchDay.toString())
-    const formValues = Object.fromEntries(formData);
-    console.log("formValues?!", formValues);
-    broadcastSubmissionToParent(formValues);
+    // const formValues = Object.fromEntries(formData);
+    // console.log("formValues?!", formValues);
+    broadcastSubmissionToParent( convertFormToString(formData) );
+  }
+
+  function convertFormToString(formData: FormData) {
+    const formDataString = Array.from(formData.entries())
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value.toString())}`)
+    .join('&');
+
+    console.log('formDataString', formDataString);
+
+    return formDataString;
   }
 
   return (

@@ -61,14 +61,14 @@ function App() {
     }
   }, [appLoaded, getCurrentMatchDay]);
 
-  async function submitToBackend(formData: FormData) {
-    console.log('submitToBackend', formData);
+  async function submitToBackend(formDataStr: string) {
+    console.log('submitToBackend', formDataStr);
 
     await axios
       .post(
         `/wp-admin/admin-ajax.php?action=submit_user_predictions`,
         // WP has issues with receiving JSON format OOB, therefore we use formData
-        formData,
+        formDataStr,
         {
           headers: {
             "Content-Type": "multipart/form-data",
