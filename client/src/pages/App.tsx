@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import MatchListRender from "../components/match-list/matchListRenderer";
+
+import { FootballDataResponse, Match } from '../types/matchData.interface';
 // import './App.css'
 
 // place resources inside shaziblues.io/public folder
@@ -80,38 +82,42 @@ function App() {
         // setMatchList(fakedata);
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log("submitToBackend err", err);
       });    
     return;
   }
 
   async function getSpecificMatchDayGames(day: number) {
-    const fakedata = await import('../assets/data-structure.json') 
-    console.log(fakedata)
+    console.log('getSpecificMatchDayGames', day);
+    // const fakedata = await import('../assets/data-structure.json') 
+    // console.log(fakedata)
+    // console.log("day: ", day);
+    // setMatchList(fakedata.matches as any);
+
     const formData = new FormData();
     formData.append("day", day.toString());
-    console.log("day: ", day);
-    
-    // await axios
-    //   .post(
-    //     `/wp-admin/admin-ajax.php?action=get_matchday_games`,
-    //     // WP has issues with receiving JSON format OOB, therefore we use formData
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //       },
-    //     }
-    //   )
-    //   .then((res) => {
-    //     console.log(res);
-    //     // setMatchList(fakedata);
-    //     console.log("football-data: ", matchList);
-    //   })
-    //   .catch((err) => {
-    //     console.log("err", err);
-    //   });
-      setMatchList(fakedata.matches as any);
+
+    await axios
+      .post(
+        `/wp-admin/admin-ajax.php?action=get_matchday_games`,
+        // WP has issues with receiving JSON format OOB, therefore we use formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((res: FootballDataResponse) => {
+        console.log(res);
+        setMatchList(matchList.matches as Match[]);
+        console.log("football-data: ", matchList);
+      })
+      .catch((err) => {
+        console.log("getSpecificMatchDayGames err", err);
+      });
+      
+      // resume reminder: need to create an interface for matchlist so that the above works
       console.log(matchList)
   }
 

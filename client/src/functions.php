@@ -47,31 +47,31 @@ add_action('wp_ajax_current_matchday_endpoint', 'current_matchday_endpoint');
 add_action('wp_ajax_nopriv_current_matchday_endpoint', 'current_matchday_endpoint');
 
 
-// function get_matchday_games()
-// {
-// 	$headers = array('X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88');
-// 	$args = array('headers' => $headers);
-// 	error_log('POST Data: ' . var_export($_POST, true));
+function get_matchday_games()
+{
+	$headers = array('X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88');
+	$args = array('headers' => $headers);
+	error_log('POST Data: ' . var_export($_POST, true));
 
-// 	$day = isset($_POST['day']) ? sanitize_text_field($_POST['day']) : '';
+	$day = isset($_POST['day']) ? sanitize_text_field($_POST['day']) : '';
 
-// 	$url = 'https://api.football-data.org/v4/competitions/PL/matches?matchday=' . $day;
+	$url = 'https://api.football-data.org/v4/competitions/PL/matches?matchday=' . $day;
 
-// 	error_log(' >>>> ' . $url);
+	error_log(' >>>> ' . $url);
 
-// 	$response = wp_remote_get($url, $args);
+	$response = wp_remote_get($url, $args);
 
-// 	if (is_array($response) && !is_wp_error($response)) {
-// 		$body = wp_remote_retrieve_body($response);
-// 		$data = json_decode($body);
-// 		wp_send_json($data);
-// 	} else {
-// 		wp_send_json_error('Error fetching data');
-// 	}
-// 	wp_die();
-// }
-// add_action('wp_ajax_get_matchday_games', 'get_matchday_games');
-// add_action('wp_ajax_nopriv_get_matchday_games', 'get_matchday_games');
+	if (is_array($response) && !is_wp_error($response)) {
+		$body = wp_remote_retrieve_body($response);
+		$data = json_decode($body);
+		wp_send_json($data);
+	} else {
+		wp_send_json_error('Error fetching data');
+	}
+	wp_die();
+}
+add_action('wp_ajax_get_matchday_games', 'get_matchday_games');
+add_action('wp_ajax_nopriv_get_matchday_games', 'get_matchday_games');
 
 // Create custom table on plugin activation
 function create_submissions_table()
