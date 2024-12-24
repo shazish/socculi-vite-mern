@@ -13,7 +13,7 @@ function App() {
   const [count, setCount] = useState(0);
   const [currentMatchDay, setCurrentMatchDay] = useState(0);
   const [renderedMatchDay, setRenderedMatchDay] = useState(0);
-  const [matchList, setMatchList] = useState<[]>([]);
+  const [matchList, setMatchList] = useState<Match[]>();
   const [appLoaded, setAppLoaded] = useState(false);
 
 
@@ -98,7 +98,7 @@ function App() {
     formData.append("day", day.toString());
 
     await axios
-      .post(
+      .post<FootballDataResponse>(
         `/wp-admin/admin-ajax.php?action=get_matchday_games`,
         // WP has issues with receiving JSON format OOB, therefore we use formData
         formData,
@@ -108,9 +108,9 @@ function App() {
           },
         }
       )
-      .then((res: FootballDataResponse) => {
+      .then((res) => {
         console.log(res);
-        setMatchList(matchList.matches as Match[]);
+        setMatchList(res.data.matches);
         console.log("football-data: ", matchList);
       })
       .catch((err) => {
@@ -145,7 +145,7 @@ function App() {
           Load this week's matches
         </button>
         
-        {matchList?.length > 0 && (
+        {matchList && matchList.length > 0 && (
           <>
           <p>!!!</p>
             <MatchListRender
