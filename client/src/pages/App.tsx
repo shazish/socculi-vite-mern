@@ -47,9 +47,9 @@ function App() {
     initPredictionTable().then((res) => {
       console.log(res);
     })
-    .catch((err) => {
-      console.log(err)
-    });
+      .catch((err) => {
+        console.log(err)
+      });
 
     if (!appLoaded) {
       getCurrentMatchDay()
@@ -65,12 +65,16 @@ function App() {
 
   async function submitToBackend(formDataStr: string) {
     console.log('submitToBackend', formDataStr);
+    const formData = new FormData();
+    formData.append("dataStr", formDataStr);
+    formData.append("matchDay", currentMatchDay.toString());
+    formData.append("userId", '0'); // TODO: add multi users
 
     await axios
       .post(
         `/wp-admin/admin-ajax.php?action=submit_user_predictions`,
         // WP has issues with receiving JSON format OOB, therefore we use formData
-        formDataStr,
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -83,7 +87,7 @@ function App() {
       })
       .catch((err) => {
         console.log("submitToBackend err", err);
-      });    
+      });
     return;
   }
 
@@ -116,9 +120,9 @@ function App() {
       .catch((err) => {
         console.log("getSpecificMatchDayGames err", err);
       });
-      
-      // resume reminder: need to create an interface for matchlist so that the above works
-      console.log(matchList)
+
+    // resume reminder: need to create an interface for matchlist so that the above works
+    console.log(matchList)
   }
 
   console.log("we ran!", window.location.origin);
@@ -141,18 +145,22 @@ function App() {
           count is {count}, currentMatchDay {currentMatchDay}
         </button>
 
-        <button className="border-black border-2 px-2" onClick={() => void getSpecificMatchDayGames(currentMatchDay)}>
-          Load this week's matches
-        </button>
-        
+        {currentMatchDay > 0 && (
+          <p>
+            <button className="border-black border-2 px-2" onClick={() => void getSpecificMatchDayGames(currentMatchDay)}>
+              Load this week's matches
+            </button>
+          </p>
+        )}
+
         {matchList && matchList.length > 0 && (
           <>
-          <p>!!!</p>
+            <p>!!!</p>
             <MatchListRender
-            matchList={matchList}
-            renderedMatchDay={renderedMatchDay}
-            broadcastSubmissionToParent={(data) => submitToBackend(data)}
-          />
+              matchList={matchList}
+              renderedMatchDay={renderedMatchDay}
+              broadcastSubmissionToParent={(data) => submitToBackend(data)}
+            />
           </>
 
         )}

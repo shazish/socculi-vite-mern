@@ -73,6 +73,7 @@ function get_matchday_games()
 add_action('wp_ajax_get_matchday_games', 'get_matchday_games');
 add_action('wp_ajax_nopriv_get_matchday_games', 'get_matchday_games');
 
+
 // Create custom table on plugin activation
 function create_submissions_table()
 {
@@ -84,12 +85,9 @@ function create_submissions_table()
 
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
         id bigint(20) NOT NULL AUTO_INCREMENT,
-		match_id INT NOT NULL,
+		user_id INT NOT NULL,
 		week_id INT NOT NULL,
-		home_team VARCHAR(100) NOT NULL,
-		away_team VARCHAR(100) NOT NULL,
-		home_score_prediction INT,
-		away_score_prediction INT,
+		predictions TEXT NOT NULL,
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY  (id)
     ) $charset_collate;";
@@ -126,11 +124,3 @@ function enqueue_react_app()
 	echo '<div id="root" class="bleh"></div>';
 }
 add_action('wp_enqueue_scripts', 'enqueue_react_app');
-
-// Replace page content
-// function replace_page_content($content) {
-// 	$content = '<div id="root"></div>';
-
-//     return $content;
-// }
-// add_action('template_redirect', 'replace_page_content');
