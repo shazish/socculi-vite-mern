@@ -99,8 +99,35 @@ function create_submissions_table()
 add_action('wp_ajax_create_submissions_table', 'create_submissions_table');
 add_action('wp_ajax_nopriv_create_submissions_table', 'create_submissions_table');
 
+
 function submit_user_predictions() {
 	error_log('submit_user_predictions POST Data: ' . var_export($_POST, true));
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'user_submissions';
+    
+    $result = $wpdb->insert(
+        $table_name,
+        array(
+            'user_id' => isset($_POST['userId']) ? intval(sanitize_text_field($_POST['userId'])) : '',
+            'week_id' => isset($_POST['matchDay']) ? intval(sanitize_text_field($_POST['matchDay'])) : '',
+            'predictions' => isset($_POST['dataStr']) ? sanitize_text_field($_POST['dataStr']) : '',
+        ),
+        array(
+            '%d',  // user_id format (integer)
+            '%d',  // week_id format (integer)
+            '%s'   // predictions format (string)
+        )
+    );
+
+    // Check if insertion was unsuccessful
+    if ($result === false) {
+		error_log('submit_user_predictions Error: ' . $wpdb->last_error);
+        return false;
+    }
+    
+    // Return the ID of the newly inserted record
+	error_log('submit_user_predictions ID: ' . $wpdb->insert_id);
+    return $wpdb->insert_id;
 }
 add_action('wp_ajax_submit_user_predictions', 'submit_user_predictions');
 add_action('wp_ajax_nopriv_submit_user_predictions', 'submit_user_predictions');
