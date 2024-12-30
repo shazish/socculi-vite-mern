@@ -6,8 +6,8 @@ import { FootballDataResponse, Match } from '../types/matchData.interface';
 // import './App.css'
 
 // place resources inside shaziblues.io/public folder
-const viteLogo = `/vite.svg`;
-const reactLogo = `/react.svg`;
+const viteLogo = `./public/vite.svg`;
+const reactLogo = `./public/react.svg`;
 
 function App() {
   const [count, setCount] = useState(0);
@@ -129,8 +129,11 @@ function App() {
 
   return (
     <>
-      <div>
-        currentMatchDay: {currentMatchDay}
+      <h1 className="text-xl">Socc'nd</h1>
+      <h3>Second Half Shenanigans</h3>
+      <h3>A small passion project, powered by React/Vite</h3>
+
+      <div className="flex justify-center">
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
@@ -138,8 +141,7 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Second Half Shenanigans</h1>
-      <h3>A small passion project</h3>
+      
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}, currentMatchDay {currentMatchDay}
