@@ -1,8 +1,19 @@
 #root {
+  align-self: baseline;
   max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+.brand-logo {
+  height: 16em;
+  margin: 1rem;
+  padding: .25em;
+  will-change: filter;
+  transition: filter 300ms;
+  border: 2px solid black;
 }
 
 .logo {
@@ -11,6 +22,17 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }

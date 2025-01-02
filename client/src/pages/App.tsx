@@ -3,11 +3,12 @@ import axios from "axios";
 import MatchListRender from "../components/match-list/matchListRenderer";
 
 import { FootballDataResponse, Match } from '../types/matchData.interface';
-// import './App.css'
+import './App.scss'
 
 // place resources inside shaziblues.io/public folder
 const viteLogo = `./public/vite.svg`;
 const reactLogo = `./public/react.svg`;
+const brandLogo = `./public/2ndhalflogo.webp`;
 
 function App() {
   const [count, setCount] = useState(0);
@@ -15,12 +16,20 @@ function App() {
   const [renderedMatchDay, setRenderedMatchDay] = useState(0);
   const [matchList, setMatchList] = useState<Match[]>();
   const [appLoaded, setAppLoaded] = useState(false);
-  const [existingSubmissions, setExistingSubmissions] = useState<any[]>([]);
+  const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
+  // ______ FAKE DATA TESTER ______
+  const fakeDataEnabled = true;
+  // ______ FAKE DATA TESTER ______
 
   // We used useCallback here because: The function is used in a useEffect dependency array.
   // We want to prevent unnecessary recreations of this function on every render
   const getCurrentMatchDay = useCallback(async () => {
+    if (fakeDataEnabled) {
+      setCurrentMatchDay(6);
+      return;
+    }
+
     try {
       const response = await axios.get(
         "/wp-admin/admin-ajax.php?action=current_matchday_endpoint"
@@ -33,6 +42,7 @@ function App() {
   }, []);
 
   const initPredictionTable = useCallback(async () => {
+    if (fakeDataEnabled) return 'fake data enabled';
     try {
       const response = await axios.get(
         "/wp-admin/admin-ajax.php?action=create_submissions_table"
@@ -103,6 +113,7 @@ function App() {
   }
 
   async function fetchUserSubmissionsFromWP(matchDay: number) {
+    if (fakeDataEnabled) return;
     if (!matchDay || matchDay === 0) return;
 
     console.log('fetchUserSubmissionsFromWP', matchDay)
@@ -111,27 +122,27 @@ function App() {
     formData.append("user_id", '0'); // TODO: add multi users
 
     await axios
-    .post(
-      `/wp-admin/admin-ajax.php?action=get_user_week_submission`,
-      // WP has issues with receiving JSON format OOB, therefore we use formData
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    )
-    .then((res) => {
-      console.log("fetchUserSubmissionsFromWP result ", res);
-      setExistingSubmissions(res.data.data.predictions);
-      
-      // console.log("existingSubmissions: ", existingSubmissions);
-      // setMatchList(res.data.matches);
-      // console.log("football-data: ", matchList);
-    })
-    .catch((err) => {
-      console.log("fetchUserSubmissionsFromWP err", err);
-    });
+      .post(
+        `/wp-admin/admin-ajax.php?action=get_user_week_submission`,
+        // WP has issues with receiving JSON format OOB, therefore we use formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((res) => {
+        console.log("fetchUserSubmissionsFromWP result ", res);
+        setExistingSubmissions(res.data.data.predictions);
+
+        // console.log("existingSubmissions: ", existingSubmissions);
+        // setMatchList(res.data.matches);
+        // console.log("football-data: ", matchList);
+      })
+      .catch((err) => {
+        console.log("fetchUserSubmissionsFromWP err", err);
+      });
   }
 
   useEffect(() => {
@@ -140,10 +151,13 @@ function App() {
 
   async function getSpecificMatchDayGames(day: number) {
     console.log('getSpecificMatchDayGames', day);
-    // const fakedata = await import('../assets/data-structure.json') 
-    // console.log(fakedata)
-    // console.log("day: ", day);
-    // setMatchList(fakedata.matches as any);
+    if (fakeDataEnabled) {
+      const fakedata = await import('../assets/data-structure.json')
+      console.log(fakedata)
+      console.log("day: ", day);
+      setMatchList(fakedata.matches as any);
+      return;
+    }
 
     const formData = new FormData();
     formData.append("day", day.toString());
@@ -176,6 +190,9 @@ function App() {
 
   return (
     <>
+      <div className="logo-container flex justify-center">
+        <img src={brandLogo} className="brand-logo fade-in" alt="Socc'nd logo" />
+      </div>
       <h1 className="text-xl">Socc'nd</h1>
       <h3>Second Half Shenanigans</h3>
       <h3>A small passion project, powered by React/Vite</h3>
@@ -188,7 +205,7 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      
+
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}, currentMatchDay {currentMatchDay}

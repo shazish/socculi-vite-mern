@@ -40,12 +40,12 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     const formDataString = Array.from(formData.entries())
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value.toString())}`)
       .join('&');
-    // console.log('formDataString', formDataString);
+    console.log('formDataString', formDataString);
     return formDataString;
   }
 
 
-  const convertStringToForm = useCallback((formDataString: string): any => {
+  const convertStringToObj = useCallback((formDataString: string): any => {
     let formDataObj: any = {};
 
     // Handle empty string case
@@ -53,6 +53,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
       return formDataObj;
     }
 
+    console.log('formDataString::: ', formDataString);
     // Split the string by '&' to get key-value pairs
     const pairs = formDataString.split('&');
 
@@ -72,9 +73,9 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
 
   useEffect(() => {
     console.log('existingSubmissions in useEffect', existingSubmissions);
-    setExistingSubmissionsObj(convertStringToForm(existingSubmissions));
+    setExistingSubmissionsObj(convertStringToObj(existingSubmissions));
     console.log('existingSubmissionsForm in useEffect', existingSubmissionsObj);
-  }, [convertStringToForm, existingSubmissions]);
+  }, [convertStringToObj, existingSubmissions]);
 
   return (
     <div className="w-full max-w-4xl mx-auto">
