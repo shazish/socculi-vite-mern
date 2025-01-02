@@ -4,11 +4,15 @@ export default function MatchListLine({
   index,
   matchLine,
   userSubmissionAllowed,
-  broadcastChangeToParent  
+  broadcastChangeToParent,
+  homePrediction,
+  awayPrediction
 }: {
   index: number,
   matchLine: any;
   userSubmissionAllowed: boolean;
+  homePrediction?: string | null;
+  awayPrediction?: string | null;
   broadcastChangeToParent: (home: number | null, away: number | null) => void;
 }) {
   let homeDirty: boolean;
@@ -52,6 +56,9 @@ export default function MatchListLine({
 
       <div className="flex flex-row justify-center">
         <span className="text-xs self-center">Your prediction:&nbsp; </span>
+        {!userSubmissionAllowed && (
+          <span className="text-xs self-center">{homePrediction} - {awayPrediction}</span>
+        )}
         {userSubmissionAllowed && (
           <div className="input-container border border-gray-200">
             <input
@@ -59,6 +66,7 @@ export default function MatchListLine({
               min={0}
               type="number"
               name={`home-input-${index}`}
+              value={homePrediction?.toString()}
               onChange={(e) => handleChange(Number(e.target.value), null)}
               required
             />
@@ -67,6 +75,7 @@ export default function MatchListLine({
               type="number"
               min={0}
               className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              value={awayPrediction?.toString()}
               name={`away-input-${index}`}
               onChange={(e) => handleChange(null, Number(e.target.value))}
               required

@@ -15,6 +15,7 @@ function App() {
   const [renderedMatchDay, setRenderedMatchDay] = useState(0);
   const [matchList, setMatchList] = useState<Match[]>();
   const [appLoaded, setAppLoaded] = useState(false);
+  const [existingSubmissions, setExistingSubmissions] = useState<any[]>([]);
 
 
   // We used useCallback here because: The function is used in a useEffect dependency array.
@@ -56,6 +57,7 @@ function App() {
         .then(() => {
           setAppLoaded(true);
           setRenderedMatchDay(currentMatchDay);
+          // fetchUserSubmissionsFromWP(currentMatchDay);
         })
         .catch((error) => {
           console.error("Failed to load match day:", error);
@@ -63,12 +65,21 @@ function App() {
     }
   }, [appLoaded, getCurrentMatchDay]);
 
+  // Suggested by Claude, so that we fetch user submissions only after the matchday is set
+  useEffect(() => {
+    if (currentMatchDay && appLoaded) {
+      setRenderedMatchDay(currentMatchDay);
+      fetchUserSubmissionsFromWP(currentMatchDay);
+    }
+  }, [currentMatchDay, appLoaded]);
+
+
   async function submitToBackend(formDataStr: string) {
     console.log('submitToBackend', formDataStr);
     const formData = new FormData();
     formData.append("dataStr", formDataStr);
     formData.append("matchDay", currentMatchDay.toString());
-    formData.append("userId", '0'); // TODO: add multi users
+    formData.append("userId", '1'); // TODO: add multi users
 
     await axios
       .post(
@@ -90,6 +101,42 @@ function App() {
       });
     return;
   }
+
+  async function fetchUserSubmissionsFromWP(matchDay: number) {
+    if (!matchDay || matchDay === 0) return;
+
+    console.log('fetchUserSubmissionsFromWP', matchDay)
+    const formData = new FormData();
+    formData.append("week_id", matchDay.toString());
+    formData.append("user_id", '0'); // TODO: add multi users
+
+    await axios
+    .post(
+      `/wp-admin/admin-ajax.php?action=get_user_week_submission`,
+      // WP has issues with receiving JSON format OOB, therefore we use formData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    )
+    .then((res) => {
+      console.log("fetchUserSubmissionsFromWP result ", res);
+      setExistingSubmissions(res.data.data.predictions);
+      
+      // console.log("existingSubmissions: ", existingSubmissions);
+      // setMatchList(res.data.matches);
+      // console.log("football-data: ", matchList);
+    })
+    .catch((err) => {
+      console.log("fetchUserSubmissionsFromWP err", err);
+    });
+  }
+
+  useEffect(() => {
+    console.log("existingSubmissions updated to: ", existingSubmissions);
+  }, [existingSubmissions]);
 
   async function getSpecificMatchDayGames(day: number) {
     console.log('getSpecificMatchDayGames', day);
@@ -160,6 +207,7 @@ function App() {
             <p>!!!</p>
             <MatchListRender
               matchList={matchList}
+              existingSubmissions={existingSubmissions}
               renderedMatchDay={renderedMatchDay}
               broadcastSubmissionToParent={(data) => submitToBackend(data)}
             />

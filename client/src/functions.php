@@ -19,8 +19,7 @@ function plugin_init() {
 }
 
 // create an endpoint for react to access
-function current_matchday_endpoint()
-{
+function current_matchday_endpoint() {
 	$headers = array(
 		'X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88'
 	);
@@ -95,7 +94,6 @@ function create_submissions_table()
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 	dbDelta($sql);
 }
-
 add_action('wp_ajax_create_submissions_table', 'create_submissions_table');
 add_action('wp_ajax_nopriv_create_submissions_table', 'create_submissions_table');
 
@@ -131,6 +129,47 @@ function submit_user_predictions() {
 }
 add_action('wp_ajax_submit_user_predictions', 'submit_user_predictions');
 add_action('wp_ajax_nopriv_submit_user_predictions', 'submit_user_predictions');
+
+
+// Get user submission for a specific week
+function get_user_week_submission() {
+
+	$user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+    $week_id = isset($_POST['week_id']) ? intval($_POST['week_id']) : 0;
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'user_submissions';
+    
+    // Sanitize and validate inputs
+    $user_id = intval(sanitize_text_field($user_id));
+    $week_id = intval(sanitize_text_field($week_id));
+    
+	error_log('get_user_week_submission: user_id: ' . $user_id . ' week_id: ' . $week_id);
+
+    if ($user_id < 0 || $week_id <= 0) {
+        return false;
+    }
+    
+    // Fetch specific week submission
+    $query = $wpdb->prepare(
+        "SELECT * FROM $table_name WHERE user_id = %d AND week_id = %d LIMIT 1",
+        $user_id,
+        $week_id
+    );
+    
+    $result = $wpdb->get_row($query);
+	error_log('get_user_week_submission: result' . var_export($result, true));
+    
+	if ($result) {
+        wp_send_json_success($result);
+    } else {
+        wp_send_json_error('get_user_week_submission: No data found');
+    }
+    
+    wp_die();
+}
+add_action('wp_ajax_get_user_week_submission', 'get_user_week_submission');
+add_action('wp_ajax_nopriv_get_user_week_submission', 'get_user_week_submission');
 
 // inject react app
 function enqueue_react_app()
