@@ -54,7 +54,9 @@ function get_matchday_games()
 
 	$day = isset($_POST['day']) ? sanitize_text_field($_POST['day']) : '';
 
-	$url = 'https://api.football-data.org/v4/competitions/PL/matches?matchday=' . $day;
+	// $url = 'https://api.football-data.org/v4/competitions/PL/matches?matchday=' . $day;
+
+	$url = 'https://api.football-data.org/v4/competitions/PL/matches';
 
 	error_log(' >>>> ' . $url);
 

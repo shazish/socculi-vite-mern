@@ -4,6 +4,7 @@ import MatchListRender from "../components/match-list/matchListRenderer";
 
 import { FootballDataResponse, Match } from '../types/matchData.interface';
 import './App.scss'
+// import { render } from "react-dom";
 
 // place resources inside shaziblues.io/public folder
 const viteLogo = `./public/vite.svg`;
@@ -11,35 +12,15 @@ const reactLogo = `./public/react.svg`;
 const brandLogo = `./public/2ndhalflogo.webp`;
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [currentMatchDay, setCurrentMatchDay] = useState(0);
-  const [renderedMatchDay, setRenderedMatchDay] = useState(0);
+  // const [allMatchData, setAllMatchData] = useState<Match[]>();
+  const [renderMatchDay, setRenderMatchDay] = useState(0);
   const [matchList, setMatchList] = useState<Match[]>();
   const [appLoaded, setAppLoaded] = useState(false);
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = true;
+  const fakeDataEnabled = false;
   // ______ FAKE DATA TESTER ______
-
-  // We used useCallback here because: The function is used in a useEffect dependency array.
-  // We want to prevent unnecessary recreations of this function on every render
-  const getCurrentMatchDay = useCallback(async () => {
-    if (fakeDataEnabled) {
-      setCurrentMatchDay(6);
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        "/wp-admin/admin-ajax.php?action=current_matchday_endpoint"
-      );
-      setCurrentMatchDay(response.data.currentSeason.currentMatchday);
-    } catch (error) {
-      console.error("Failed to fetch match day:", error);
-      // Consider adding error state handling here
-    }
-  }, []);
 
   const initPredictionTable = useCallback(async () => {
     if (fakeDataEnabled) return 'fake data enabled';
@@ -63,32 +44,31 @@ function App() {
       });
 
     if (!appLoaded) {
-      getCurrentMatchDay()
+      getMatchDayGames()
         .then(() => {
           setAppLoaded(true);
-          setRenderedMatchDay(currentMatchDay);
-          // fetchUserSubmissionsFromWP(currentMatchDay);
+          // setRenderedMatchDay(currentMatchDay);
+          fetchUserSubmissionsFromWP(renderMatchDay);
         })
         .catch((error) => {
           console.error("Failed to load match day:", error);
         });
     }
-  }, [appLoaded, getCurrentMatchDay]);
+  }, [appLoaded, renderMatchDay]);
 
   // Suggested by Claude, so that we fetch user submissions only after the matchday is set
   useEffect(() => {
-    if (currentMatchDay && appLoaded) {
-      setRenderedMatchDay(currentMatchDay);
-      fetchUserSubmissionsFromWP(currentMatchDay);
+    if (renderMatchDay && appLoaded) {
+      fetchUserSubmissionsFromWP(renderMatchDay);
     }
-  }, [currentMatchDay, appLoaded]);
+  }, [renderMatchDay, appLoaded]);
 
 
   async function submitToBackend(formDataStr: string) {
     console.log('submitToBackend', formDataStr);
     const formData = new FormData();
     formData.append("dataStr", formDataStr);
-    formData.append("matchDay", currentMatchDay.toString());
+    formData.append("matchDay", renderMatchDay.toString());
     formData.append("userId", '1'); // TODO: add multi users
 
     await axios
@@ -149,8 +129,8 @@ function App() {
     console.log("existingSubmissions updated to: ", existingSubmissions);
   }, [existingSubmissions]);
 
-  async function getSpecificMatchDayGames(day: number) {
-    console.log('getSpecificMatchDayGames', day);
+  async function getMatchDayGames(day?: number) {
+    console.log('getMatchDayGames', day);
     if (fakeDataEnabled) {
       const fakedata = await import('../assets/data-structure.json')
       console.log(fakedata)
@@ -160,7 +140,7 @@ function App() {
     }
 
     const formData = new FormData();
-    formData.append("day", day.toString());
+    // formData.append("day", day.toString());
 
     await axios
       .post<FootballDataResponse>(
@@ -175,11 +155,14 @@ function App() {
       )
       .then((res) => {
         console.log(res);
-        setMatchList(res.data.matches);
-        console.log("football-data: ", matchList);
+        let currMatchDay = res.data.matches?.[0].season?.currentMatchday;
+        setRenderMatchDay(currMatchDay);
+        // setAllMatchData(res.data.matches);
+        setMatchList(res.data.matches.filter((match) => match.matchday == currMatchDay ));
+        console.log("football-data for this week: ", matchList);
       })
       .catch((err) => {
-        console.log("getSpecificMatchDayGames err", err);
+        console.log("getMatchDayGames err", err);
       });
 
     // resume reminder: need to create an interface for matchlist so that the above works
@@ -207,25 +190,13 @@ function App() {
       </div>
 
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}, currentMatchDay {currentMatchDay}
-        </button>
-
-        {currentMatchDay > 0 && (
-          <p>
-            <button className="border-black border-2 px-2" onClick={() => void getSpecificMatchDayGames(currentMatchDay)}>
-              Load this week's matches
-            </button>
-          </p>
-        )}
-
         {matchList && matchList.length > 0 && (
           <>
             <p>!!!</p>
             <MatchListRender
               matchList={matchList}
               existingSubmissions={existingSubmissions}
-              renderedMatchDay={renderedMatchDay}
+              renderedMatchDay={renderMatchDay}
               broadcastSubmissionToParent={(data) => submitToBackend(data)}
             />
           </>
