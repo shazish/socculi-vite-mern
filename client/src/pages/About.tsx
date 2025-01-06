@@ -2,6 +2,7 @@
 const viteLogo = `./public/vite.svg`;
 const reactLogo = `./public/react.svg`;
 const brandLogo = `./public/2ndhalflogo.webp`;
+const footballDataLogo = `./public/football-data-logo.jpg`;
 function About() {
     return (
         <div>
@@ -10,15 +11,25 @@ function About() {
             </div>
             <h1 className="text-xl">Socc'nd</h1>
             <h3>Second Half Shenanigans</h3>
-            <p>Socc'nd is a small passion project that I started in my free time, both to create something new, and to learn React and Wordpress on the Go!</p>
-            <p>Socc'nd is powered by React/Vite. It's currently using Wordpress as backend.</p>
+            <div className="flex align-items-start flex-col">
+                <p>Football-data.org provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.</p>
+                <p>Socc'nd is a small passion project that I started in my free time, both to create something new, and to learn React and Wordpress on the Go!</p>
+                <p>Socc'nd is powered by React/Vite. It's currently using Wordpress as backend.</p>
+            </div>
+
+
 
             <div className="flex justify-center">
-                <a href="https://vitejs.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
+                <a href="https://www.football-data.org/" target="_blank">
+                    <img src={footballDataLogo} className="logo" alt="Football Data logo" />
                 </a>
+
                 <a href="https://react.dev" target="_blank">
                     <img src={reactLogo} className="logo react" alt="React logo" />
+                </a>
+
+                <a href="https://vitejs.dev" target="_blank">
+                    <img src={viteLogo} className="logo" alt="Vite logo" />
                 </a>
             </div>
         </div>

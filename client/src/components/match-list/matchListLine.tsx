@@ -13,16 +13,15 @@ export default function MatchListLine({
   userSubmissionAllowed: boolean;
   homePrediction?: string | null;
   awayPrediction?: string | null;
-  broadcastChangeToParent: (home: number | null, away: number | null) => void;
+  broadcastChangeToParent: (home: number | null, away: number | null, index: number) => void;
 }) {
-  let homeDirty: boolean;
-  let awayDirty: boolean;
-  
-  function handleChange(home: number | null, away: number | null) {    
-    if (home) homeDirty = true;
-    if (away) awayDirty = true;
-    // todo: no need to send home and away values to parent, just a boolean
-    if (homeDirty && awayDirty) broadcastChangeToParent(home, away); 
+
+  function handleChange(value: string | null, isHome: boolean) {
+    if (isHome) {
+      broadcastChangeToParent(value ? parseInt(value) : null, null, index);
+    } else {
+      broadcastChangeToParent(null, value ? parseInt(value) : null, index);
+    }
   }
 
   return (
@@ -31,29 +30,20 @@ export default function MatchListLine({
         <div className="team flex-1">
           <div>{matchLine["homeTeam"]?.["name"]}</div>
         </div>
-
         <div
-          className={`flex-1 scoreline 
-            ${matchLine["status"] == "IN_PLAY" ? "scoreline-inplay" : ""}
+          className={`flex-1 scoreline
+            ${matchLine["status"] === "IN_PLAY" ? "scoreline-inplay" : ""}
           `}
         >
-          <img className="crest" src={matchLine["homeTeam"]?.["crest"]}></img>
-
-
-          {/* Match has ended - draw is inclusive here */}
+          <img className="crest" alt="Home team crest" src={matchLine["homeTeam"]?.["crest"]} />
           {matchLine["score"]?.["winner"] !== null &&
-            matchLine["score"]?.["fullTime"]["home"] +
-              " - " +
-              matchLine["score"]?.["fullTime"]["away"]}
-
-          <img className="crest" src={matchLine["awayTeam"]?.["crest"]}></img>
+            `${matchLine["score"]?.["fullTime"]["home"]} - ${matchLine["score"]?.["fullTime"]["away"]}`}
+          <img className="crest" alt="Away team crest" src={matchLine["awayTeam"]?.["crest"]} />
         </div>
-
         <div className="team flex-1">
           <span>{matchLine["awayTeam"]?.["name"]}</span>
         </div>
       </div>
-
       <div className="flex flex-row justify-center">
         <span className="text-xs self-center">Your prediction:&nbsp; </span>
         {!userSubmissionAllowed && (
@@ -66,8 +56,8 @@ export default function MatchListLine({
               min={0}
               type="number"
               name={`home-input-${index}`}
-              value={homePrediction?.toString()}
-              onChange={(e) => handleChange(Number(e.target.value), null)}
+              value={homePrediction || ''}
+              onChange={(e) => handleChange(e.target.value, true)}
               required
             />
             -
@@ -75,9 +65,9 @@ export default function MatchListLine({
               type="number"
               min={0}
               className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              value={awayPrediction?.toString()}
+              value={awayPrediction || ''}
               name={`away-input-${index}`}
-              onChange={(e) => handleChange(null, Number(e.target.value))}
+              onChange={(e) => handleChange(e.target.value, false)}
               required
             />
           </div>

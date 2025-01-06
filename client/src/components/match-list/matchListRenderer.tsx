@@ -20,9 +20,15 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     return Date.now() - new Date(matchDate).getTime() < 3600000;
   }
 
-  function handleChildChange(home: number | null, away: number | null) {
+  function handleChildChange(home: number | null, away: number | null, index: number) {
     setFormIsDirty(true);
-    console.log('>home>away>>>', home, away)
+    const newSubmissions = { ...existingSubmissionsObj };
+    if (home !== null) newSubmissions[`home-input-${index}`] = home.toString();
+    if (away !== null) newSubmissions[`away-input-${index}`] = away.toString();
+
+    // Set state with the new object
+    setExistingSubmissionsObj(newSubmissions);
+    console.log('>home>away>i>>', home, away, index);
     return;
   }
 
@@ -81,7 +87,8 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     <div className="w-full max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Week {renderedMatchDay}</h1>
       <form onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-4">
+        <button type="submit" className="btn-primary" disabled={!formIsDirty || !isSubmissionAllowed}>Save Changes</button>
+        <div className="flex p-3 flex-col gap-4">
           {/* Header */}
           <div className="flex flex-row items-center font-semibold">
             <div className="flex-1 text-left">Home</div>
@@ -89,8 +96,6 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
             <div className="flex-1 text-right">Away</div>
           </div>
 
-{ 
-}
           {/* Match List */}
           <div className="flex flex-col gap-2">
             {matchList.map((matchLine: any, index: number) => (
@@ -101,16 +106,16 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
                   homePrediction={existingSubmissionsObj?.[`home-input-${index}`]}
                   awayPrediction={existingSubmissionsObj?.[`away-input-${index}`]}
                   userSubmissionAllowed={isSubmissionAllowed(matchLine["utcDate"])}
-                  broadcastChangeToParent={(a, b) => handleChildChange(a, b)}
+                  broadcastChangeToParent={(a, b, i) => handleChildChange(a, b, i)}
                 />
               </div>
             ))}
           </div>
-          <button type="submit" disabled={!formIsDirty || !isSubmissionAllowed}>Save</button>
+
           {!isSubmissionAllowed && <p>Sorry, the time for submission has passed.</p>}
-          {!formIsDirty && <p>No match predictions entered.</p>}
 
         </div>
+        <button type="submit" className="btn-primary" disabled={!formIsDirty || !isSubmissionAllowed}>Save Changes</button>
       </form>
     </div>
   );

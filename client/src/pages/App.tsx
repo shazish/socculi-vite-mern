@@ -99,7 +99,7 @@ function App() {
     console.log('fetchUserSubmissionsFromWP', matchDay)
     const formData = new FormData();
     formData.append("week_id", matchDay.toString());
-    formData.append("user_id", '0'); // TODO: add multi users
+    formData.append("user_id", '1'); // TODO: add multi users
 
     await axios
       .post(
@@ -202,13 +202,7 @@ function App() {
           </>
 
         )}
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   );
 }

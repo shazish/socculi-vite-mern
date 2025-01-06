@@ -52,7 +52,7 @@ function get_matchday_games()
 	$args = array('headers' => $headers);
 	error_log('POST Data: ' . var_export($_POST, true));
 
-	$day = isset($_POST['day']) ? sanitize_text_field($_POST['day']) : '';
+	// $day = isset($_POST['day']) ? sanitize_text_field($_POST['day']) : '';
 
 	// $url = 'https://api.football-data.org/v4/competitions/PL/matches?matchday=' . $day;
 
@@ -95,6 +95,7 @@ function create_submissions_table()
 
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 	dbDelta($sql);
+	dbDelta($sql2);
 }
 add_action('wp_ajax_create_submissions_table', 'create_submissions_table');
 add_action('wp_ajax_nopriv_create_submissions_table', 'create_submissions_table');
@@ -105,19 +106,31 @@ function submit_user_predictions() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'user_submissions';
     
-    $result = $wpdb->insert(
-        $table_name,
-        array(
-            'user_id' => isset($_POST['userId']) ? intval(sanitize_text_field($_POST['userId'])) : '',
-            'week_id' => isset($_POST['matchDay']) ? intval(sanitize_text_field($_POST['matchDay'])) : '',
-            'predictions' => isset($_POST['dataStr']) ? sanitize_text_field($_POST['dataStr']) : '',
-        ),
-        array(
-            '%d',  // user_id format (integer)
-            '%d',  // week_id format (integer)
-            '%s'   // predictions format (string)
-        )
-    );
+    // $result = $wpdb->insert(
+    //     $table_name,
+    //     array(
+    //         'user_id' => isset($_POST['userId']) ? intval(sanitize_text_field($_POST['userId'])) : '',
+    //         'week_id' => isset($_POST['matchDay']) ? intval(sanitize_text_field($_POST['matchDay'])) : '',
+    //         'predictions' => isset($_POST['dataStr']) ? sanitize_text_field($_POST['dataStr']) : '',
+    //     ),
+    //     array(
+    //         '%d',  // user_id format (integer)
+    //         '%d',  // week_id format (integer)
+    //         '%s'   // predictions format (string)
+    //     )
+    // );
+
+	// works for both insertions and updates
+	$result = $wpdb->query(
+		$wpdb->prepare(
+			"INSERT INTO $table_name (user_id, week_id, predictions) 
+			 VALUES (%d, %d, %s) 
+			 ON DUPLICATE KEY UPDATE predictions = VALUES(predictions)",
+			isset($_POST['userId']) ? intval(sanitize_text_field($_POST['userId'])) : 0,
+			isset($_POST['matchDay']) ? intval(sanitize_text_field($_POST['matchDay'])) : 0,
+			isset($_POST['dataStr']) ? sanitize_text_field($_POST['dataStr']) : ''
+		)
+	);
 
     // Check if insertion was unsuccessful
     if ($result === false) {
