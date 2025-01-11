@@ -158,7 +158,7 @@ function App() {
         let currMatchDay = res.data.matches?.[0].season?.currentMatchday;
         setRenderMatchDay(currMatchDay);
         // setAllMatchData(res.data.matches);
-        setMatchList(res.data.matches.filter((match) => match.matchday == currMatchDay ));
+        setMatchList(res.data.matches.filter((match) => match.matchday == currMatchDay));
         console.log("football-data for this week: ", matchList);
       })
       .catch((err) => {
@@ -173,21 +173,16 @@ function App() {
 
   return (
     <>
-    
-      <div className="logo-container flex justify-center">
-        <img src={brandLogo} className="brand-logo fade-in" alt="Socc'nd logo" />
-      </div>
-      <h1 className="text-xl">Socc'nd</h1>
-      <h3>Second Half Shenanigans</h3>
-      <h3>A small passion project, powered by React/Vite</h3>
+      <div className="flex flex-row justify-around">
 
-      <div className="flex justify-center">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <div className="content-center">
+          <h1 className="display-2">Socc'nd</h1>
+          <h3 className="display-7">Second Half Fantasy League</h3>
+          <p>A small passion project, powered by React/Vite</p>
+        </div>
+        <div className="logo-container flex">
+          <img src={brandLogo} className="brand-logo fade-in" alt="Socc'nd logo" />
+        </div>
       </div>
 
       <div className="card">
