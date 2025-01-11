@@ -3,24 +3,25 @@ import "./MatchListLine.scss";
 export default function MatchListLine({
   index,
   matchLine,
-  userSubmissionAllowed,
+  submissionDeadlineStatus,
   broadcastChangeToParent,
   homePrediction,
   awayPrediction
 }: {
   index: number,
   matchLine: any;
-  userSubmissionAllowed: boolean;
+  submissionDeadlineStatus: number;
   homePrediction?: string | null;
   awayPrediction?: string | null;
-  broadcastChangeToParent: (home: number | null, away: number | null, index: number) => void;
+  broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void;
 }) {
 
   function handleChange(value: string | null, isHome: boolean) {
+    console.log('handleChange', value, isHome);
     if (isHome) {
-      broadcastChangeToParent(value ? parseInt(value) : null, null, index);
+      broadcastChangeToParent(value ? parseInt(value) : null, true, index);
     } else {
-      broadcastChangeToParent(null, value ? parseInt(value) : null, index);
+      broadcastChangeToParent(value ? parseInt(value) : null, false, index);
     }
   }
 
@@ -36,8 +37,16 @@ export default function MatchListLine({
           `}
         >
           <img className="crest" alt="Home team crest" src={matchLine["homeTeam"]?.["crest"]} />
-          {matchLine["score"]?.["winner"] !== null &&
-            `${matchLine["score"]?.["fullTime"]["home"]} - ${matchLine["score"]?.["fullTime"]["away"]}`}
+
+          <div className="flex flex-col">
+            <div>
+              {matchLine["score"]?.["winner"] !== null &&
+                `${matchLine["score"]?.["fullTime"]["home"]} - ${matchLine["score"]?.["fullTime"]["away"]}`}
+
+            </div>
+            <div className="game-status text-xs">{matchLine["status"] === "IN_PLAY" && 'IN PROGRESS'}</div>
+          </div>
+
           <img className="crest" alt="Away team crest" src={matchLine["awayTeam"]?.["crest"]} />
         </div>
         <div className="team flex-1">
@@ -45,34 +54,46 @@ export default function MatchListLine({
         </div>
       </div>
       <div className="flex flex-row justify-center">
-        <span className="text-xs self-center">Your prediction:&nbsp; </span>
-        {!userSubmissionAllowed && (
-          <span className="text-xs self-center">{homePrediction} - {awayPrediction}</span>
+
+        {submissionDeadlineStatus == 0 && (
+          <>
+            {(homePrediction && awayPrediction) &&
+              <span className="text-sm self-center m-2">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
+            }
+            {!(homePrediction && awayPrediction) &&
+              <span className="text-sm self-center m-2">No prediction made</span>
+            }
+          </>
         )}
-        {userSubmissionAllowed && (
-          <div className="input-container border border-gray-200">
-            <input
-              className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              min={0}
-              type="number"
-              name={`home-input-${index}`}
-              value={homePrediction || ''}
-              onChange={(e) => handleChange(e.target.value, true)}
-              required
-            />
-            -
-            <input
-              type="number"
-              min={0}
-              className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              value={awayPrediction || ''}
-              name={`away-input-${index}`}
-              onChange={(e) => handleChange(e.target.value, false)}
-              required
-            />
+
+        {submissionDeadlineStatus !== 0 && (
+          <div className="flex flex-row justify-center">
+            <span className="text-sm self-center">Your prediction:&nbsp; </span>
+            <div className="input-container border border-gray-200 m-2">
+              <input
+                className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                min={0}
+                type="number"
+                name={`home-input-${index}`}
+                value={homePrediction || ''}
+                onChange={(e) => handleChange(e.target.value, true)}
+                required
+              />
+              -
+              <input
+                type="number"
+                min={0}
+                className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                value={awayPrediction || ''}
+                name={`away-input-${index}`}
+                onChange={(e) => handleChange(e.target.value, false)}
+                required
+              />
+            </div>
           </div>
         )}
       </div>
+      {(submissionDeadlineStatus === 1) && <p className="text-xs">Submission window closes soon!</p>}
     </div>
   );
 }

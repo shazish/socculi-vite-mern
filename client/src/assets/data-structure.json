@@ -40,7 +40,7 @@
             },
             "id": 497505,
             "utcDate": "2025-01-12T12:30:00Z",
-            "status": "FINISHED",
+            "status": "SCHEDULED",
             "matchday": 10,
             "stage": "REGULAR_SEASON",
             "group": null,
@@ -60,7 +60,7 @@
                 "crest": "https:\/\/crests.football-data.org\/57.png"
             },
             "score": {
-                "winner": "HOME_TEAM",
+                "winner": "",
                 "duration": "REGULAR",
                 "fullTime": {
                     "home": 1,
@@ -105,8 +105,8 @@
                 "winner": null
             },
             "id": 497500,
-            "utcDate": "2024-11-02T15:00:00Z",
-            "status": "FINISHED",
+            "utcDate": "2025-11-02T15:00:00Z",
+            "status": "SCHEDULED",
             "matchday": 10,
             "stage": "REGULAR_SEASON",
             "group": null,
@@ -126,7 +126,7 @@
                 "crest": "https:\/\/crests.football-data.org\/65.png"
             },
             "score": {
-                "winner": "HOME_TEAM",
+                "winner": "",
                 "duration": "REGULAR",
                 "fullTime": {
                     "home": 2,

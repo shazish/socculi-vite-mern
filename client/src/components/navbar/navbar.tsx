@@ -3,9 +3,9 @@ import './navbar.scss'
 
 function Navbar() {
   const navItems = [
-    { path: '/', label: 'Home' },
+    { path: '/', label: 'This Week!' },
     { path: '/about', label: 'About' },
-    { path: '/thisweek', label: 'This Week!'}
+    { path: '/thisweek', label: 'Past Weeks'}
   ]
 
     return (

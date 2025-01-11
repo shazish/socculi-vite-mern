@@ -19,7 +19,7 @@ function App() {
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = false;
+  const fakeDataEnabled = true;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
@@ -173,6 +173,7 @@ function App() {
 
   return (
     <>
+    
       <div className="logo-container flex justify-center">
         <img src={brandLogo} className="brand-logo fade-in" alt="Socc'nd logo" />
       </div>
@@ -192,7 +193,6 @@ function App() {
       <div className="card">
         {matchList && matchList.length > 0 && (
           <>
-            <p>!!!</p>
             <MatchListRender
               matchList={matchList}
               existingSubmissions={existingSubmissions}

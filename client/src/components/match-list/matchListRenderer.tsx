@@ -12,33 +12,46 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
 
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
   console.log("MatchListRender rendered with existingSubmissions:", existingSubmissions);
-  const [formIsDirty, setFormIsDirty] = useState(false);
+  const [formIsValid, setFormIsValid] = useState(false);
   // let formIsDirty = false;
 
-  function isSubmissionAllowed(matchDate: string): boolean {
+  function submissionDeadlineStatus(matchDate: string): number {
     // Less than an hour since match started, means second half has not started
-    return Date.now() - new Date(matchDate).getTime() < 3600000;
+    // 0: match is in 2nd half, 1: 2nd half starts soon, 2: match is in the future
+    if (Date.now() - new Date(matchDate).getTime() > 3600000) return 0; 
+    if (Date.now() - new Date(matchDate).getTime() < 0) return 2;
+    return 1;
   }
 
-  function handleChildChange(home: number | null, away: number | null, index: number) {
-    setFormIsDirty(true);
+  function handleChildChange(result: number | null, isHome: boolean, index: number) {
+        
     const newSubmissions = { ...existingSubmissionsObj };
-    if (home !== null) newSubmissions[`home-input-${index}`] = home.toString();
-    if (away !== null) newSubmissions[`away-input-${index}`] = away.toString();
+    if (isHome) { 
+      newSubmissions[`home-input-${index}`] = result?.toString() ?? ''; 
+    } else {
+      newSubmissions[`away-input-${index}`] = result?.toString() ?? '';
+    }
 
+    const inputs = document.forms.namedItem('predictionForm')?.querySelectorAll('input[required]') as NodeListOf<HTMLInputElement>;
+    // .querySelectorAll('input[required]');
+
+    const isValid = Array.from(inputs).every(input => {
+      const value = input.value.trim();
+      return value !== '' && parseInt(value) >= 0;
+    });
+
+    setFormIsValid(isValid);
+    
     // Set state with the new object
     setExistingSubmissionsObj(newSubmissions);
-    console.log('>home>away>i>>', home, away, index);
+    console.log('>result, isHome, index>', result, isHome, index);
     return;
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setFormIsDirty(false);
     const formData = new FormData(e.currentTarget);
     formData.append("renderedMatchDay", renderedMatchDay.toString())
-    // const formValues = Object.fromEntries(formData);
-    // console.log("formValues?!", formValues);
     broadcastSubmissionToParent(convertFormToString(formData));
   }
 
@@ -86,8 +99,8 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   return (
     <div className="w-full max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Week {renderedMatchDay}</h1>
-      <form onSubmit={handleSubmit}>
-        <button type="submit" className="btn-primary" disabled={!formIsDirty || !isSubmissionAllowed}>Save Changes</button>
+      <form name="predictionForm" onSubmit={handleSubmit}>
+        <button type="submit" className="btn btn-primary" disabled={!formIsValid}>Save Changes</button>
         <div className="flex p-3 flex-col gap-4">
           {/* Header */}
           <div className="flex flex-row items-center font-semibold">
@@ -97,7 +110,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
           </div>
 
           {/* Match List */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 m-2">
             {matchList.map((matchLine: any, index: number) => (
               <div key={index}>
                 <MatchListLine
@@ -105,17 +118,15 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
                   matchLine={matchLine}
                   homePrediction={existingSubmissionsObj?.[`home-input-${index}`]}
                   awayPrediction={existingSubmissionsObj?.[`away-input-${index}`]}
-                  userSubmissionAllowed={isSubmissionAllowed(matchLine["utcDate"])}
+                  submissionDeadlineStatus={submissionDeadlineStatus(matchLine["utcDate"])}
                   broadcastChangeToParent={(a, b, i) => handleChildChange(a, b, i)}
                 />
               </div>
             ))}
           </div>
 
-          {!isSubmissionAllowed && <p>Sorry, the time for submission has passed.</p>}
-
         </div>
-        <button type="submit" className="btn-primary" disabled={!formIsDirty || !isSubmissionAllowed}>Save Changes</button>
+        <button type="submit" className="btn btn-primary" disabled={!formIsValid}>Save Changes</button>
       </form>
     </div>
   );
