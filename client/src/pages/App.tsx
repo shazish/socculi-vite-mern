@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import MatchListRender from "../components/match-list/matchListRenderer";
-
 import { FootballDataResponse, Match } from '../types/matchData.interface';
 import './App.scss'
 
 // todo:
-// 1. add a loading spinner 
+// 1. add a loading spinner
 // 2. add caching of match data
 // 3. add a save success/fail toast
 // 4. archived match days
@@ -24,7 +23,7 @@ function App() {
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = false;
+  const fakeDataEnabled = true;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
@@ -191,6 +190,11 @@ function App() {
       </div>
 
       <div className="card">
+        {!appLoaded && (
+          <div className="flex flex-row justify-around">
+            <div className="loader"></div>
+          </div>
+        )}
         {matchList && matchList.length > 0 && (
           <>
             <MatchListRender
@@ -200,7 +204,6 @@ function App() {
               broadcastSubmissionToParent={(data) => submitToBackend(data)}
             />
           </>
-
         )}
       </div>
     </>

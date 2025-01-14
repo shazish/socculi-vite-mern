@@ -53,8 +53,10 @@ export default function MatchListLine({
           <span>{matchLine["awayTeam"]?.["name"]}</span>
         </div>
       </div>
-      <div className="flex flex-row justify-center">
+      
+      {(submissionDeadlineStatus === 1) && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
 
+      <div className="flex flex-row justify-center">
         {submissionDeadlineStatus == 0 && (
           <>
             {(homePrediction && awayPrediction) &&
@@ -93,7 +95,6 @@ export default function MatchListLine({
           </div>
         )}
       </div>
-      {(submissionDeadlineStatus === 1) && <p className="text-xs">Submission window closes soon!</p>}
     </div>
   );
 }

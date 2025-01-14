@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { useCallback, useEffect, useState } from "react";
-
 import MatchListLine from "./matchListLine";
 export default function MatchListRender({ matchList, renderedMatchDay, existingSubmissions, broadcastSubmissionToParent }: {
   matchList: any;
@@ -9,25 +8,24 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   existingSubmissions: any;
   broadcastSubmissionToParent: (data: any) => void;
 }) {
-
+  const [formisDirty, setFormIsDirty] = useState(false);
+  const [formIsValid, setFormIsValid] = useState(false);
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
   console.log("MatchListRender rendered with existingSubmissions:", existingSubmissions);
-  const [formIsValid, setFormIsValid] = useState(false);
-  // let formIsDirty = false;
 
   function submissionDeadlineStatus(matchDate: string): number {
     // Less than an hour since match started, means second half has not started
     // 0: match is in 2nd half, 1: 2nd half starts soon, 2: match is in the future
-    if (Date.now() - new Date(matchDate).getTime() > 3600000) return 0; 
+    if (Date.now() - new Date(matchDate).getTime() > 3600000) return 0;
     if (Date.now() - new Date(matchDate).getTime() < 0) return 2;
     return 1;
   }
 
   function handleChildChange(result: number | null, isHome: boolean, index: number) {
-        
+
     const newSubmissions = { ...existingSubmissionsObj };
-    if (isHome) { 
-      newSubmissions[`home-input-${index}`] = result?.toString() ?? ''; 
+    if (isHome) {
+      newSubmissions[`home-input-${index}`] = result?.toString() ?? '';
     } else {
       newSubmissions[`away-input-${index}`] = result?.toString() ?? '';
     }
@@ -41,7 +39,8 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     });
 
     setFormIsValid(isValid);
-    
+    setFormIsDirty(true);
+
     // Set state with the new object
     setExistingSubmissionsObj(newSubmissions);
     console.log('>result, isHome, index>', result, isHome, index);
@@ -100,7 +99,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     <div className="w-full max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Week {renderedMatchDay}</h1>
       <form name="predictionForm" onSubmit={handleSubmit}>
-        <button type="submit" className="btn btn-primary" disabled={!formIsValid}>Save Changes</button>
+        <button type="submit" className="btn btn-primary" disabled={!formIsValid || !formisDirty}>Save Changes</button>
         <div className="flex p-3 flex-col gap-4">
           {/* Header */}
           <div className="flex flex-row items-center font-semibold">
@@ -126,7 +125,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
           </div>
 
         </div>
-        <button type="submit" className="btn btn-primary" disabled={!formIsValid}>Save Changes</button>
+        <button type="submit" className="btn btn-primary" disabled={!formIsValid || !formisDirty}>Save Changes</button>
       </form>
     </div>
   );
