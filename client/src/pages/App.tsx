@@ -4,12 +4,17 @@ import MatchListRender from "../components/match-list/matchListRenderer";
 
 import { FootballDataResponse, Match } from '../types/matchData.interface';
 import './App.scss'
-// import { render } from "react-dom";
+
+// todo:
+// 1. add a loading spinner 
+// 2. add caching of match data
+// 3. add a save success/fail toast
+// 4. archived match days
+// 5. add a button to switch between users
+// 6. add a button to switch between leagues
 
 // place resources inside shaziblues.io/public folder
-const viteLogo = `./public/vite.svg`;
-const reactLogo = `./public/react.svg`;
-const brandLogo = `./public/2ndhalflogo.webp`;
+const brandLogo = `./public/socculi.jpg`;
 
 function App() {
   // const [allMatchData, setAllMatchData] = useState<Match[]>();
@@ -19,7 +24,7 @@ function App() {
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = true;
+  const fakeDataEnabled = false;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
@@ -176,9 +181,9 @@ function App() {
       <div className="flex flex-row justify-around">
 
         <div className="content-center">
-          <h1 className="display-2">Socc'nd</h1>
-          <h3 className="display-7">Second Half Fantasy League</h3>
-          <p>A small passion project, powered by React/Vite</p>
+          <h1 className="display-1">Socculi</h1>
+          <h3 className="display-5">Second Half Fantasy League</h3>
+          
         </div>
         <div className="logo-container flex">
           <img src={brandLogo} className="brand-logo fade-in" alt="Socc'nd logo" />

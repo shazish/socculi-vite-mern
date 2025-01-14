@@ -18,6 +18,17 @@ function plugin_init() {
 	// echo plugin_dir_url(__FILE__);
 }
 
+function add_bootstrap_css() {
+    wp_enqueue_style(
+        'bootstrap',
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+        array(),
+        '5.3.3',
+        'all'
+    );
+}
+add_action('wp_enqueue_scripts', 'add_bootstrap_css');
+
 // create an endpoint for react to access
 function current_matchday_endpoint() {
 	$headers = array(
