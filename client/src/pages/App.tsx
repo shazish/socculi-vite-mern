@@ -2,10 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import MatchListRender from "../components/match-list/matchListRenderer";
 import { FootballDataResponse, Match } from '../types/matchData.interface';
-import './App.scss'
 
 // todo:
-// 1. add a loading spinner
+// done 1. add a loading spinner
 // 2. add caching of match data
 // 3. add a save success/fail toast
 // 4. archived match days
@@ -88,12 +87,13 @@ function App() {
       )
       .then((res) => {
         console.log(res);
+        return true;
         // setMatchList(fakedata);
       })
       .catch((err) => {
         console.log("submitToBackend err", err);
+        return false;
       });
-    return;
   }
 
   async function fetchUserSubmissionsFromWP(matchDay: number) {
@@ -139,7 +139,7 @@ function App() {
       const fakedata = await import('../assets/data-structure.json')
       console.log(fakedata)
       console.log("day: ", day);
-      setMatchList(fakedata.matches as any);
+      setMatchList(fakedata.default.data.matches.filter((match: Match) => match.matchday == '21'));
       return;
     }
 
@@ -182,7 +182,7 @@ function App() {
         <div className="content-center">
           <h1 className="display-1">Socculi</h1>
           <h3 className="display-5">Second Half Fantasy League</h3>
-          
+
         </div>
         <div className="logo-container flex">
           <img src={brandLogo} className="brand-logo fade-in" alt="Socc'nd logo" />

@@ -1,4 +1,7 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom';
+import LoginButton from '../login/login';
+import LogoutButton from '../login/logout';
+import Profile from '../profile/profile';
 import './navbar.scss'
 
 function Navbar() {
@@ -25,6 +28,8 @@ function Navbar() {
           {item.label}
         </NavLink>
       ))}
+
+      <Profile></Profile> 
     </div>
     )
   }
