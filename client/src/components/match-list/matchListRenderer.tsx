@@ -8,7 +8,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   existingSubmissions: any;
   broadcastSubmissionToParent: (data: any) => Promise<boolean>;
 }) {
-  const [formisDirty, setFormIsDirty] = useState(false);
+  const [formIsDirty, setFormIsDirty] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
   console.log("MatchListRender rendered with existingSubmissions:", existingSubmissions);
@@ -43,7 +43,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
 
     // Set state with the new object
     setExistingSubmissionsObj(newSubmissions);
-    console.log('>result, isHome, index>', result, isHome, index);
+    console.log('handleChildChange: result, isHome, index, formIsValid, formIsDirty', result, isHome, index, formIsValid, formIsDirty);
     return;
   }
 
@@ -102,18 +102,10 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   }, [convertStringToObj, existingSubmissions]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl p-3 mx-auto">
       <h1 className="text-2xl font-bold mb-6">Week {renderedMatchDay}</h1>
-      <form name="predictionForm" onSubmit={handleSubmit}>
-        <button type="submit" className="btn btn-primary" disabled={!formIsValid || !formisDirty}>Save Changes</button>
+      <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
         <div className="flex p-3 flex-col gap-4">
-          {/* Header */}
-          <div className="flex flex-row items-center font-semibold">
-            <div className="flex-1 text-left">Home</div>
-            <div className="w-32 text-center">Result</div>
-            <div className="flex-1 text-right">Away</div>
-          </div>
-
           {/* Match List */}
           <div className="flex flex-col gap-2 m-2">
             {matchList.map((matchLine: any, index: number) => (
@@ -131,7 +123,10 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
           </div>
 
         </div>
-        <button type="submit" className="btn btn-primary" disabled={!formIsValid || !formisDirty}>Save Changes</button>
+        <div className="position-fixed left-0 right-0 bottom-0 p-2">
+          <button type="submit" className="btn btn-dark w-50" disabled={!formIsValid || !formIsDirty}>S U B M I T</button>
+        </div>
+
       </form>
     </div>
   );

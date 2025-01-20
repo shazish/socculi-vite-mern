@@ -6,7 +6,7 @@ function Navbar() {
   const navItems = [
     { path: '/', label: 'This Week!' },
     { path: '/about', label: 'About' },
-    { path: '/thisweek', label: 'Archived Weeks'}
+    // { path: '/thisweek', label: 'Archived Weeks'}
   ]
 
     return (
