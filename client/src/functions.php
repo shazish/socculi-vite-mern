@@ -6,7 +6,6 @@ Version: 1.0
 Author: Shazi
 */
 
-
 // Prevent direct access to the plugin
 if (!defined('ABSPATH')) {
     exit;
@@ -28,6 +27,13 @@ function add_bootstrap_css() {
     );
 }
 add_action('wp_enqueue_scripts', 'add_bootstrap_css');
+
+// Only for testing: allow cross-origin requests
+add_action('init', function() {
+    header("Access-Control-Allow-Origin: *"); // Or specify your domain instead of *
+    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+    header("Access-Control-Allow-Headers: Origin, Content-Type");
+});
 
 // create an endpoint for react to access
 function current_matchday_endpoint() {
@@ -85,51 +91,10 @@ function get_matchday_games()
 add_action('wp_ajax_get_matchday_games', 'get_matchday_games');
 add_action('wp_ajax_nopriv_get_matchday_games', 'get_matchday_games');
 
-
-// Create custom table on plugin activation
-function create_submissions_table()
-{
-	global $wpdb;
-	// $wpdb->select('sql4sicculi');
-	// $different_db = new wpdb('sql4sicculi', 'Sickuel!', 'sql4sicculi', 'mysql.shaziblues.io');
-	$table_name = $wpdb->prefix . 'user_submissions';
-	$charset_collate = $wpdb->get_charset_collate();
-
-	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
-        id bigint(20) NOT NULL AUTO_INCREMENT,
-		user_id INT NOT NULL,
-		week_id INT NOT NULL,
-		predictions TEXT NOT NULL,
-        created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY  (id)
-    ) $charset_collate;";
-
-	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-	dbDelta($sql);
-	dbDelta($sql2);
-}
-add_action('wp_ajax_create_submissions_table', 'create_submissions_table');
-add_action('wp_ajax_nopriv_create_submissions_table', 'create_submissions_table');
-
-
 function submit_user_predictions() {
 	error_log('submit_user_predictions POST Data: ' . var_export($_POST, true));
     global $wpdb;
     $table_name = $wpdb->prefix . 'user_submissions';
-    
-    // $result = $wpdb->insert(
-    //     $table_name,
-    //     array(
-    //         'user_id' => isset($_POST['userId']) ? intval(sanitize_text_field($_POST['userId'])) : '',
-    //         'week_id' => isset($_POST['matchDay']) ? intval(sanitize_text_field($_POST['matchDay'])) : '',
-    //         'predictions' => isset($_POST['dataStr']) ? sanitize_text_field($_POST['dataStr']) : '',
-    //     ),
-    //     array(
-    //         '%d',  // user_id format (integer)
-    //         '%d',  // week_id format (integer)
-    //         '%s'   // predictions format (string)
-    //     )
-    // );
 
 	// works for both insertions and updates
 	$result = $wpdb->query(
@@ -178,7 +143,10 @@ function get_user_week_submission() {
     
     // Fetch specific week submission
     $query = $wpdb->prepare(
-        "SELECT * FROM $table_name WHERE user_id = %d AND week_id = %d LIMIT 1",
+        "SELECT * FROM $table_name 
+        WHERE user_id = %d AND week_id = %d 
+        ORDER BY id DESC 
+        LIMIT 1",
         $user_id,
         $week_id
     );
@@ -196,6 +164,30 @@ function get_user_week_submission() {
 }
 add_action('wp_ajax_get_user_week_submission', 'get_user_week_submission');
 add_action('wp_ajax_nopriv_get_user_week_submission', 'get_user_week_submission');
+
+// Create custom table on plugin activation
+function create_submissions_table()
+{
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'user_submissions';
+	$charset_collate = $wpdb->get_charset_collate();
+
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+		user_id INT NOT NULL,
+		week_id INT NOT NULL,
+		predictions TEXT NOT NULL,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id)
+    ) $charset_collate;";
+
+	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	dbDelta($sql);
+	dbDelta($sql2);
+}
+add_action('wp_ajax_create_submissions_table', 'create_submissions_table');
+add_action('wp_ajax_nopriv_create_submissions_table', 'create_submissions_table');
+
 
 // inject react app
 function enqueue_react_app()

@@ -23,11 +23,15 @@ function App() {
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = false;
+  const fakeDataEnabled = true;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
-    if (fakeDataEnabled) return 'fake data enabled';
+    if (fakeDataEnabled) { 
+      setRenderMatchDay(23);
+      return 'fake data enabled';
+    }
+
     try {
       const response = await axios.get(
         "/wp-admin/admin-ajax.php?action=create_submissions_table"
@@ -77,7 +81,7 @@ function App() {
 
     try {
       const res = await axios.post(
-        `/wp-admin/admin-ajax.php?action=submit_user_predictions`,
+        `http://socculi.com/wp-admin/admin-ajax.php?action=submit_user_predictions`,
         // WP has issues with receiving JSON format OOB, therefore we use formData
         formData,
         {
@@ -97,7 +101,7 @@ function App() {
   }
 
   async function fetchUserSubmissionsFromWP(matchDay: number) {
-    if (fakeDataEnabled) return;
+    // if (fakeDataEnabled) return;
     if (!matchDay || matchDay === 0) return;
 
     console.log('fetchUserSubmissionsFromWP', matchDay)
@@ -107,7 +111,7 @@ function App() {
 
     await axios
       .post(
-        `/wp-admin/admin-ajax.php?action=get_user_week_submission`,
+        `http://socculi.com/wp-admin/admin-ajax.php?action=get_user_week_submission`,
         // WP has issues with receiving JSON format OOB, therefore we use formData
         formData,
         {
@@ -196,7 +200,8 @@ function App() {
           </div>
         )}
         <ToastContainer
-          position="top-center" />
+          position="top-center"
+          autoClose={2000} />
         {matchList && matchList.length > 0 && (
           <>
             <MatchListRender
