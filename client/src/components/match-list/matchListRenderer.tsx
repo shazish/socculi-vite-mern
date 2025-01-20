@@ -6,7 +6,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   matchList: any;
   renderedMatchDay: number;
   existingSubmissions: any;
-  broadcastSubmissionToParent: (data: any) => boolean;
+  broadcastSubmissionToParent: (data: any) => Promise<boolean>;
 }) {
   const [formisDirty, setFormIsDirty] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
@@ -50,10 +50,9 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    formData.append("renderedMatchDay", renderedMatchDay.toString())
-    broadcastSubmissionToParent(convertFormToString(formData)).then((res) => {
-      console.log('broadcastSubmissionToParent result', res);
-    });
+    formData.append("renderedMatchDay", renderedMatchDay.toString());
+    const result = broadcastSubmissionToParent(convertFormToString(formData));
+    console.log('broadcastSubmissionToParent result', result);
   }
 
   function convertFormToString(formData: FormData) {

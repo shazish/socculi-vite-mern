@@ -22,7 +22,7 @@ function App() {
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = true;
+  const fakeDataEnabled = false;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
@@ -74,26 +74,22 @@ function App() {
     formData.append("matchDay", renderMatchDay.toString());
     formData.append("userId", '1'); // TODO: add multi users
 
-    await axios
-      .post(
+    try {
+      const res = await axios.post(
         `/wp-admin/admin-ajax.php?action=submit_user_predictions`,
-        // WP has issues with receiving JSON format OOB, therefore we use formData
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
-      )
-      .then((res) => {
-        console.log(res);
-        return true;
-        // setMatchList(fakedata);
-      })
-      .catch((err) => {
-        console.log("submitToBackend err", err);
-        return false;
-      });
+      );
+      console.log(res);
+      return true;
+    } catch (err) {
+      console.log("submitToBackend error", err);
+      return false;
+    }
   }
 
   async function fetchUserSubmissionsFromWP(matchDay: number) {
@@ -139,7 +135,7 @@ function App() {
       const fakedata = await import('../assets/data-structure.json')
       console.log(fakedata)
       console.log("day: ", day);
-      setMatchList(fakedata.default.data.matches.filter((match: Match) => match.matchday == '23'));
+      setMatchList(fakedata.default.data.matches.filter((match) => match.matchday === 23) as Match[]);
       return;
     }
 

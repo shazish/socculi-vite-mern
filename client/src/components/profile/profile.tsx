@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import LoginButton from '../login/login';
 import LogoutButton from '../login/logout';
 
 const Profile = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [userMetadata, setUserMetadata] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [userMetadata, setUserMetadata] = useState(null);
+  // const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const getUserMetadata = async () => {
@@ -34,12 +34,12 @@ const Profile = () => {
         const userData = await metadataResponse.json();
         console.log("Full user data:", userData);
 
-        const { user_metadata } = userData;
-        setUserMetadata(user_metadata);
+        // const { user_metadata } = userData;
+        // setUserMetadata(user_metadata);
       } catch (e) {
         console.log("Error in getUserMetadata:", e);
       } finally {
-        setIsLoading(false);
+        // setIsLoading(false);
       }
     };
 
@@ -64,7 +64,7 @@ const Profile = () => {
       {isAuthenticated && (
         <div className="profile-info flex flex-row items-center text-white">
           
-          <p className="text-sm mx-3">Hello, {user.name}</p>
+          <p className="text-sm mx-3">Hello, {user?.name}</p>
           {/* <img src={user.picture} alt={user.name} /> */}
           {/* <p>{user.email}</p> */}
           <LogoutButton />
