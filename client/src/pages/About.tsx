@@ -3,6 +3,7 @@ const viteLogo = `./public/vite.svg`;
 const reactLogo = `./public/react.svg`;
 const brandLogo = `./public/socculi.jpg`;
 const footballDataLogo = `./public/football-data-logo.jpg`;
+const auth0Logo = `./public/auth0.png`;
 function About() {
     return (
         <div>
@@ -17,9 +18,9 @@ function About() {
 
             <hr></hr>
             <div className="m-4">
+                <p>Socculi is a small passion project that I started in my free time, both to create something new, and to learn React and Wordpress on the Go!</p>            
                 <p>Football-data.org provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.</p>
-                <p>Socculi is a small passion project that I started in my free time, both to create something new, and to learn React and Wordpress on the Go!</p>
-                <p>Socculi is powered by React/Vite. It's currently using Wordpress as backend.</p>
+                <p>Socculi is powered by React/Vite on the frontend, and Wordpress on the backend. It's currently using Auth0 for authentication.</p>
             </div>
 
             <hr></hr>
@@ -47,6 +48,10 @@ function About() {
 
                 <a href="https://vitejs.dev" target="_blank">
                     <img src={viteLogo} className="logo" alt="Vite logo" />
+                </a>
+
+                <a href="https://auth0.com" target="_blank">
+                    <img src={auth0Logo} className="logo" alt="Auth0 logo" />
                 </a>
             </div>
         </div>

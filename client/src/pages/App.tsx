@@ -139,7 +139,7 @@ function App() {
       const fakedata = await import('../assets/data-structure.json')
       console.log(fakedata)
       console.log("day: ", day);
-      setMatchList(fakedata.default.data.matches.filter((match: Match) => match.matchday == '21'));
+      setMatchList(fakedata.default.data.matches.filter((match: Match) => match.matchday == '23'));
       return;
     }
 
@@ -177,7 +177,7 @@ function App() {
 
   return (
     <>
-      <div className="flex flex-row justify-around">
+      <div className="flex flex-row justify-around bg-light">
 
         <div className="content-center">
           <h1 className="display-1">Socculi</h1>
@@ -189,7 +189,7 @@ function App() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card p-0">
         {!appLoaded && (
           <div className="flex flex-row justify-around">
             <div className="loader"></div>

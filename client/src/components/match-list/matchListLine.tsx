@@ -27,7 +27,8 @@ export default function MatchListLine({
 
   return (
     <div className="border-b border-gray-200">
-      <div className="flex flex-row items-center py-2">
+      {/* desktop */}
+      <div className="d-none d-lg-flex flex-row items-center py-2 bg-light">
         <div className="team flex-1">
           <div>{matchLine["homeTeam"]?.["name"]}</div>
         </div>
@@ -45,6 +46,11 @@ export default function MatchListLine({
 
             </div>
             <div className="game-status text-xs">{matchLine["status"] === "IN_PLAY" && 'IN PROGRESS'}</div>
+            <div className="game-status text-xs">{matchLine["status"] === "TIMED" && 
+              `Starts at ${new Date(matchLine["utcDate"]).toLocaleString('en-US', {
+              dateStyle: 'short',
+              timeStyle: 'short'
+            })}`}</div>
           </div>
 
           <img className="crest" alt="Away team crest" src={matchLine["awayTeam"]?.["crest"]} />
@@ -53,7 +59,34 @@ export default function MatchListLine({
           <span>{matchLine["awayTeam"]?.["name"]}</span>
         </div>
       </div>
-      
+
+      {/* mobile */}
+      <div className="d-flex d-lg-none flex-row items-center py-2 bg-light">
+        <div
+          className={`flex-1 scoreline
+            ${matchLine["status"] === "IN_PLAY" ? "scoreline-inplay" : ""}
+          `}
+        >
+          <img className="crest" alt="Home team crest" src={matchLine["homeTeam"]?.["crest"]} />
+
+          <div className="flex flex-col">
+            <div>
+              {matchLine["score"]?.["winner"] !== null &&
+                `${matchLine["score"]?.["fullTime"]["home"]} - ${matchLine["score"]?.["fullTime"]["away"]}`}
+
+            </div>
+            <div className="game-status text-xs">{matchLine["status"] === "IN_PLAY" && 'IN PROGRESS'}</div>
+            <div className="game-status text-xs">{matchLine["status"] === "TIMED" && 
+              `Starts at ${new Date(matchLine["utcDate"]).toLocaleString('en-US', {
+              dateStyle: 'short',
+              timeStyle: 'short'
+            })}`}</div>
+          </div>
+
+          <img className="crest" alt="Away team crest" src={matchLine["awayTeam"]?.["crest"]} />
+        </div>
+      </div>
+
       {(submissionDeadlineStatus === 1) && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
 
       <div className="flex flex-row justify-center">

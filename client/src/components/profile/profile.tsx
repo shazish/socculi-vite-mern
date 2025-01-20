@@ -62,14 +62,16 @@ const Profile = () => {
       {!isAuthenticated && <LoginButton />}
       
       {isAuthenticated && (
-        <div className="profile-info flex flex-row items-center text-white text-sm mx-3">
+        <div className="profile-info flex flex-row items-center text-white">
           
-          <h2>Hello, {user.name}</h2>
+          <p className="text-sm mx-3">Hello, {user.name}</p>
           {/* <img src={user.picture} alt={user.name} /> */}
           {/* <p>{user.email}</p> */}
+          <LogoutButton />
         </div>
+        
       )}
-      <LogoutButton />
+      
     </div>
   );
 };
