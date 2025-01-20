@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import MatchListRender from "../components/match-list/matchListRenderer";
 import { FootballDataResponse, Match } from '../types/matchData.interface';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // todo:
 // done 1. add a loading spinner
 // 2. add caching of match data
@@ -86,9 +87,11 @@ function App() {
         }
       );
       console.log(res);
+      toast.success("Predictions submitted successfully.");
       return true;
     } catch (err) {
       console.log("submitToBackend error", err);
+      toast.error("Error occured while submitting predictions. Please try again.");
       return false;
     }
   }
@@ -192,6 +195,8 @@ function App() {
             <div className="loader"></div>
           </div>
         )}
+        <ToastContainer
+          position="top-center" />
         {matchList && matchList.length > 0 && (
           <>
             <MatchListRender

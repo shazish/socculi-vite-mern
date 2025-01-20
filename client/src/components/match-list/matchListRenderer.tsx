@@ -52,7 +52,12 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     const formData = new FormData(e.currentTarget);
     formData.append("renderedMatchDay", renderedMatchDay.toString());
     const result = broadcastSubmissionToParent(convertFormToString(formData));
-    console.log('broadcastSubmissionToParent result', result);
+    result.then((res) => {
+      console.log('broadcastSubmissionToParent result', res);
+    }).catch((err) => {
+      setFormIsDirty(true);
+      console.log('broadcastSubmissionToParent error', err);
+    });
   }
 
   function convertFormToString(formData: FormData) {
