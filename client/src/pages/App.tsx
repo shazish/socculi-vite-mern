@@ -77,6 +77,7 @@ function App() {
     try {
       const res = await axios.post(
         `/wp-admin/admin-ajax.php?action=submit_user_predictions`,
+        // WP has issues with receiving JSON format OOB, therefore we use formData
         formData,
         {
           headers: {
@@ -175,7 +176,7 @@ function App() {
     <>
       <div className="flex flex-row justify-around bg-light">
 
-        <div className="content-center">
+        <div className="content-center d-none d-lg-block">
           <h1 className="display-1">Socculi</h1>
           <h3 className="display-5">Second Half Fantasy League</h3>
 
