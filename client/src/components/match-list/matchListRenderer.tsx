@@ -102,7 +102,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   }, [convertStringToObj, existingSubmissions]);
 
   return (
-    <div className="w-full max-w-4xl p-3 mx-auto">
+    <div className="match-list-renderer fade-in w-full max-w-4xl p-3 mx-auto">
       <button type="submit" className="btn btn-dark w-50 position-sticky left-0 right-0 top-0"
         disabled={!formIsValid || !formIsDirty}>S U B M I T</button>
       <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>

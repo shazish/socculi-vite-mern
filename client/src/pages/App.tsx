@@ -23,7 +23,7 @@ function App() {
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = true;
+  const fakeDataEnabled = false;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {

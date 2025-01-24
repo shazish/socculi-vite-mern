@@ -18,9 +18,9 @@ function About() {
 
             <hr></hr>
             <div className="m-4">
-                <p>Socculi is a small passion project that I started in my free time, both to create something new, and to learn React and Wordpress on the Go!</p>            
-                <p>Football-data.org provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.</p>
-                <p>Socculi is powered by React/Vite on the frontend, and Wordpress on the backend. It's currently using Auth0 for authentication.</p>
+                <p>Socculi is a small passion project that I started in my free time; because apart from my respect for the English Premier League, I love creating interesting stuff (relatively speaking!), and to have an opportunity to deal with React and Wordpress.</p>            
+                <p>Football-data.org is a free service that provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.</p>
+                <p>Socculi is powered by React/Vite on the frontend, and MySQL and Wordpress on the backend. It's currently using Auth0 for authentication.</p>
             </div>
 
             <hr></hr>
