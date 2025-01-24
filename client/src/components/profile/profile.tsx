@@ -11,9 +11,6 @@ const Profile = () => {
   useEffect(() => {
     const getUserMetadata = async () => {
       try {
-        console.log("Current user:", user); // Debug log
-        console.log("Is authenticated:", isAuthenticated); // Debug log
-
         if (!user) {
           console.log("User not loaded yet");
           return;

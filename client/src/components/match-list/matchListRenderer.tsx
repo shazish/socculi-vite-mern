@@ -103,9 +103,11 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
 
   return (
     <div className="w-full max-w-4xl p-3 mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Week {renderedMatchDay}</h1>
+      <button type="submit" className="btn btn-dark w-50 position-sticky left-0 right-0 top-0"
+        disabled={!formIsValid || !formIsDirty}>S U B M I T</button>
+      <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>
       <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
-        <div className="flex p-3 flex-col gap-4">
+        <div className="flex p-2 flex-col gap-4">
           {/* Match List */}
           <div className="flex flex-col gap-2 m-2">
             {matchList.map((matchLine: any, index: number) => (
@@ -121,12 +123,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
               </div>
             ))}
           </div>
-
         </div>
-        <div className="position-fixed left-0 right-0 bottom-0 p-2">
-          <button type="submit" className="btn btn-dark w-50" disabled={!formIsValid || !formIsDirty}>S U B M I T</button>
-        </div>
-
       </form>
     </div>
   );
