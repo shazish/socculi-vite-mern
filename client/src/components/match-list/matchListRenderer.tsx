@@ -2,6 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { useCallback, useEffect, useState } from "react";
 import MatchListLine from "./matchListLine";
+// const loadingAnimation = `./public/loadinganimation.svg`;
+const loadingAnimation2 = `./public/loadinganimation2.svg`;
 export default function MatchListRender({ matchList, renderedMatchDay, existingSubmissions, broadcastSubmissionToParent }: {
   matchList: any;
   renderedMatchDay: number;
@@ -10,6 +12,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
 }) {
   const [formIsDirty, setFormIsDirty] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
+  const [submitInProgress, setSubmitInProgress] = useState(false);
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
   console.log("MatchListRender rendered with existingSubmissions:", existingSubmissions);
 
@@ -48,13 +51,18 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setSubmitInProgress(true);
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.append("renderedMatchDay", renderedMatchDay.toString());
+
     const result = broadcastSubmissionToParent(convertFormToString(formData));
     result.then((res) => {
+      setSubmitInProgress(false);
+      setFormIsDirty(false);
       console.log('broadcastSubmissionToParent result', res);
     }).catch((err) => {
+      setSubmitInProgress(false);
       setFormIsDirty(true);
       console.log('broadcastSubmissionToParent error', err);
     });
@@ -103,10 +111,17 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
 
   return (
     <div className="match-list-renderer fade-in w-full max-w-4xl p-3 mx-auto">
-      <button type="submit" className="btn btn-dark w-50 position-sticky left-0 right-0 top-0"
-        disabled={!formIsValid || !formIsDirty}>S U B M I T</button>
       <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>
       <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
+        <button type="submit" className="btn submit-btn btn-dark w-50 position-sticky left-0 right-0 top-0"
+          disabled={!formIsValid || !formIsDirty}>
+          {!submitInProgress && <span>S U B M I T</span>}
+          {submitInProgress && 
+          <div className="flex flex-row">
+            
+            <img src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" />
+          </div>}
+        </button>
         <div className="flex p-2 flex-col gap-4">
           {/* Match List */}
           <div className="flex flex-col gap-2 m-2">

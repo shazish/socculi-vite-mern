@@ -31,8 +31,6 @@ const Profile = () => {
         const userData = await metadataResponse.json();
         console.log("Full user data:", userData);
 
-        // const { user_metadata } = userData;
-        // setUserMetadata(user_metadata);
       } catch (e) {
         console.log("Error in getUserMetadata:", e);
       } finally {
@@ -42,9 +40,11 @@ const Profile = () => {
 
     if (isAuthenticated && user) {
       getUserMetadata();
+      localStorage.setItem("socculi_user_email", user?.email ?? "");
+    } else {
+      localStorage.removeItem("socculi_user_email");
     }
   }, [getAccessTokenSilently, user, isAuthenticated]);
-
 
   // if (isLoading || !user) {
   //   return (

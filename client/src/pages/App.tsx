@@ -77,11 +77,11 @@ function App() {
     const formData = new FormData();
     formData.append("dataStr", formDataStr);
     formData.append("matchDay", renderMatchDay.toString());
-    formData.append("userId", '1'); // TODO: add multi users
+    formData.append("userId", localStorage.getItem("socculi_user_email") ?? "");
 
     try {
       const res = await axios.post(
-        `http://socculi.com/wp-admin/admin-ajax.php?action=submit_user_predictions`,
+        `https://socculi.com/wp-admin/admin-ajax.php?action=submit_user_predictions`,
         // WP has issues with receiving JSON format OOB, therefore we use formData
         formData,
         {
@@ -107,11 +107,11 @@ function App() {
     console.log('fetchUserSubmissionsFromWP', matchDay)
     const formData = new FormData();
     formData.append("week_id", matchDay.toString());
-    formData.append("user_id", '1'); // TODO: add multi users
+    formData.append("userId", localStorage.getItem("socculi_user_email") ?? "");
 
     await axios
       .post(
-        `http://socculi.com/wp-admin/admin-ajax.php?action=get_user_week_submission`,
+        `https://socculi.com/wp-admin/admin-ajax.php?action=get_user_week_submission`,
         // WP has issues with receiving JSON format OOB, therefore we use formData
         formData,
         {
@@ -142,13 +142,12 @@ function App() {
     if (fakeDataEnabled) {
       const fakedata = await import('../assets/data-structure.json')
       console.log(fakedata)
-      console.log("day: ", day);
+      console.log("day: ", day);      
       setMatchList(fakedata.default.data.matches.filter((match) => match.matchday === 23) as Match[]);
       return;
     }
 
     const formData = new FormData();
-    // formData.append("day", day.toString());
 
     await axios
       .post<FootballDataResponse>(
