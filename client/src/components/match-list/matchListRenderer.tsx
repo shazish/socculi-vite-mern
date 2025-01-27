@@ -14,11 +14,12 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   const [formIsValid, setFormIsValid] = useState(false);
   const [submitInProgress, setSubmitInProgress] = useState(false);
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
-  console.log("MatchListRender rendered with existingSubmissions:", existingSubmissions);
+  console.log("--MatchListRender rendered with existingSubmissions---------:", existingSubmissions);
 
   function submissionDeadlineStatus(matchDate: string): number {
     // Less than an hour since match started, means second half has not started
     // 0: match is in 2nd half, 1: 2nd half starts soon, 2: match is in the future
+    // return 2;
     if (Date.now() - new Date(matchDate).getTime() > 3600000) return 0;
     if (Date.now() - new Date(matchDate).getTime() < 0) return 2;
     return 1;
@@ -72,7 +73,6 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     const formDataString = Array.from(formData.entries())
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value.toString())}`)
       .join('&');
-    console.log('formDataString', formDataString);
     return formDataString;
   }
 
@@ -104,9 +104,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   }, [])
 
   useEffect(() => {
-    console.log('existingSubmissions in useEffect', existingSubmissions);
     setExistingSubmissionsObj(convertStringToObj(existingSubmissions));
-    console.log('existingSubmissionsForm in useEffect', existingSubmissionsObj);
   }, [convertStringToObj, existingSubmissions]);
 
   return (
@@ -114,13 +112,17 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
       <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>
       <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
         <button type="submit" className="btn submit-btn btn-dark w-50 position-sticky left-0 right-0 top-0"
-          disabled={!formIsValid || !formIsDirty}>
-          {!submitInProgress && <span>S U B M I T</span>}
-          {submitInProgress && 
-          <div className="flex flex-row">
-            
-            <img src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" />
-          </div>}
+          disabled={!formIsValid || !formIsDirty || !localStorage.getItem("socculi_user_email")}>
+          {!submitInProgress &&
+            <span>{localStorage.getItem("socculi_user_email")
+              ? "S U B M I T"
+              : "Log/Sign in to submit"}
+            </span>}
+          {submitInProgress &&
+            <div className="flex flex-row">
+
+              <img src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" />
+            </div>}
         </button>
         <div className="flex p-2 flex-col gap-4">
           {/* Match List */}
