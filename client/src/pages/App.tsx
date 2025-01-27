@@ -73,12 +73,12 @@ function App() {
 
 
   async function submitToBackend(formDataStr: string) {
-    console.log('submitToBackend', formDataStr);
+    // console.log('submitToBackend', formDataStr);
     const formData = new FormData();
     formData.append("dataStr", formDataStr);
     formData.append("matchDay", renderMatchDay.toString());
     formData.append("userId", localStorage.getItem("socculi_user_email") ?? "");
-
+    console.log('App.tsx submitToBackend: ', formData);
     try {
       const res = await axios.post(
         `https://socculi.com/wp-admin/admin-ajax.php?action=submit_user_predictions`,
@@ -107,7 +107,7 @@ function App() {
     console.log('fetchUserSubmissionsFromWP', matchDay)
     const formData = new FormData();
     formData.append("week_id", matchDay.toString());
-    formData.append("userId", localStorage.getItem("socculi_user_email") ?? "");
+    formData.append("username", localStorage.getItem("socculi_user_email") ?? "");
 
     await axios
       .post(

@@ -99,10 +99,10 @@ function submit_user_predictions() {
 	// works for both insertions and updates
 	$result = $wpdb->query(
 		$wpdb->prepare(
-			"INSERT INTO $table_name (user_id, week_id, predictions) 
-			 VALUES (%d, %d, %s) 
+			"INSERT INTO $table_name (username, week_id, predictions) 
+			 VALUES (%s, %d, %s) 
 			 ON DUPLICATE KEY UPDATE predictions = VALUES(predictions)",
-			isset($_POST['userId']) ? intval(sanitize_text_field($_POST['userId'])) : 0,
+			isset($_POST['userId']) ? sanitize_text_field($_POST['userId']) : '',
 			isset($_POST['matchDay']) ? intval(sanitize_text_field($_POST['matchDay'])) : 0,
 			isset($_POST['dataStr']) ? sanitize_text_field($_POST['dataStr']) : ''
 		)
@@ -125,29 +125,29 @@ add_action('wp_ajax_nopriv_submit_user_predictions', 'submit_user_predictions');
 // Get user submission for a specific week
 function get_user_week_submission() {
 
-	$user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+	$username = isset($_POST['username']) ? $_POST['username'] : '';
     $week_id = isset($_POST['week_id']) ? intval($_POST['week_id']) : 0;
 
     global $wpdb;
     $table_name = $wpdb->prefix . 'user_submissions';
     
     // Sanitize and validate inputs
-    $user_id = intval(sanitize_text_field($user_id));
+    $username = sanitize_text_field($username);
     $week_id = intval(sanitize_text_field($week_id));
     
-	error_log('get_user_week_submission: user_id: ' . $user_id . ' week_id: ' . $week_id);
+	error_log('get_user_week_submission: username: ' . $username . ' week_id: ' . $week_id);
 
-    if ($user_id < 0 || $week_id <= 0) {
+    if ($week_id <= 0) {
         return false;
     }
     
     // Fetch specific week submission
     $query = $wpdb->prepare(
         "SELECT * FROM $table_name 
-        WHERE user_id = %d AND week_id = %d 
+        WHERE username = %s AND week_id = %d 
         ORDER BY id DESC 
         LIMIT 1",
-        $user_id,
+        $username,
         $week_id
     );
     
@@ -174,7 +174,7 @@ function create_submissions_table()
 
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
         id bigint(20) NOT NULL AUTO_INCREMENT,
-		user_id INT NOT NULL,
+		username TEXT NOT NULL,
 		week_id INT NOT NULL,
 		predictions TEXT NOT NULL,
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
