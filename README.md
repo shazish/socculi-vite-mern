@@ -11,7 +11,7 @@ Socculi is powered by React/Vite on the frontend, and MySQL and Wordpress on the
 
 ## 🔑 License
 
-[GNU](LICENSE).
+[MIT](LICENSE).
 
 ## 💡 Contribution
 
