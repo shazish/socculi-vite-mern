@@ -2,7 +2,7 @@
 
 ## What the hell is Socculi?
 
-Socculi is a simple fantasy league based on English Premier League. It's a small passion project that I started in my free time; because apart from my love for the English Premier League, I love creating interesting stuff (relatively speaking!), and to create my an opportunity to improve my skills in React and Wordpress.
+Socculi is a simple fantasy league based on English Premier League. It's a small passion project that I started in my free time; because apart from my love for the English Premier League, I love creating interesting stuff (relatively speaking!), and to create my an opportunity to improve my skills in React, Redux, and Wordpress.
 
 Football-data.org is a free service that provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.
 
@@ -11,7 +11,7 @@ Socculi is powered by React/Vite on the frontend, and MySQL and Wordpress on the
 
 ## 🔑 License
 
-[GNU](LICENSE).
+[MIT](LICENSE).
 
 ## 💡 Contribution
 
@@ -19,7 +19,7 @@ I am open to community contributions! If you'd like to contribute to Socculi pro
 
 ## Support the project
 
-If you find this project helpful or appreciate the work I've done, you can support me by buying me a coffee ☕️ via Ko-fi. Your support encourages me to continue improving and developing this project for the community.
+If you find this project helpful or appreciate the work I'm doing, you can support me by buying me a coffee ☕️ via Ko-fi. Your support encourages me to continue!
 
 [![Buy me a coffee](https://img.shields.io/badge/Support%20us%20on-Ko--fi-FF5E5B?style=flat-square&logo=kofi&logoColor=white)](https://ko-fi.com/shazish)
 
