@@ -5,11 +5,11 @@ import { FootballDataResponse, Match } from '../types/matchData.interface';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // todo:
-// done 1. add a loading spinner
+// *done* 1. add a loading spinner
 // 2. add caching of match data
-// 3. add a save success/fail toast
+// *done* 3. add a save success/fail toast
 // 4. archived match days
-// 5. add a button to switch between users
+// *done* 5. add a button to switch between users
 // 6. add a button to switch between leagues
 
 // place resources inside shaziblues.io/public folder
