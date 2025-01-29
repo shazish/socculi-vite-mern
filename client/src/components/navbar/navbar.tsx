@@ -1,10 +1,8 @@
-import { NavLink } from 'react-router-dom';
 import Profile from '../profile/profile';
 import './navbar.scss'
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 
 function SocculiNavbar() {
   const navItems = [
