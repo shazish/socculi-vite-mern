@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
-import Navbar from './components/navbar/navbar.js'
+import SocculiNavbar from './components/navbar/navbar.js'
 import About from './pages/About.tsx'
 import ThisWeek from './pages/ThisWeek.tsx'
 import React from 'react'
@@ -21,7 +21,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           audience: "https://dev-c7t4suh18tfmv2xh.us.auth0.com/api/v2/",
         }}
       >
-        <Navbar />
+        <SocculiNavbar />
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/about" element={<About />} />
