@@ -116,7 +116,7 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
           {!submitInProgress &&
             <span>{localStorage.getItem("socculi_user_email")
               ? "S U B M I T"
-              : "Log/Sign in to submit"}
+              : "LOGIN TO SUBMIT"}
             </span>}
           {submitInProgress &&
             <div className="flex flex-row">

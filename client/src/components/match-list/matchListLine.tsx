@@ -37,7 +37,7 @@ export default function MatchListLine({
             ${matchLine["status"] === "IN_PLAY" ? "scoreline-inplay" : ""}
           `}
         >
-          <img className="crest" alt="Home team crest" src={matchLine["homeTeam"]?.["crest"]} />
+          <img className="crest" alt={matchLine["homeTeam"]?.["shortName"] + " crest"} src={"./public/crest/" + matchLine["homeTeam"]?.["tla"] + ".png"} />
 
           <div className="flex flex-col">
             <div>
@@ -46,14 +46,15 @@ export default function MatchListLine({
 
             </div>
             <div className="game-status text-xs">{matchLine["status"] === "IN_PLAY" && 'IN PROGRESS'}</div>
-            <div className="game-status text-xs">{matchLine["status"] === "TIMED" && 
+            <div className="game-status text-xs">{matchLine["status"] === "TIMED" &&
               `Starts at ${new Date(matchLine["utcDate"]).toLocaleString('en-US', {
-              dateStyle: 'short',
-              timeStyle: 'short'
-            })}`}</div>
+                dateStyle: 'short',
+                timeStyle: 'short'
+              })}`}</div>
           </div>
 
-          <img className="crest" alt="Away team crest" src={matchLine["awayTeam"]?.["crest"]} />
+          <img className="crest" alt={matchLine["awayTeam"]?.["shortName"] + " crest"} src={"./public/crest/" + matchLine["awayTeam"]?.["tla"] + ".png"} />
+
         </div>
         <div className="team flex-1">
           <span>{matchLine["awayTeam"]?.["name"]}</span>
@@ -67,7 +68,7 @@ export default function MatchListLine({
             ${matchLine["status"] === "IN_PLAY" ? "scoreline-inplay" : ""}
           `}
         >
-          <img className="crest" alt="Home team crest" src={matchLine["homeTeam"]?.["crest"]} />
+          <img className="crest" alt={matchLine["homeTeam"]?.["shortName"] + " crest"} src={"./public/crest/" + matchLine["homeTeam"]?.["tla"] + ".png"} />
 
           <div className="flex flex-col">
             <div>
@@ -76,14 +77,15 @@ export default function MatchListLine({
 
             </div>
             <div className="game-status text-xs">{matchLine["status"] === "IN_PLAY" && 'IN PROGRESS'}</div>
-            <div className="game-status text-xs">{matchLine["status"] === "TIMED" && 
+            <div className="game-status text-xs">{matchLine["status"] === "TIMED" &&
               `Starts at ${new Date(matchLine["utcDate"]).toLocaleString('en-US', {
-              dateStyle: 'short',
-              timeStyle: 'short'
-            })}`}</div>
+                dateStyle: 'short',
+                timeStyle: 'short'
+              })}`}</div>
           </div>
 
-          <img className="crest" alt="Away team crest" src={matchLine["awayTeam"]?.["crest"]} />
+          <img className="crest" alt={matchLine["awayTeam"]?.["shortName"] + " crest"} src={"./public/crest/" + matchLine["awayTeam"]?.["tla"] + ".png"} />
+
         </div>
       </div>
 
