@@ -76,6 +76,15 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     return formDataString;
   }
 
+  function setSubmitBtnText() {
+    const atLeastOneSubmittableMatch = matchList.some((matchLine: any) => submissionDeadlineStatus(matchLine["utcDate"]) !== 0)
+    if (!atLeastOneSubmittableMatch) {
+      return "NO MATCHES TO SUBMIT";
+    } else if (localStorage.getItem("socculi_user_email")) {
+      return "S U B M I T";
+    }
+    return "LOGIN TO SUBMIT";
+  }
 
   const convertStringToObj = useCallback((formDataString: string): any => {
     let formDataObj: any = {};
@@ -111,12 +120,10 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
     <div className="match-list-renderer fade-in w-full max-w-4xl p-3 mx-auto">
       <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>
       <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
-        <button type="submit" className="btn submit-btn btn-dark w-50 position-sticky left-0 right-0 top-0"
+        <button type="submit" className="btn submit-btn btn-dark w-50 position-sticky left-0 right-0 top-0 lh-1"
           disabled={!formIsValid || !formIsDirty || !localStorage.getItem("socculi_user_email")}>
           {!submitInProgress &&
-            <span>{localStorage.getItem("socculi_user_email")
-              ? "S U B M I T"
-              : "LOGIN TO SUBMIT"}
+            <span className="text-xs">{setSubmitBtnText()}
             </span>}
           {submitInProgress &&
             <div className="flex flex-row">
