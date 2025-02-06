@@ -25,6 +25,21 @@ export default function MatchListLine({
     }
   }
 
+  function predicationScore(): number {
+    if (!homePrediction || !awayPrediction) return 0;
+    if (Number(homePrediction) - Number(awayPrediction) === matchLine["score"]?.["fullTime"]["home"] - matchLine["score"]?.["fullTime"]["away"]) {
+      if (Number(homePrediction) === matchLine["score"]?.["fullTime"]["home"]) {
+        return 3;
+      }
+      return 2; // covers all tie predictions
+    } else {
+      if ( (Number(homePrediction) - Number(awayPrediction)) * (matchLine["score"]?.["fullTime"]["home"] - matchLine["score"]?.["fullTime"]["away"]) > 0) {
+        return 1;
+      }
+      return 0;
+    }
+  }
+
   return (
     <div className="border-b border-gray-200">
       {/* desktop */}
@@ -64,12 +79,15 @@ export default function MatchListLine({
 
       {(submissionDeadlineStatus === 1) && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
 
-      <div className="flex flex-row justify-center">
+      <div className="flex flex-row justify-center m-1">
         {submissionDeadlineStatus == 0 && (
           <>
-            {(homePrediction && awayPrediction) &&
-              <span className="text-sm self-center m-2">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
-            }
+            {(homePrediction && awayPrediction) && (
+              <>
+                <span className="text-sm self-center my-1 mx-3">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
+                {(predicationScore() > 0) && <p className="badge text-bg-success align-content-center">+{predicationScore()}</p>}
+              </>
+            )}
             {!(homePrediction && awayPrediction) &&
               <span className="text-sm self-center m-2">No prediction made</span>
             }

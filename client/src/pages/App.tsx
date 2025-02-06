@@ -14,6 +14,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // place resources inside shaziblues.io/public folder
 const brandLogo = `./public/socculi.jpg`;
+const loadingAnimation2 = `./public/loadinganimation2.svg`; // Add the correct path to your loading animation
 
 function App() {
   // const [allMatchData, setAllMatchData] = useState<Match[]>();
@@ -23,12 +24,12 @@ function App() {
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = false;
+  const fakeDataEnabled = true;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
     if (fakeDataEnabled) { 
-      setRenderMatchDay(23);
+      setRenderMatchDay(20);
       return 'fake data enabled';
     }
 
@@ -195,7 +196,7 @@ function App() {
       <div className="card p-0">
         {!appLoaded && (
           <div className="flex flex-row justify-around">
-            <div className="loader"></div>
+            <img src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" />
           </div>
         )}
         <ToastContainer
