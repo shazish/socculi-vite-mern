@@ -1,4 +1,8 @@
-<h1 align="center">Socculi</h1> 
+<div align="center">
+<img src="https://github.com/user-attachments/assets/b7fe52f1-0f00-4f5b-8adc-4bc44504f7c9" width="250px">
+<p>Socculi</p>
+</div> 
+
 
 ## What the hell is Socculi?
 
