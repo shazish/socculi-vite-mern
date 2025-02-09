@@ -4,16 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 import MatchListLine from "./matchListLine";
 // const loadingAnimation = `./public/loadinganimation.svg`;
 const loadingAnimation2 = `./public/loadinganimation2.svg`;
-export default function MatchListRender({ matchList, renderedMatchDay, existingSubmissions, broadcastSubmissionToParent }: {
+export default function MatchListRender({ matchList, renderedMatchDay, existingSubmissions, existingOpSubmissions,broadcastSubmissionToParent }: {
   matchList: any;
   renderedMatchDay: number;
   existingSubmissions: any;
+  existingOpSubmissions: any;
   broadcastSubmissionToParent: (data: any) => Promise<boolean>;
 }) {
   const [formIsDirty, setFormIsDirty] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
   const [submitInProgress, setSubmitInProgress] = useState(false);
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
+  const [existingOpSubmissionsObj, setExistingOpSubmissionsObj] = useState<Record<string, string>>({});
   console.log("--MatchListRender rendered with existingSubmissions---------:", existingSubmissions);
 
   function submissionDeadlineStatus(matchDate: string): number {
@@ -114,7 +116,8 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
 
   useEffect(() => {
     setExistingSubmissionsObj(convertStringToObj(existingSubmissions));
-  }, [convertStringToObj, existingSubmissions]);
+    setExistingOpSubmissionsObj(convertStringToObj(existingOpSubmissions));
+  }, [convertStringToObj, existingSubmissions, existingOpSubmissions]);
 
   return (
     <div className="match-list-renderer fade-in w-full max-w-4xl p-3 mx-auto">
@@ -141,6 +144,8 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
                   matchLine={matchLine}
                   homePrediction={existingSubmissionsObj?.[`home-input-${index}`]}
                   awayPrediction={existingSubmissionsObj?.[`away-input-${index}`]}
+                  homeOpPrediction={existingOpSubmissionsObj?.[`home-input-${index}`]}
+                  awayOpPrediction={existingOpSubmissionsObj?.[`away-input-${index}`]}                  
                   submissionDeadlineStatus={submissionDeadlineStatus(matchLine["utcDate"])}
                   broadcastChangeToParent={(a, b, i) => handleChildChange(a, b, i)}
                 />

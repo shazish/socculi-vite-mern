@@ -6,13 +6,21 @@ export default function MatchListLine({
   submissionDeadlineStatus,
   broadcastChangeToParent,
   homePrediction,
-  awayPrediction
+  awayPrediction,
+  homeOpPrediction,
+  awayOpPrediction,
+  showTeamName = false,
+  showOPPrediction = true,
 }: {
   index: number,
   matchLine: any;
   submissionDeadlineStatus: number;
   homePrediction?: string | null;
   awayPrediction?: string | null;
+  homeOpPrediction?: string | null;
+  awayOpPrediction?: string | null;
+  showTeamName?: boolean;
+  showOPPrediction?: boolean;
   broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void;
 }) {
 
@@ -25,15 +33,15 @@ export default function MatchListLine({
     }
   }
 
-  function predicationScore(): number {
-    if (!homePrediction || !awayPrediction) return 0;
-    if (Number(homePrediction) - Number(awayPrediction) === matchLine["score"]?.["fullTime"]["home"] - matchLine["score"]?.["fullTime"]["away"]) {
-      if (Number(homePrediction) === matchLine["score"]?.["fullTime"]["home"]) {
+  function predicationScore(home: number, away: number): number {
+    if (!home || !away) return 0;
+    if (home - away === matchLine["score"]?.["fullTime"]["home"] - matchLine["score"]?.["fullTime"]["away"]) {
+      if (home === matchLine["score"]?.["fullTime"]["home"]) {
         return 3;
       }
       return 2; // covers all tie predictions
     } else {
-      if ( (Number(homePrediction) - Number(awayPrediction)) * (matchLine["score"]?.["fullTime"]["home"] - matchLine["score"]?.["fullTime"]["away"]) > 0) {
+      if ((home - away) * (matchLine["score"]?.["fullTime"]["home"] - matchLine["score"]?.["fullTime"]["away"]) > 0) {
         return 1;
       }
       return 0;
@@ -44,9 +52,16 @@ export default function MatchListLine({
     <div className="border-b border-gray-200">
       {/* desktop */}
       <div className="flex items-center py-2 bg-light">
-        <div className="team d-none d-lg-block flex-1">
-          <div>{matchLine["homeTeam"]?.["name"]}</div>
-        </div>
+        {(showOPPrediction) && <div className="flex-1 large-user-prediction">
+          <span className="mx-3 fs-4"> {homeOpPrediction} - {awayOpPrediction} </span>
+          {(predicationScore(Number(homeOpPrediction), Number(awayOpPrediction)) > 0) &&
+            <p className="badge text-bg-success align-content-center">+{predicationScore(Number(homeOpPrediction), Number(awayOpPrediction))}</p>}
+        </div>}
+        {(showTeamName) && (
+          <div className="team d-none d-lg-block flex-1">
+            <div>{matchLine["homeTeam"]?.["name"]}</div>
+          </div>
+        )}
         <div
           className={`flex-1 scoreline
             ${matchLine["status"] === "IN_PLAY" ? "scoreline-inplay" : ""}
@@ -69,11 +84,19 @@ export default function MatchListLine({
           </div>
 
           <img className="crest" alt={matchLine["awayTeam"]?.["shortName"] + " crest"} src={"./public/crest/" + matchLine["awayTeam"]?.["tla"] + ".png"} />
+        </div>
 
-        </div>
-        <div className="team d-none d-lg-block flex-1">
-          <span>{matchLine["awayTeam"]?.["name"]}</span>
-        </div>
+        {(showTeamName) && (
+          <div className="team d-none d-lg-block flex-1">
+            <span>{matchLine["awayTeam"]?.["name"]}</span>
+          </div>
+        )}
+
+        {(showOPPrediction) && <div className="flex-1 large-user-prediction">
+          <span className="mx-3 fs-4"> {homePrediction} - {awayPrediction} </span>
+          {(predicationScore(Number(homePrediction), Number(awayPrediction)) > 0) &&
+            <p className="badge text-bg-success align-content-center">+{predicationScore(Number(homePrediction), Number(awayPrediction))}</p>}
+        </div>}
       </div>
 
 
@@ -85,7 +108,8 @@ export default function MatchListLine({
             {(homePrediction && awayPrediction) && (
               <>
                 <span className="text-sm self-center my-1 mx-3">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
-                {(predicationScore() > 0) && <p className="badge text-bg-success align-content-center">+{predicationScore()}</p>}
+                {(predicationScore(Number(homePrediction), Number(awayPrediction)) > 0) &&
+                  <p className="badge text-bg-success align-content-center">+{predicationScore(Number(homePrediction), Number(awayPrediction))}</p>}
               </>
             )}
             {!(homePrediction && awayPrediction) &&

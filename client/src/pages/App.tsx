@@ -15,6 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // place resources inside shaziblues.io/public folder
 const brandLogo = `./public/socculi.jpg`;
 const loadingAnimation2 = `./public/loadinganimation2.svg`; // Add the correct path to your loading animation
+const opUserId = 'shaahin@gmail.com';
 
 function App() {
   // const [allMatchData, setAllMatchData] = useState<Match[]>();
@@ -22,9 +23,10 @@ function App() {
   const [matchList, setMatchList] = useState<Match[]>();
   const [appLoaded, setAppLoaded] = useState(false);
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
+  const [existingOpSubmissions, setExistingOpSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = true;
+  const fakeDataEnabled = false;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
@@ -56,8 +58,8 @@ function App() {
       getMatchDayGames()
         .then(() => {
           setAppLoaded(true);
-          // setRenderedMatchDay(currentMatchDay);
-          fetchUserSubmissionsFromWP(renderMatchDay);
+          // fetchUserSubmissionsFromWP(renderMatchDay);
+          // fetchUserSubmissionsFromWP(renderMatchDay, 1);
         })
         .catch((error) => {
           console.error("Failed to load match day:", error);
@@ -69,6 +71,7 @@ function App() {
   useEffect(() => {
     if (renderMatchDay && appLoaded) {
       fetchUserSubmissionsFromWP(renderMatchDay);
+      fetchUserSubmissionsFromWP(renderMatchDay, true);
     }
   }, [renderMatchDay, appLoaded]);
 
@@ -101,14 +104,14 @@ function App() {
     }
   }
 
-  async function fetchUserSubmissionsFromWP(matchDay: number) {
+  async function fetchUserSubmissionsFromWP(matchDay: number, op?: boolean) {
     // if (fakeDataEnabled) return;
     if (!matchDay || matchDay === 0) return;
 
     console.log('fetchUserSubmissionsFromWP', matchDay)
     const formData = new FormData();
     formData.append("week_id", matchDay.toString());
-    formData.append("username", localStorage.getItem("socculi_user_email") ?? "");
+    formData.append("username", op ? opUserId : (localStorage.getItem("socculi_user_email") ?? ""));
 
     await axios
       .post(
@@ -118,13 +121,14 @@ function App() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Origin, Content-Type"
           },
         }
       )
       .then((res) => {
         console.log("fetchUserSubmissionsFromWP result ", res);
-        setExistingSubmissions(res.data.data.predictions);
-
+        op ? setExistingOpSubmissions(res.data.data.predictions) : setExistingSubmissions(res.data.data.predictions);
         // console.log("existingSubmissions: ", existingSubmissions);
         // setMatchList(res.data.matches);
         // console.log("football-data: ", matchList);
@@ -136,7 +140,8 @@ function App() {
 
   useEffect(() => {
     console.log("existingSubmissions updated to: ", existingSubmissions);
-  }, [existingSubmissions]);
+    console.log("existingOpSubmissions updated to: ", existingOpSubmissions);
+  }, [existingSubmissions, existingOpSubmissions]);
 
   async function getMatchDayGames(day?: number) {
     console.log('getMatchDayGames', day);
@@ -207,6 +212,7 @@ function App() {
             <MatchListRender
               matchList={matchList}
               existingSubmissions={existingSubmissions}
+              existingOpSubmissions={existingOpSubmissions}
               renderedMatchDay={renderMatchDay}
               broadcastSubmissionToParent={(data) => submitToBackend(data)}
             />
