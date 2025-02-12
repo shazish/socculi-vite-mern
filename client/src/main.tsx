@@ -1,13 +1,32 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
 import SocculiNavbar from './components/navbar/navbar.js'
 import About from './pages/About.tsx'
-import ThisWeek from './pages/ThisWeek.tsx'
-import React from 'react'
+import Vsop from './pages/Vsop.tsx'
+import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './pages/App.tsx'
 import './style/style.css'
 import './index.scss'
+
+import { ReactNode } from 'react';
+
+const TitleManager = ({ children }: { children: ReactNode }) => {
+  const location = useLocation();
+  useEffect(() => {
+    const currentRoute = routes.find(route => route.path === location.pathname) || routes[0];
+    document.title = currentRoute.title;
+  }, [location]);
+
+  return children;
+};
+
+const routes = [
+  { path: '/', element: <App />, title: 'Home | Socculi' },
+  { path: '/about', element: <About />, title: 'About | Socculi' },
+  { path: '/vsop', element: <Vsop />, title: 'Vs OP | Socculi' },
+  { path: '*', element: <App />, title: 'Home | Socculi' }
+];
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -22,14 +41,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         }}
       >
         <SocculiNavbar />
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/thisweek" element={<ThisWeek />} />
-          <Route path="*" element={<App />} />
-        </Routes>
+        <TitleManager>
+          <Routes>
+            {routes.map(({ path, element }) => (
+              <Route key={path} path={path} element={element} />
+            ))}
+          </Routes>
+        </TitleManager>
       </Auth0Provider>
-
     </BrowserRouter>
   </React.StrictMode>,
 )

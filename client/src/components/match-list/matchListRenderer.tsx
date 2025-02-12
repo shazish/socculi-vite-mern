@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import MatchListLine from "./matchListLine";
 // const loadingAnimation = `./public/loadinganimation.svg`;
 const loadingAnimation2 = `./public/loadinganimation2.svg`;
-export default function MatchListRender({ matchList, renderedMatchDay, existingSubmissions, existingOpSubmissions,broadcastSubmissionToParent }: {
+export default function MatchListRender({ vsop = false, matchList, renderedMatchDay, existingSubmissions, existingOpSubmissions, broadcastSubmissionToParent }: {
+  vsop?: boolean;
   matchList: any;
   renderedMatchDay: number;
   existingSubmissions: any;
@@ -122,18 +123,26 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
   return (
     <div className="match-list-renderer fade-in w-full max-w-4xl p-3 mx-auto">
       <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>
+      {(vsop) && (
+        <div className="flex flex-row justify-content-around">
+          <p>You</p>
+          <p>OP</p>
+        </div>)}
       <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
-        <button type="submit" className="btn submit-btn btn-dark w-50 position-sticky left-0 right-0 top-0 lh-1"
-          disabled={!formIsValid || !formIsDirty || !localStorage.getItem("socculi_user_email")}>
-          {!submitInProgress &&
-            <span className="text-xs">{setSubmitBtnText()}
-            </span>}
-          {submitInProgress &&
-            <div className="flex flex-row">
+        {(!vsop) && (
+          <button type="submit" className="btn submit-btn btn-dark w-50 position-sticky left-0 right-0 top-0 lh-1"
+            disabled={!formIsValid || !formIsDirty || !localStorage.getItem("socculi_user_email")}>
+            {!submitInProgress &&
+              <span className="text-xs">{setSubmitBtnText()}
+              </span>}
+            {submitInProgress &&
+              <div className="flex flex-row">
 
-              <img src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" />
-            </div>}
-        </button>
+                <img src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" />
+              </div>}
+          </button>
+        )}
+
         <div className="flex p-2 flex-col gap-4">
           {/* Match List */}
           <div className="flex flex-col gap-2 m-2">
@@ -145,9 +154,10 @@ export default function MatchListRender({ matchList, renderedMatchDay, existingS
                   homePrediction={existingSubmissionsObj?.[`home-input-${index}`]}
                   awayPrediction={existingSubmissionsObj?.[`away-input-${index}`]}
                   homeOpPrediction={existingOpSubmissionsObj?.[`home-input-${index}`]}
-                  awayOpPrediction={existingOpSubmissionsObj?.[`away-input-${index}`]}                  
+                  awayOpPrediction={existingOpSubmissionsObj?.[`away-input-${index}`]}
                   submissionDeadlineStatus={submissionDeadlineStatus(matchLine["utcDate"])}
                   broadcastChangeToParent={(a, b, i) => handleChildChange(a, b, i)}
+                  vsop={vsop}
                 />
               </div>
             ))}

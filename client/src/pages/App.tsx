@@ -17,7 +17,7 @@ const brandLogo = `./public/socculi.jpg`;
 const loadingAnimation2 = `./public/loadinganimation2.svg`; // Add the correct path to your loading animation
 const opUserId = 'shaahin@gmail.com';
 
-function App() {
+function App({vsop = false}: {vsop?: boolean}) {
   // const [allMatchData, setAllMatchData] = useState<Match[]>();
   const [renderMatchDay, setRenderMatchDay] = useState(0);
   const [matchList, setMatchList] = useState<Match[]>();
@@ -210,6 +210,7 @@ function App() {
         {matchList && matchList.length > 0 && (
           <>
             <MatchListRender
+              vsop={vsop}
               matchList={matchList}
               existingSubmissions={existingSubmissions}
               existingOpSubmissions={existingOpSubmissions}

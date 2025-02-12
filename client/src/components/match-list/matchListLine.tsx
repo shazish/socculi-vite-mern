@@ -4,13 +4,12 @@ export default function MatchListLine({
   index,
   matchLine,
   submissionDeadlineStatus,
-  broadcastChangeToParent,
   homePrediction,
   awayPrediction,
   homeOpPrediction,
   awayOpPrediction,
-  showTeamName = false,
-  showOPPrediction = true,
+  vsop = false,
+  broadcastChangeToParent,
 }: {
   index: number,
   matchLine: any;
@@ -19,10 +18,17 @@ export default function MatchListLine({
   awayPrediction?: string | null;
   homeOpPrediction?: string | null;
   awayOpPrediction?: string | null;
-  showTeamName?: boolean;
-  showOPPrediction?: boolean;
+  vsop?: boolean;
   broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void;
 }) {
+  
+  let showOPPrediction = false;
+  let showTeamName = true;
+
+  if (vsop) {
+    showTeamName = false;
+    showOPPrediction = true;
+  }
 
   function handleChange(value: string | null, isHome: boolean) {
     console.log('handleChange', value, isHome);
@@ -102,7 +108,7 @@ export default function MatchListLine({
 
       {(submissionDeadlineStatus === 1) && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
 
-      <div className="flex flex-row justify-center m-1">
+      {(!showOPPrediction) && <div className="flex flex-row justify-center m-1">
         {submissionDeadlineStatus == 0 && (
           <>
             {(homePrediction && awayPrediction) && (
@@ -144,7 +150,7 @@ export default function MatchListLine({
             </div>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
