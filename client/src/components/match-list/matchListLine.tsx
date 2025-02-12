@@ -24,7 +24,9 @@ export default function MatchListLine({
   
   let showOPPrediction = false;
   let showTeamName = true;
-
+  let predictionScoreUser = predicationScore(Number(homePrediction), Number(awayPrediction));
+  let predictionScoreOp = predicationScore(Number(homeOpPrediction), Number(awayOpPrediction));
+  
   if (vsop) {
     showTeamName = false;
     showOPPrediction = true;
@@ -58,10 +60,10 @@ export default function MatchListLine({
     <div className="border-b border-gray-200">
       {/* desktop */}
       <div className="flex items-center py-2 bg-light">
-        {(showOPPrediction) && <div className="flex-1 large-user-prediction">
-          <span className="mx-3 fs-4"> {homeOpPrediction} - {awayOpPrediction} </span>
-          {(predicationScore(Number(homeOpPrediction), Number(awayOpPrediction)) > 0) &&
-            <p className="badge text-bg-success align-content-center">+{predicationScore(Number(homeOpPrediction), Number(awayOpPrediction))}</p>}
+        {(showOPPrediction) && <div className="flex-1 large-user-prediction fw-semibold">
+          <span className={'mx-3 ' + (predictionScoreOp > 0 && 'text-success') }> {homeOpPrediction} - {awayOpPrediction} </span>
+          {(predictionScoreOp > 0) &&
+            <p className="badge lh-lg fw-normal text-bg-success align-content-center">+{predictionScoreOp}</p>}
         </div>}
         {(showTeamName) && (
           <div className="team d-none d-lg-block flex-1">
@@ -98,13 +100,12 @@ export default function MatchListLine({
           </div>
         )}
 
-        {(showOPPrediction) && <div className="flex-1 large-user-prediction">
-          <span className="mx-3 fs-4"> {homePrediction} - {awayPrediction} </span>
-          {(predicationScore(Number(homePrediction), Number(awayPrediction)) > 0) &&
-            <p className="badge text-bg-success align-content-center">+{predicationScore(Number(homePrediction), Number(awayPrediction))}</p>}
+        {(showOPPrediction) && <div className="flex-1 large-user-prediction fw-semibold">
+          <span className={'mx-3 ' + (predictionScoreOp > 0 && 'text-success') }> {homePrediction} - {awayPrediction} </span>
+          {(predictionScoreUser > 0) &&
+            <p className="badge lh-lg fw-normal text-bg-success align-content-center">+{predictionScoreUser}</p>}
         </div>}
       </div>
-
 
       {(submissionDeadlineStatus === 1) && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
 

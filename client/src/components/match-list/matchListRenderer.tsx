@@ -125,8 +125,8 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
       <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>
       {(vsop) && (
         <div className="flex flex-row justify-content-around">
-          <p>You</p>
           <p>OP</p>
+          <p>You</p>          
         </div>)}
       <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
         {(!vsop) && (
