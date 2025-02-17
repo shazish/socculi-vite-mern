@@ -43,17 +43,27 @@ export default function MatchListLine({
 
   function predicationScore(home: number, away: number): number {
     if (!home || !away) return 0;
-    if (home - away === matchLine["score"]?.["fullTime"]["home"] - matchLine["score"]?.["fullTime"]["away"]) {
-      if (home === matchLine["score"]?.["fullTime"]["home"]) {
+    if (home - away === matchLine.score.fullTime.home - matchLine.score.fullTime.away) {
+      if (home === matchLine.score.fullTime.home) {
         return 3;
       }
       return 2; // covers all tie predictions
     } else {
-      if ((home - away) * (matchLine["score"]?.["fullTime"]["home"] - matchLine["score"]?.["fullTime"]["away"]) > 0) {
+      if ((home - away) * (matchLine.score.fullTime.home - matchLine.score.fullTime.away) > 0) {
         return 1;
       }
       return 0;
     }
+  }
+
+  function timeLeftToStartFormatted(): string {
+    let timeLeft = new Date(matchLine["utcDate"]).getTime() - Date.now();
+    if (timeLeft < 3600000) return `Starts in ` + Math.floor(timeLeft / 60000) + ` minutes`; // less than an hour
+    else if (timeLeft < 86400000) return `Starts in ` + Math.floor(timeLeft / 3600000) + ` hours`; // less than a day
+    return `Starts at ${new Date(matchLine.utcDate).toLocaleString('en-US', {
+                dateStyle: 'short',
+                timeStyle: 'short'
+              })}`;
   }
 
   return (
@@ -67,7 +77,7 @@ export default function MatchListLine({
         </div>}
         {(showTeamName) && (
           <div className="team d-none d-lg-block flex-1">
-            <div>{matchLine["homeTeam"]?.["name"]}</div>
+            {matchLine.homeTeam.name}
           </div>
         )}
         <div
@@ -75,28 +85,24 @@ export default function MatchListLine({
             ${matchLine["status"] === "IN_PLAY" ? "scoreline-inplay" : ""}
           `}
         >
-          <img className="crest" alt={matchLine["homeTeam"]?.["shortName"] + " crest"} src={"./public/crest/" + matchLine["homeTeam"]?.["tla"] + ".png"} />
+          <img className="crest" alt={matchLine.homeTeam.shortName + " crest"} src={"./public/crest/" + matchLine.homeTeam.tla + ".png"} />
 
           <div className="flex flex-col">
-            <div>
-              {matchLine["score"]?.["winner"] !== null &&
-                `${matchLine["score"]?.["fullTime"]["home"]} - ${matchLine["score"]?.["fullTime"]["away"]}`}
-
+            {(submissionDeadlineStatus !== 2) && <div>
+                {matchLine.score.fullTime.home} - {matchLine.score.fullTime.away}
+            </div>}
+            <div className="game-status text-xs">
+              {matchLine.status === "IN_PLAY" && 'IN PROGRESS'}
+              {(submissionDeadlineStatus === 2) && timeLeftToStartFormatted()}  
             </div>
-            <div className="game-status text-xs">{matchLine["status"] === "IN_PLAY" && 'IN PROGRESS'}</div>
-            <div className="game-status text-xs">{matchLine["status"] === "TIMED" &&
-              `Starts at ${new Date(matchLine["utcDate"]).toLocaleString('en-US', {
-                dateStyle: 'short',
-                timeStyle: 'short'
-              })}`}</div>
           </div>
 
-          <img className="crest" alt={matchLine["awayTeam"]?.["shortName"] + " crest"} src={"./public/crest/" + matchLine["awayTeam"]?.["tla"] + ".png"} />
+          <img className="crest" alt={matchLine.awayTeam.shortName + " crest"} src={"./public/crest/" + matchLine.awayTeam.tla + ".png"} />
         </div>
 
         {(showTeamName) && (
           <div className="team d-none d-lg-block flex-1">
-            <span>{matchLine["awayTeam"]?.["name"]}</span>
+            {matchLine.awayTeam.name}
           </div>
         )}
 

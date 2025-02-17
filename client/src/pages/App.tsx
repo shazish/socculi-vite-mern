@@ -17,7 +17,7 @@ const brandLogo = `./public/socculi.jpg`;
 const loadingAnimation2 = `./public/loadinganimation2.svg`; // Add the correct path to your loading animation
 const opUserId = 'shaahin@gmail.com';
 
-function App({vsop = false}: {vsop?: boolean}) {
+function App({ vsop = false }: { vsop?: boolean }) {
   // const [allMatchData, setAllMatchData] = useState<Match[]>();
   const [renderMatchDay, setRenderMatchDay] = useState(0);
   const [matchList, setMatchList] = useState<Match[]>();
@@ -26,12 +26,13 @@ function App({vsop = false}: {vsop?: boolean}) {
   const [existingOpSubmissions, setExistingOpSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = false;
+  const fakeDataEnabled = true;
+  const fakeMatchDay = 25;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
-    if (fakeDataEnabled) { 
-      setRenderMatchDay(20);
+    if (fakeDataEnabled) {
+      setRenderMatchDay(fakeMatchDay);
       return 'fake data enabled';
     }
 
@@ -58,8 +59,6 @@ function App({vsop = false}: {vsop?: boolean}) {
       getMatchDayGames()
         .then(() => {
           setAppLoaded(true);
-          // fetchUserSubmissionsFromWP(renderMatchDay);
-          // fetchUserSubmissionsFromWP(renderMatchDay, 1);
         })
         .catch((error) => {
           console.error("Failed to load match day:", error);
@@ -105,9 +104,19 @@ function App({vsop = false}: {vsop?: boolean}) {
   }
 
   async function fetchUserSubmissionsFromWP(matchDay: number, op?: boolean) {
-    // if (fakeDataEnabled) return;
-    if (!matchDay || matchDay === 0) return;
+    if (fakeDataEnabled) {
+      try {
+        const response = await import('../assets/prediction-structure.json');
+        const fakePredictionData = response.data;
+        console.log('fakePredictionData', fakePredictionData);
+        op ? setExistingOpSubmissions(fakePredictionData) : setExistingSubmissions(fakePredictionData);
+      } catch (error) {
+        console.error('Error fetching the file:', error);
+      }
+      return;
+    };
 
+    if (!matchDay || matchDay === 0) return;
     console.log('fetchUserSubmissionsFromWP', matchDay)
     const formData = new FormData();
     formData.append("week_id", matchDay.toString());
@@ -146,15 +155,14 @@ function App({vsop = false}: {vsop?: boolean}) {
   async function getMatchDayGames(day?: number) {
     console.log('getMatchDayGames', day);
     if (fakeDataEnabled) {
-      const fakedata = await import('../assets/data-structure.json')
-      console.log(fakedata)
-      console.log("day: ", day);      
-      setMatchList(fakedata.default.data.matches.filter((match) => match.matchday === 23) as Match[]);
+      const fakedata = await import('../assets/data-structure.json');
+      console.log('fakedata', fakedata)
+      console.log("day: ", day);
+      setMatchList(fakedata.default.data.matches.filter((match) => match.matchday === fakeMatchDay) as Match[]);
       return;
     }
 
     const formData = new FormData();
-
     await axios
       .post<FootballDataResponse>(
         `/wp-admin/admin-ajax.php?action=get_matchday_games`,
@@ -182,7 +190,7 @@ function App({vsop = false}: {vsop?: boolean}) {
     console.log(matchList)
   }
 
-  console.log("we ran!", window.location.origin);
+  console.log("app.tsx ran!", window.location.origin);
 
   return (
     <>
