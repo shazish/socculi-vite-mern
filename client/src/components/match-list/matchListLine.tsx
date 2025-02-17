@@ -42,17 +42,18 @@ export default function MatchListLine({
   }
 
   function predicationScore(home: number, away: number): number {
-    if (!home || !away) return 0;
+    if (!home || !away || !matchLine.score.fullTime.home || !matchLine.score.fullTime.away) return 0;
+
     if (home - away === matchLine.score.fullTime.home - matchLine.score.fullTime.away) {
       if (home === matchLine.score.fullTime.home) {
-        return 3;
+        return 3; // covers exact matches
       }
       return 2; // covers all tie predictions
     } else {
       if ((home - away) * (matchLine.score.fullTime.home - matchLine.score.fullTime.away) > 0) {
-        return 1;
+        return 1; // covers correct winner predictions
       }
-      return 0;
+      return 0; // covers whimpers :)
     }
   }
 

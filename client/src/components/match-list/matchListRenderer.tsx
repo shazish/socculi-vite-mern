@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { useCallback, useEffect, useState } from "react";
+import Nav from 'react-bootstrap/Nav';
 import MatchListLine from "./matchListLine";
 // const loadingAnimation = `./public/loadinganimation.svg`;
 const loadingAnimation2 = `./public/loadinganimation2.svg`;
@@ -18,6 +19,8 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
   const [existingOpSubmissionsObj, setExistingOpSubmissionsObj] = useState<Record<string, string>>({});
   console.log("--MatchListRender rendered with existingSubmissions---------:", existingSubmissions);
+
+  const allFinished = matchList.every((matchLine: any) => matchLine.status === "FINISHED");
 
   function submissionDeadlineStatus(matchDate: string): number {
     // Less than an hour since match started, means second half has not started
@@ -123,10 +126,15 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
   return (
     <div className="match-list-renderer fade-in w-full max-w-4xl p-3 mx-auto">
       <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>
+      {(allFinished && !vsop) &&
+        <Nav.Link href='/vsop'>
+          <p className="text-md p-4 text-center bg-success-subtle">How did you perform compared to OP on Week {renderedMatchDay}?</p>
+        </Nav.Link>
+      }
       {(vsop) && (
         <div className="flex flex-row justify-content-around">
           <p>OP</p>
-          <p>You</p>          
+          <p>You</p>
         </div>)}
       <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
         {(!vsop) && (
