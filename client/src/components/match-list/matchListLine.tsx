@@ -24,9 +24,6 @@ export default function MatchListLine({
   
   let showOPPrediction = false;
   let showTeamName = true;
-  let predictionScoreUser = predicationScore(Number(homePrediction), Number(awayPrediction));
-  let predictionScoreOp = predicationScore(Number(homeOpPrediction), Number(awayOpPrediction));
-  
   if (vsop) {
     showTeamName = false;
     showOPPrediction = true;
@@ -41,31 +38,43 @@ export default function MatchListLine({
     }
   }
 
-  function predicationScore(home: number, away: number): number {
-    if (!home || !away || !matchLine.score.fullTime.home || !matchLine.score.fullTime.away) return 0;
+  function predicationScore(home: any, away: any): number {
+    // console.log('predicationScore', home, away, matchLine.score.fullTime.home, matchLine.score.fullTime.away);
+    // console.log(!home , !away , !matchLine.score.fullTime.home , !matchLine.score.fullTime.away);
+    home = Number(home);
+    away = Number(away);
+
+    if (isNaN(home) || isNaN(away) || isNaN(matchLine.score.fullTime.home) || isNaN(matchLine.score.fullTime.away)) return 0;
 
     if (home - away === matchLine.score.fullTime.home - matchLine.score.fullTime.away) {
       if (home === matchLine.score.fullTime.home) {
+        // console.log('exact match');
         return 3; // covers exact matches
       }
+      // console.log('tie prediction');
       return 2; // covers all tie predictions
     } else {
       if ((home - away) * (matchLine.score.fullTime.home - matchLine.score.fullTime.away) > 0) {
+        // console.log('correct winner prediction');
         return 1; // covers correct winner predictions
       }
+      // console.log('whimpers');
       return 0; // covers whimpers :)
     }
   }
 
   function timeLeftToStartFormatted(): string {
     let timeLeft = new Date(matchLine["utcDate"]).getTime() - Date.now();
-    if (timeLeft < 3600000) return `Starts in ` + Math.floor(timeLeft / 60000) + ` minutes`; // less than an hour
-    else if (timeLeft < 86400000) return `Starts in ` + Math.floor(timeLeft / 3600000) + ` hours`; // less than a day
+    if (timeLeft < 3600000) return `Starts in ` + Math.floor(timeLeft / 60000) + ` minute(s)`; // less than an hour
+    else if (timeLeft < 86400000) return `Starts in ` + Math.floor(timeLeft / 3600000) + ` hour(s)`; // less than a day
     return `Starts at ${new Date(matchLine.utcDate).toLocaleString('en-US', {
                 dateStyle: 'short',
                 timeStyle: 'short'
               })}`;
   }
+
+  let predictionScoreUser = predicationScore(homePrediction, awayPrediction);
+  let predictionScoreOp = predicationScore(homeOpPrediction, awayOpPrediction);
 
   return (
     <div className="border-b border-gray-200">
@@ -116,14 +125,14 @@ export default function MatchListLine({
 
       {(submissionDeadlineStatus === 1) && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
 
-      {(!showOPPrediction) && <div className="flex flex-row justify-center m-1">
+      {(!showOPPrediction) && <div className="solo-prediction-line flex flex-row justify-center m-1">
         {submissionDeadlineStatus == 0 && (
           <>
             {(homePrediction && awayPrediction) && (
               <>
                 <span className="text-sm self-center my-1 mx-3">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
-                {(predicationScore(Number(homePrediction), Number(awayPrediction)) > 0) &&
-                  <p className="badge text-bg-success align-content-center">+{predicationScore(Number(homePrediction), Number(awayPrediction))}</p>}
+                {(predictionScoreUser > 0) &&
+                  <p className="badge text-bg-success align-content-center">+{predictionScoreUser}</p>}
               </>
             )}
             {!(homePrediction && awayPrediction) &&

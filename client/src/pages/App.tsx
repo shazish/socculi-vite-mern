@@ -11,6 +11,8 @@ import 'react-toastify/dist/ReactToastify.css';
 // 4. archived match days
 // *done* 5. add a button to switch between users
 // 6. add a button to switch between leagues
+// 7. selective game predictions
+// 8. continuous prediction submission
 
 // place resources inside shaziblues.io/public folder
 const brandLogo = `./public/socculi.jpg`;
@@ -26,8 +28,8 @@ function App({ vsop = false }: { vsop?: boolean }) {
   const [existingOpSubmissions, setExistingOpSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = true;
-  const fakeMatchDay = 25;
+  const fakeDataEnabled = false;
+  const fakeMatchDay = 1;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {

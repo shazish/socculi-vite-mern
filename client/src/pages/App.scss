@@ -102,3 +102,18 @@
 .submit-btn {
   height: 50px
 }
+
+.vsop-btn {
+  border: green 2px solid;
+  background-color: var(--bs-success-bg-subtle);
+  &:hover {
+    background-color: green;
+    color: white;
+    cursor: pointer;
+    -webkit-transition: background-color 0.5s ease-out;
+    -moz-transition: background-color 0.5s ease-out;
+    -o-transition: background-color 0.5s ease-out;
+    transition: background-color 0.5s ease-out;
+  }
+}
+

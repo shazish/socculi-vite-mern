@@ -126,18 +126,14 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
   return (
     <div className="match-list-renderer fade-in w-full max-w-4xl p-3 mx-auto">
       <h1 className="text-2xl font-bold my-3">Week {renderedMatchDay}</h1>
-      {(allFinished && !vsop) &&
-        <Nav.Link href='/vsop'>
-          <p className="text-md p-4 text-center bg-success-subtle">How did you perform compared to OP on Week {renderedMatchDay}?</p>
-        </Nav.Link>
-      }
+
       {(vsop) && (
         <div className="flex flex-row justify-content-around">
           <p>OP</p>
           <p>You</p>
         </div>)}
       <form className="w-full" name="predictionForm" onSubmit={handleSubmit}>
-        {(!vsop) && (
+        {(!vsop && !allFinished) && (
           <button type="submit" className="btn submit-btn btn-dark w-50 position-sticky left-0 right-0 top-0 lh-1"
             disabled={!formIsValid || !formIsDirty || !localStorage.getItem("socculi_user_email")}>
             {!submitInProgress &&
@@ -150,6 +146,12 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
               </div>}
           </button>
         )}
+
+        {(!vsop && allFinished) &&
+          <Nav.Link href='/vsop'>
+            <p className="vsop-btn text-md m-3 py-4 text-center">See how you performed compared to OP on Week {renderedMatchDay}!</p>            
+          </Nav.Link>
+        }
 
         <div className="flex p-2 flex-col gap-4">
           {/* Match List */}
