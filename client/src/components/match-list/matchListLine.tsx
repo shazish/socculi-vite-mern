@@ -13,7 +13,7 @@ export default function MatchListLine({
 }: {
   index: number,
   matchLine: any;
-  submissionDeadlineStatus: number;
+  submissionDeadlineStatus: string;
   homePrediction?: string | null;
   awayPrediction?: string | null;
   homeOpPrediction?: string | null;
@@ -98,12 +98,12 @@ export default function MatchListLine({
           <img className="crest" alt={matchLine.homeTeam.shortName + " crest"} src={"./public/crest/" + matchLine.homeTeam.tla + ".png"} />
 
           <div className="flex flex-col">
-            {(submissionDeadlineStatus !== 2) && <div>
+            {( !== 2) && <div>
                 {matchLine.score.fullTime.home} - {matchLine.score.fullTime.away}
             </div>}
             <div className="game-status text-xs">
               {matchLine.status === "IN_PLAY" && 'IN PROGRESS'}
-              {(submissionDeadlineStatus === 2) && timeLeftToStartFormatted()}  
+              {(submissionDeadlineStatus === "open") && timeLeftToStartFormatted()}  
             </div>
           </div>
 
@@ -123,10 +123,10 @@ export default function MatchListLine({
         </div>}
       </div>
 
-      {(submissionDeadlineStatus === 1) && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
+      {(submissionDeadlineStatus === "closesSoon") && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
 
       {(!showOPPrediction) && <div className="solo-prediction-line flex flex-row justify-center m-1">
-        {submissionDeadlineStatus == 0 && (
+        {submissionDeadlineStatus == "closed" && (
           <>
             {(homePrediction && awayPrediction) && (
               <>
@@ -141,7 +141,7 @@ export default function MatchListLine({
           </>
         )}
 
-        {submissionDeadlineStatus !== 0 && (
+        {submissionDeadlineStatus !== "closed" && (
           <div className="flex flex-row justify-center">
             <span className="text-sm self-center">Your prediction:&nbsp; </span>
             <div className="input-container border border-gray-200 m-2">

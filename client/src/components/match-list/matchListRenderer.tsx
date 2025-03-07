@@ -22,13 +22,13 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
 
   const allFinished = matchList.every((matchLine: any) => matchLine.status === "FINISHED");
 
-  function submissionDeadlineStatus(matchDate: string): number {
+  function submissionDeadlineStatus(matchDate: string): string {
     // Less than an hour since match started, means second half has not started
     // 0: match is in 2nd half, 1: 2nd half starts soon, 2: match is in the future
     // return 2;
-    if (Date.now() - new Date(matchDate).getTime() > 3600000) return 0;
-    if (Date.now() - new Date(matchDate).getTime() < 0) return 2;
-    return 1;
+    if (Date.now() - new Date(matchDate).getTime() > 3600000) return "closed";
+    if (Date.now() - new Date(matchDate).getTime() < 0) return "open";
+    return "closesSoon";
   }
 
   function handleChildChange(result: number | null, isHome: boolean, index: number) {
@@ -83,7 +83,7 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
   }
 
   function setSubmitBtnText() {
-    const atLeastOneSubmittableMatch = matchList.some((matchLine: any) => submissionDeadlineStatus(matchLine["utcDate"]) !== 0)
+    const atLeastOneSubmittableMatch = matchList.some((matchLine: any) => submissionDeadlineStatus(matchLine["utcDate"]) !== "closed");
     if (!atLeastOneSubmittableMatch) {
       return "NO MATCHES TO SUBMIT";
     } else if (localStorage.getItem("socculi_user_email")) {
