@@ -25,9 +25,10 @@ const routes = [
   { path: '/', element: <App />, title: 'Home | Socculi' },
   { path: '/about', element: <About />, title: 'About | Socculi' },
   { path: '/vsop', element: <Vsop />, title: 'Vs OP | Socculi' },
-  { path: '*', element: <App />, title: 'Home | Socculi' }
+  { path: '*', element: <App />, title: 'Home | Socculi' }    
 ];
 
+// for local login, make sure .env file is in place, bro
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>

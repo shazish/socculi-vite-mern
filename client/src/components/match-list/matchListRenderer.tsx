@@ -43,10 +43,23 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
     const inputs = document.forms.namedItem('predictionForm')?.querySelectorAll('input[required]') as NodeListOf<HTMLInputElement>;
     // .querySelectorAll('input[required]');
 
-    const isValid = Array.from(inputs).every(input => {
+    const isValid = Array.from(inputs).reduce((valid, input, index, arr) => {
       const value = input.value.trim();
-      return value !== '' && parseInt(value) >= 0;
-    });
+      
+      // If we're on an odd-indexed input, skip (we'll process pairs together)
+      if (index % 2 !== 0) return valid;
+      
+      // Get the related input (assume inputs are in pairs: home, away)
+      const relatedInput = arr[index + 1];
+      const relatedValue = relatedInput?.value.trim() || '';
+      
+      // Check if both inputs have values or both are empty
+      const bothHaveValues = value !== '' && relatedValue !== '';
+      const bothEmpty = value === '' && relatedValue === '';
+      
+      // Valid if both have values or both are empty
+      return valid && (bothHaveValues || bothEmpty);
+    }, true);
 
     setFormIsValid(isValid);
     setFormIsDirty(true);

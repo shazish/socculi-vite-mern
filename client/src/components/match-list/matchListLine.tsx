@@ -98,7 +98,7 @@ export default function MatchListLine({
           <img className="crest" alt={matchLine.homeTeam.shortName + " crest"} src={"./public/crest/" + matchLine.homeTeam.tla + ".png"} />
 
           <div className="flex flex-col">
-            {( !== 2) && <div>
+          {( submissionDeadlineStatus !== "open") && <div>
                 {matchLine.score.fullTime.home} - {matchLine.score.fullTime.away}
             </div>}
             <div className="game-status text-xs">
@@ -146,7 +146,7 @@ export default function MatchListLine({
             <span className="text-sm self-center">Your prediction:&nbsp; </span>
             <div className="input-container border border-gray-200 m-2">
               <input
-                className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 min={0}
                 type="number"
                 name={`home-input-${index}`}
@@ -158,7 +158,7 @@ export default function MatchListLine({
               <input
                 type="number"
                 min={0}
-                className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 value={awayPrediction || ''}
                 name={`away-input-${index}`}
                 onChange={(e) => handleChange(e.target.value, false)}
