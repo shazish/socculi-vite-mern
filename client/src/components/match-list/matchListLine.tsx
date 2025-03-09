@@ -1,4 +1,5 @@
 import "./MatchListLine.scss";
+import { useEffect, useState } from "react";
 
 export default function MatchListLine({
   index,
@@ -22,6 +23,14 @@ export default function MatchListLine({
   broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void;
 }) {
   
+  const [localHome, setLocalHome] = useState(homePrediction || '');
+  const [localAway, setLocalAway] = useState(awayPrediction || '');
+
+  useEffect(() => {
+    setLocalHome(homePrediction || '');
+    setLocalAway(awayPrediction || '');
+  }, [homePrediction, awayPrediction]);
+  
   let showOPPrediction = false;
   let showTeamName = true;
   if (vsop) {
@@ -29,18 +38,58 @@ export default function MatchListLine({
     showOPPrediction = true;
   }
 
-  function handleChange(value: string | null, isHome: boolean) {
-    console.log('handleChange', value, isHome);
+  // Improved handle change function to enforce "both or neither" rule
+  function handleChange(value: string, isHome: boolean) {
+    // Update the local state for the current field
     if (isHome) {
-      broadcastChangeToParent(value ? parseInt(value) : null, true, index);
+      setLocalHome(value);
     } else {
-      broadcastChangeToParent(value ? parseInt(value) : null, false, index);
+      setLocalAway(value);
+    }
+
+    // Get current values for validation
+    const homeValue = isHome ? value : localHome;
+    const awayValue = isHome ? localAway : value;
+
+    // Apply the "both or neither" rule
+    if (value !== '') {
+      // This field has a value
+      if (isHome) {
+        // Home field has value, ensure away also has value
+        if (awayValue === '') {
+          setLocalAway('0');
+          broadcastChangeToParent(0, false, index);
+        }
+        broadcastChangeToParent(parseInt(value) || 0, true, index);
+      } else {
+        // Away field has value, ensure home also has value
+        if (homeValue === '') {
+          setLocalHome('0');
+          broadcastChangeToParent(0, true, index);
+        }
+        broadcastChangeToParent(parseInt(value) || 0, false, index);
+      }
+    } else {
+      // This field is empty
+      if (isHome) {
+        // Home field is empty, clear away too if it has value
+        if (awayValue !== '') {
+          setLocalAway('');
+          broadcastChangeToParent(null, false, index);
+        }
+        broadcastChangeToParent(null, true, index);
+      } else {
+        // Away field is empty, clear home too if it has value
+        if (homeValue !== '') {
+          setLocalHome('');
+          broadcastChangeToParent(null, true, index);
+        }
+        broadcastChangeToParent(null, false, index);
+      }
     }
   }
 
   function predicationScore(home: any, away: any): number {
-    // console.log('predicationScore', home, away, matchLine.score.fullTime.home, matchLine.score.fullTime.away);
-    // console.log(!home , !away , !matchLine.score.fullTime.home , !matchLine.score.fullTime.away);
     home = Number(home);
     away = Number(away);
 
@@ -48,17 +97,13 @@ export default function MatchListLine({
 
     if (home - away === matchLine.score.fullTime.home - matchLine.score.fullTime.away) {
       if (home === matchLine.score.fullTime.home) {
-        // console.log('exact match');
         return 3; // covers exact matches
       }
-      // console.log('tie prediction');
       return 2; // covers all tie predictions
     } else {
       if ((home - away) * (matchLine.score.fullTime.home - matchLine.score.fullTime.away) > 0) {
-        // console.log('correct winner prediction');
         return 1; // covers correct winner predictions
       }
-      // console.log('whimpers');
       return 0; // covers whimpers :)
     }
   }
@@ -150,19 +195,17 @@ export default function MatchListLine({
                 min={0}
                 type="number"
                 name={`home-input-${index}`}
-                value={homePrediction || ''}
+                value={localHome}
                 onChange={(e) => handleChange(e.target.value, true)}
-                required
               />
               -
               <input
                 type="number"
                 min={0}
                 className="text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                value={awayPrediction || ''}
+                value={localAway}
                 name={`away-input-${index}`}
                 onChange={(e) => handleChange(e.target.value, false)}
-                required
               />
             </div>
           </div>

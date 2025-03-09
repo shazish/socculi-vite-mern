@@ -40,7 +40,7 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
       newSubmissions[`away-input-${index}`] = result?.toString() ?? '';
     }
 
-    const inputs = document.forms.namedItem('predictionForm')?.querySelectorAll('input[required]') as NodeListOf<HTMLInputElement>;
+    const inputs = document.forms.namedItem('predictionForm')?.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
     // .querySelectorAll('input[required]');
 
     const isValid = Array.from(inputs).reduce((valid, input, index, arr) => {
@@ -53,6 +53,7 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
       const relatedInput = arr[index + 1];
       const relatedValue = relatedInput?.value.trim() || '';
       
+      console.log('value, relatedValue', value, relatedValue);
       // Check if both inputs have values or both are empty
       const bothHaveValues = value !== '' && relatedValue !== '';
       const bothEmpty = value === '' && relatedValue === '';

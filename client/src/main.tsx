@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom/client'
 import App from './pages/App.tsx'
 import './style/style.css'
 import './index.scss'
+import SocculiFooter from './components/footer/footer.js'
 
 import { ReactNode } from 'react';
 
@@ -49,6 +50,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             ))}
           </Routes>
         </TitleManager>
+        <SocculiFooter />
       </Auth0Provider>
     </BrowserRouter>
   </React.StrictMode>,
