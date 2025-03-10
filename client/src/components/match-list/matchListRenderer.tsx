@@ -18,6 +18,9 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
   const [submitInProgress, setSubmitInProgress] = useState(false);
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
   const [existingOpSubmissionsObj, setExistingOpSubmissionsObj] = useState<Record<string, string>>({});
+  const [existingTimestampsObj, setExistingTimestampsObj] = useState<Record<string, string>>({});
+  const [changedLines, setChangedLines] = useState<Set<number>>(new Set());
+  
   console.log("--MatchListRender rendered with existingSubmissions---------:", existingSubmissions);
 
   const allFinished = matchList.every((matchLine: any) => matchLine.status === "FINISHED");
@@ -32,18 +35,27 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
   }
 
   function handleChildChange(result: number | null, isHome: boolean, index: number) {
-
     const newSubmissions = { ...existingSubmissionsObj };
+    
     if (isHome) {
       newSubmissions[`home-input-${index}`] = result?.toString() ?? '';
     } else {
       newSubmissions[`away-input-${index}`] = result?.toString() ?? '';
     }
 
+    // Track which lines have been changed by the user in this session
+    setChangedLines(prev => {
+      const newSet = new Set(prev);
+      newSet.add(index);
+      return newSet;
+    });
+
     const inputs = document.forms.namedItem('predictionForm')?.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
-    // .querySelectorAll('input[required]');
 
     const isValid = Array.from(inputs).reduce((valid, input, index, arr) => {
+      // Skip hidden inputs and timestamps
+      if (input.type === 'hidden') return valid;
+      
       const value = input.value.trim();
       
       // If we're on an odd-indexed input, skip (we'll process pairs together)
@@ -65,22 +77,42 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
     setFormIsValid(isValid);
     setFormIsDirty(true);
 
-    // Set state with the new object
+    // Set state with the new objects
     setExistingSubmissionsObj(newSubmissions);
-    console.log('handleChildChange: result, isHome, index, formIsValid, formIsDirty', result, isHome, index, formIsValid, formIsDirty);
+    
+    console.log('handleChildChange: result, isHome, index, formIsValid, formIsDirty', 
+      result, isHome, index, formIsValid, formIsDirty);
     return;
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     setSubmitInProgress(true);
     e.preventDefault();
+    
+    // Current timestamp for the submission
+    const currentTimestamp = new Date().getTime();
+    
     const formData = new FormData(e.currentTarget);
     formData.append("renderedMatchDay", renderedMatchDay.toString());
+    
+    // Add timestamp for each match line
+    matchList.forEach((_, index) => {
+      // If this line was changed during this session, use current timestamp
+      // Otherwise, use existing timestamp or current timestamp if none exists
+      const timestamp = changedLines.has(index) 
+        ? currentTimestamp 
+        : (existingTimestampsObj[`timestamp-${index}`] || currentTimestamp);
+      
+      formData.append(`timestamp-${index}`, timestamp.toString());
+    });
 
     const result = broadcastSubmissionToParent(convertFormToString(formData));
+    console.log('handleSubmit result', convertFormToString(formData));
     result.then((res) => {
       setSubmitInProgress(false);
       setFormIsDirty(false);
+      // Reset changed lines after successful submission
+      setChangedLines(new Set());
       console.log('broadcastSubmissionToParent result', res);
     }).catch((err) => {
       setSubmitInProgress(false);
@@ -135,6 +167,18 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
   useEffect(() => {
     setExistingSubmissionsObj(convertStringToObj(existingSubmissions));
     setExistingOpSubmissionsObj(convertStringToObj(existingOpSubmissions));
+    
+    // Extract any timestamps from existing submissions
+    const existingData = convertStringToObj(existingSubmissions);
+    const timestamps: Record<string, string> = {};
+    
+    Object.keys(existingData).forEach(key => {
+      if (key.startsWith('timestamp-')) {
+        timestamps[key] = existingData[key];
+      }
+    });
+    
+    setExistingTimestampsObj(timestamps);
   }, [convertStringToObj, existingSubmissions, existingOpSubmissions]);
 
   return (
@@ -155,7 +199,6 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
               </span>}
             {submitInProgress &&
               <div className="flex flex-row">
-
                 <img src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" />
               </div>}
           </button>
@@ -190,5 +233,4 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
       </form>
     </div>
   );
-
 }
