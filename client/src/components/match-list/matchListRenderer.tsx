@@ -85,6 +85,14 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
     return;
   }
 
+  function calcImpact(submitTime: number, matchStart: number): number {
+    let delta = submitTime - matchStart; 
+    if (delta < 0) return 2; 
+    if (delta < 2700000) return (( 2700000 - delta) / 2700000) * 2;
+    if (delta > 2700000 && delta < 3600000) return 1;
+    else return 0; // should not be happening
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     setSubmitInProgress(true);
     e.preventDefault();
@@ -96,14 +104,19 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
     formData.append("renderedMatchDay", renderedMatchDay.toString());
     
     // Add timestamp for each match line
-    matchList.forEach((_, index) => {
+    matchList.forEach((_:any, index: any) => {
       // If this line was changed during this session, use current timestamp
       // Otherwise, use existing timestamp or current timestamp if none exists
       const timestamp = changedLines.has(index) 
         ? currentTimestamp 
         : (existingTimestampsObj[`timestamp-${index}`] || currentTimestamp);
       
+      const impact = changedLines.has(index)
+        ? calcImpact(currentTimestamp, new Date(matchList[index].utcDate).getTime()) 
+        : (existingTimestampsObj[`impact-${index}`] || -1);
+        
       formData.append(`timestamp-${index}`, timestamp.toString());
+      formData.append(`impact-${index}`, impact.toString());
     });
 
     const result = broadcastSubmissionToParent(convertFormToString(formData));
@@ -132,7 +145,7 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
     const atLeastOneSubmittableMatch = matchList.some((matchLine: any) => submissionDeadlineStatus(matchLine["utcDate"]) !== "closed");
     if (!atLeastOneSubmittableMatch) {
       return "NO MATCHES TO SUBMIT";
-    } else if (localStorage.getItem("socculi_user_email")) {
+    } else if (localStorage.getItem("socculi_user_email")) { // logged in
       return "S U B M I T";
     }
     return "LOGIN TO SUBMIT";
@@ -222,6 +235,8 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
                   awayPrediction={existingSubmissionsObj?.[`away-input-${index}`]}
                   homeOpPrediction={existingOpSubmissionsObj?.[`home-input-${index}`]}
                   awayOpPrediction={existingOpSubmissionsObj?.[`away-input-${index}`]}
+                  predictionTimestamp={existingTimestampsObj?.[`timestamp-${index}`]}
+                  predictionImpact={existingTimestampsObj?.[`impact-${index}`]}
                   submissionDeadlineStatus={submissionDeadlineStatus(matchLine["utcDate"])}
                   broadcastChangeToParent={(a, b, i) => handleChildChange(a, b, i)}
                   vsop={vsop}
