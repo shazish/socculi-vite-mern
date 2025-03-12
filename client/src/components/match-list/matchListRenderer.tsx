@@ -80,8 +80,6 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
     // Set state with the new objects
     setExistingSubmissionsObj(newSubmissions);
     
-    console.log('handleChildChange: result, isHome, index, formIsValid, formIsDirty', 
-      result, isHome, index, formIsValid, formIsDirty);
     return;
   }
 
@@ -184,11 +182,16 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
     // Extract any timestamps from existing submissions
     const existingData = convertStringToObj(existingSubmissions);
     const timestamps: Record<string, string> = {};
+    const impact: Record<string, string> = {};
     
     Object.keys(existingData).forEach(key => {
       if (key.startsWith('timestamp-')) {
         timestamps[key] = existingData[key];
       }
+      if (key.startsWith('impact-')) {
+        impact[key] = existingData[key];
+      }
+
     });
     
     setExistingTimestampsObj(timestamps);
