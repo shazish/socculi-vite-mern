@@ -1,7 +1,6 @@
 import { Col, Row } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 
-// place resources inside shaziblues.io/public folder
 const viteLogo = `./public/vite.svg`;
 const reactLogo = `./public/react.svg`;
 const brandLogo = `./public/socculi.jpg`;
@@ -11,58 +10,95 @@ const wpLogo = `./public/wp-logo.png`;
 
 function About() {
     return (
-        <div>
-            <div className="logo-container flex justify-center">
-                <img src={brandLogo} className="brand-logo fade-in" alt="Socc'nd logo" />
-            </div>
-            <div className="m-4 pb-3 content-center bg-light">
-                <h1 className="display-2">Socculi</h1>
-                <h3 className="display-5">Second Half Fantasy League</h3>
-                <em>A small passion project by Shaun Shahbazi</em>
-            </div>
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+            <Container className="py-12">
+                {/* Hero Section */}
+                <div className="text-center mb-16">
+                    <img 
+                        src={brandLogo} 
+                        className="w-24 h-24 mx-auto mb-8 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300" 
+                        alt="Socculi logo" 
+                    />
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">Socculi</h1>
+                    <p className="text-xl text-gray-600 mb-2">Second Half Fantasy League</p>
+                    <p className="text-sm text-gray-500 italic">A passion project by Shaun Shahbazi</p>
+                </div>
 
-            <Container>
-                <Row>
-                    <Col className="flex flex-col text-start" md={{ span: 8, offset: 2 }}>
-                        <hr />
-                        <p className="mt-2"><strong>Socculi</strong> is a small passion project that I started in my free time; because apart from my respect for the English Premier League, I love creating interesting stuff (relatively speaking!), and to have an opportunity to deal with React and Wordpress.</p>
-                        <p className="mt-2">Football-data.org is a free service that provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.</p>
-                        <p className="my-2">Socculi is powered by React/Vite on the frontend, and MySQL and Wordpress on the backend. It's currently using Auth0 for authentication.</p>
-                        <hr />
-                        <strong className="mt-2">Rules (Subject to change):</strong>
-                        <ol className="items-start">
-                            <li>You have until the beginning of the 2nd half of each game to submit your prediction.</li>
-                            <li>Correct winner/tie: 1 point</li>
-                            <li>Correct goal difference: 2 points</li>
-                            <li>Correct final score: 3 points</li>
-                        </ol>
+                {/* Main Content */}
+                <Row className="justify-content-center mb-16">
+                    <Col md={8} lg={7}>
+                        <div className="prose max-w-none">
+                            <p className="text-gray-700 leading-relaxed mb-6">
+                                <strong className="text-gray-900">Socculi</strong> is a unique fantasy league 
+                                experience based on the English Premier League. Born from a passion for football 
+                                and web development, it offers a fresh take on match predictions with a focus 
+                                on second-half gameplay.
+                            </p>
+                            <p className="text-gray-700 leading-relaxed mb-6">
+                                Socculi is powered by React and Vite on the frontend, with MySQL and WordPress handling the 
+                                backend operations. The football data is sourced from the Football Data API.
+                            </p>
+                        </div>
+
+                        {/* Rules Section */}
+                        <div className="bg-white rounded-xl shadow-sm p-8 mb-12">
+                            <h2 className="text-2xl font-semibold text-gray-900 mb-6">How It Works</h2>
+                            <ol className="space-y-4 text-gray-700">
+                                <li className="flex items-start">
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">1</span>
+                                    Submit predictions before second half begins
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">2</span>
+                                    Earn 1 point for correct winner/tie
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">3</span>
+                                    Get 2 points for correct goal difference
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">4</span>
+                                    Score 3 points for exact score prediction
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">5</span>
+                                    Impact multiplier: 2.0x to 1.0x based on submission timing
+                                </li>
+                            </ol>
+                        </div>
                     </Col>
                 </Row>
+
+                {/* Tech Stack */}
+                <div className="text-center">
+                    <h3 className="text-lg font-medium text-gray-700 mb-6">Powered By</h3>
+                    <div className="flex flex-wrap justify-center items-center gap-8">
+                        {[
+                            { src: footballDataLogo, alt: "Football Data", href: "https://www.football-data.org/" },
+                            { src: reactLogo, alt: "React", href: "https://react.dev" },
+                            { src: viteLogo, alt: "Vite", href: "https://vitejs.dev" },
+                            { src: wpLogo, alt: "WordPress", href: "https://wordpress.org/" },
+                            { src: auth0Logo, alt: "Auth0", href: "https://auth0.com" }
+                        ].map((tech) => (
+                            <a 
+                                key={tech.alt}
+                                href={tech.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="transform hover:scale-110 transition-transform duration-300"
+                            >
+                                <img 
+                                    src={tech.src} 
+                                    alt={tech.alt} 
+                                    className="h-12 w-auto opacity-75 hover:opacity-100 transition-opacity duration-300" 
+                                />
+                            </a>
+                        ))}
+                    </div>
+                </div>
             </Container>
-
-            <div className="flex justify-center">
-                <a href="https://www.football-data.org/" target="_blank">
-                    <img src={footballDataLogo} className="logo" alt="Football Data logo" />
-                </a>
-
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo" />
-                </a>
-
-                <a href="https://vitejs.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-
-                <a href="https://wordpress.org/" target="_blank">
-                    <img src={wpLogo} className="logo" alt="Wordpress logo" />
-                </a>
-
-                <a href="https://auth0.com" target="_blank">
-                    <img src={auth0Logo} className="logo" alt="Auth0 logo" />
-                </a>
-            </div>
         </div>
-    )
+    );
 }
 
-export default About
+export default About;
