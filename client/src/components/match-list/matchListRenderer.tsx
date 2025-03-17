@@ -19,6 +19,7 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
   const [existingSubmissionsObj, setExistingSubmissionsObj] = useState<Record<string, string>>({});
   const [existingOpSubmissionsObj, setExistingOpSubmissionsObj] = useState<Record<string, string>>({});
   const [existingTimestampsObj, setExistingTimestampsObj] = useState<Record<string, string>>({});
+  const [existingImpactsObj, setExistingImpactsObj] = useState<Record<string, string>>({});
   const [changedLines, setChangedLines] = useState<Set<number>>(new Set());
   
   console.log("--MatchListRender rendered with existingSubmissions---------:", existingSubmissions);
@@ -111,12 +112,11 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
       
       const impact = changedLines.has(index)
         ? calcImpact(currentTimestamp, new Date(matchList[index].utcDate).getTime()) 
-        : (existingTimestampsObj[`impact-${index}`] || -1);
+        : (existingImpactsObj[`impact-${index}`] || -1);
         
       formData.append(`timestamp-${index}`, timestamp.toString());
       formData.append(`impact-${index}`, impact.toString());
     });
-
     const result = broadcastSubmissionToParent(convertFormToString(formData));
     console.log('handleSubmit result', convertFormToString(formData));
     result.then((res) => {
@@ -182,19 +182,20 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
     // Extract any timestamps from existing submissions
     const existingData = convertStringToObj(existingSubmissions);
     const timestamps: Record<string, string> = {};
-    const impact: Record<string, string> = {};
+    const impacts: Record<string, string> = {};
     
     Object.keys(existingData).forEach(key => {
       if (key.startsWith('timestamp-')) {
         timestamps[key] = existingData[key];
       }
       if (key.startsWith('impact-')) {
-        impact[key] = existingData[key];
+        impacts[key] = existingData[key];
       }
 
     });
     
     setExistingTimestampsObj(timestamps);
+    setExistingImpactsObj(impacts);
   }, [convertStringToObj, existingSubmissions, existingOpSubmissions]);
 
   return (
@@ -238,8 +239,7 @@ export default function MatchListRender({ vsop = false, matchList, renderedMatch
                   awayPrediction={existingSubmissionsObj?.[`away-input-${index}`]}
                   homeOpPrediction={existingOpSubmissionsObj?.[`home-input-${index}`]}
                   awayOpPrediction={existingOpSubmissionsObj?.[`away-input-${index}`]}
-                  predictionTimestamp={existingTimestampsObj?.[`timestamp-${index}`]}
-                  predictionImpact={existingTimestampsObj?.[`impact-${index}`]}
+                  predictionImpact={existingImpactsObj?.[`impact-${index}`]}
                   submissionDeadlineStatus={submissionDeadlineStatus(matchLine["utcDate"])}
                   broadcastChangeToParent={(a, b, i) => handleChildChange(a, b, i)}
                   vsop={vsop}

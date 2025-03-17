@@ -9,7 +9,6 @@ export default function MatchListLine({
   awayPrediction,
   homeOpPrediction,
   awayOpPrediction,
-  predictionTimestamp,
   predictionImpact,
   vsop = false,
   broadcastChangeToParent,
@@ -21,7 +20,6 @@ export default function MatchListLine({
   awayPrediction?: string | null;
   homeOpPrediction?: string | null;
   awayOpPrediction?: string | null;
-  predictionTimestamp?: string;
   predictionImpact?: string;
   vsop?: boolean;
   broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void;
@@ -182,6 +180,7 @@ export default function MatchListLine({
                 <span className="text-sm self-center my-1 mx-3">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
                 {(predictionScoreUser > 0) &&
                   <p className="badge text-bg-success align-content-center">+{predictionScoreUser}</p>}
+                  { predictionImpact && <p className="text-xs">Impact: {predictionImpact}</p> }
               </>
             )}
             {!(homePrediction && awayPrediction) &&
@@ -211,8 +210,7 @@ export default function MatchListLine({
                 name={`away-input-${index}`}
                 onChange={(e) => handleChange(e.target.value, false)}
               />
-            </div>
-            { predictionImpact && <p className="text-xs">impact: {predictionImpact}</p> }
+            </div>            
           </div>
         )}
       </div>}
