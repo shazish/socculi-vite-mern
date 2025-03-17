@@ -4,7 +4,7 @@
 </div> 
 
 
-## What the hell is Socculi?
+## What exactly is Socculi?
 
 [Socculi](https://socculi.com) (currently a work-in-progress) is a simple fantasy league based on English Premier League. It's a small passion project that I started in my free time; because apart from my love for the English Premier League, I love creating interesting stuff (relatively speaking!), and to create myself an opportunity to improve my skills in React, Redux, and Wordpress.
 
