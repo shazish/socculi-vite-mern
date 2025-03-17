@@ -24,7 +24,7 @@ export default function MatchListLine({
   vsop?: boolean;
   broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void;
 }) {
-  
+
   const [localHome, setLocalHome] = useState(homePrediction || '');
   const [localAway, setLocalAway] = useState(awayPrediction || '');
 
@@ -32,7 +32,7 @@ export default function MatchListLine({
     setLocalHome(homePrediction || '');
     setLocalAway(awayPrediction || '');
   }, [homePrediction, awayPrediction]);
-  
+
   let showOPPrediction = false;
   let showTeamName = true;
   if (vsop) {
@@ -115,9 +115,19 @@ export default function MatchListLine({
     if (timeLeft < 3600000) return `Starts in ` + Math.floor(timeLeft / 60000) + ` minute(s)`; // less than an hour
     else if (timeLeft < 86400000) return `Starts in ` + Math.floor(timeLeft / 3600000) + ` hour(s)`; // less than a day
     return `Starts at ${new Date(matchLine.utcDate).toLocaleString('en-US', {
-                dateStyle: 'short',
-                timeStyle: 'short'
-              })}`;
+      dateStyle: 'short',
+      timeStyle: 'short'
+    })}`;
+  }
+
+  // First, add a function to format the impact value
+  function formatImpact(impact: string | undefined): any {
+    if (!impact) return { percentage: '0', numeric: '0.0' };
+    const numericImpact = parseFloat(impact);
+    return {
+      percentage: (numericImpact * 50).toFixed(0),
+      numeric: numericImpact.toFixed(1)
+    }
   }
 
   let predictionScoreUser = predicationScore(homePrediction, awayPrediction);
@@ -128,7 +138,7 @@ export default function MatchListLine({
       {/* desktop */}
       <div className="flex items-center py-2 bg-light">
         {(showOPPrediction) && <div className="flex-1 large-user-prediction fw-semibold">
-          <span className={'mx-3 ' + (predictionScoreOp > 0 && 'text-success') }> {homeOpPrediction} - {awayOpPrediction} </span>
+          <span className={'mx-3 ' + (predictionScoreOp > 0 && 'text-success')}> {homeOpPrediction} - {awayOpPrediction} </span>
           {(predictionScoreOp > 0) &&
             <p className="badge lh-lg fw-normal text-bg-success align-content-center">+{predictionScoreOp}</p>}
         </div>}
@@ -145,12 +155,12 @@ export default function MatchListLine({
           <img className="crest" alt={matchLine.homeTeam.shortName + " crest"} src={"./public/crest/" + matchLine.homeTeam.tla + ".png"} />
 
           <div className="flex flex-col">
-          {( submissionDeadlineStatus !== "open") && <div>
-                {matchLine.score.fullTime.home} - {matchLine.score.fullTime.away}
+            {(submissionDeadlineStatus !== "open") && <div>
+              {matchLine.score.fullTime.home} - {matchLine.score.fullTime.away}
             </div>}
             <div className="game-status text-xs">
               {matchLine.status === "IN_PLAY" && 'IN PROGRESS'}
-              {(submissionDeadlineStatus === "open") && timeLeftToStartFormatted()}  
+              {(submissionDeadlineStatus === "open") && timeLeftToStartFormatted()}
             </div>
           </div>
 
@@ -164,7 +174,7 @@ export default function MatchListLine({
         )}
 
         {(showOPPrediction) && <div className="flex-1 large-user-prediction fw-semibold">
-          <span className={'mx-3 ' + (predictionScoreOp > 0 && 'text-success') }> {homePrediction} - {awayPrediction} </span>
+          <span className={'mx-3 ' + (predictionScoreOp > 0 && 'text-success')}> {homePrediction} - {awayPrediction} </span>
           {(predictionScoreUser > 0) &&
             <p className="badge lh-lg fw-normal text-bg-success align-content-center">+{predictionScoreUser}</p>}
         </div>}
@@ -177,10 +187,25 @@ export default function MatchListLine({
           <>
             {(homePrediction && awayPrediction) && (
               <>
-                <span className="text-sm self-center my-1 mx-3">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
+                <span className="text-sm self-center my-1 mx-2">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
+                {predictionImpact && (
+                  <div className="relative w-24 h-4 mx-4 self-center">
+                    <div className="absolute inset-0 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+                      <div
+                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400/25 to-blue-600/25 transition-all duration-300"
+                        style={{ width: `${formatImpact(predictionImpact).percentage}%` }}
+                      />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[9px] text-gray-400 select-none">
+                        IMPACT {formatImpact(predictionImpact).numeric}x
+                      </span>
+                    </div>
+                  </div>
+                )}                
                 {(predictionScoreUser > 0) &&
-                  <p className="badge text-bg-success align-content-center">+{predictionScoreUser}</p>}
-                  { predictionImpact && <p className="text-xs">Impact: {predictionImpact}</p> }
+                  <p className="badge text-bg-success align-content-center mx-2 self-center">+{predictionScoreUser}</p>}
+
               </>
             )}
             {!(homePrediction && awayPrediction) &&
@@ -210,7 +235,7 @@ export default function MatchListLine({
                 name={`away-input-${index}`}
                 onChange={(e) => handleChange(e.target.value, false)}
               />
-            </div>            
+            </div>
           </div>
         )}
       </div>}
