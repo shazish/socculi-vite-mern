@@ -8,6 +8,7 @@ function SocculiNavbar() {
   const navItems = [
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
+    { path: 'https://github.com/shazish/socculi-vite-mern' , label: 'Github' },
     // { path: '/thisweek', label: 'Archived Weeks'}
   ]
 
