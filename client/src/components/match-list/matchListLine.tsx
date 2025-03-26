@@ -1,5 +1,5 @@
-import "./MatchListLine.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
+import { Clock, Trophy } from "lucide-react"
 
 export default function MatchListLine({
   index,
@@ -13,232 +13,298 @@ export default function MatchListLine({
   vsop = false,
   broadcastChangeToParent,
 }: {
-  index: number,
-  matchLine: any;
-  submissionDeadlineStatus: string;
-  homePrediction?: string | null;
-  awayPrediction?: string | null;
-  homeOpPrediction?: string | null;
-  awayOpPrediction?: string | null;
-  predictionImpact?: string;
-  vsop?: boolean;
-  broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void;
+  index: number
+  matchLine: any
+  submissionDeadlineStatus: string
+  homePrediction?: string | null
+  awayPrediction?: string | null
+  homeOpPrediction?: string | null
+  awayOpPrediction?: string | null
+  predictionImpact?: string
+  vsop?: boolean
+  broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void
 }) {
-
-  const [localHome, setLocalHome] = useState(homePrediction || '');
-  const [localAway, setLocalAway] = useState(awayPrediction || '');
+  const [localHome, setLocalHome] = useState(homePrediction || "")
+  const [localAway, setLocalAway] = useState(awayPrediction || "")
 
   useEffect(() => {
-    setLocalHome(homePrediction || '');
-    setLocalAway(awayPrediction || '');
-  }, [homePrediction, awayPrediction]);
+    setLocalHome(homePrediction || "")
+    setLocalAway(awayPrediction || "")
+  }, [homePrediction, awayPrediction])
 
-  let showOPPrediction = false;
-  let showTeamName = true;
-  if (vsop) {
-    showTeamName = false;
-    showOPPrediction = true;
-  }
+  const showOPPrediction = vsop
+  const showTeamName = !vsop
 
   // Improved handle change function to enforce "both or neither" rule
   function handleChange(value: string, isHome: boolean) {
     // Update the local state for the current field
     if (isHome) {
-      setLocalHome(value);
+      setLocalHome(value)
     } else {
-      setLocalAway(value);
+      setLocalAway(value)
     }
 
     // Get current values for validation
-    const homeValue = isHome ? value : localHome;
-    const awayValue = isHome ? localAway : value;
+    const homeValue = isHome ? value : localHome
+    const awayValue = isHome ? localAway : value
 
     // Apply the "both or neither" rule
-    if (value !== '') {
+    if (value !== "") {
       // This field has a value
       if (isHome) {
         // Home field has value, ensure away also has value
-        if (awayValue === '') {
-          setLocalAway('0');
-          broadcastChangeToParent(0, false, index);
+        if (awayValue === "") {
+          setLocalAway("0")
+          broadcastChangeToParent(0, false, index)
         }
-        broadcastChangeToParent(parseInt(value) || 0, true, index);
+        broadcastChangeToParent(Number.parseInt(value) || 0, true, index)
       } else {
         // Away field has value, ensure home also has value
-        if (homeValue === '') {
-          setLocalHome('0');
-          broadcastChangeToParent(0, true, index);
+        if (homeValue === "") {
+          setLocalHome("0")
+          broadcastChangeToParent(0, true, index)
         }
-        broadcastChangeToParent(parseInt(value) || 0, false, index);
+        broadcastChangeToParent(Number.parseInt(value) || 0, false, index)
       }
     } else {
       // This field is empty
       if (isHome) {
         // Home field is empty, clear away too if it has value
-        if (awayValue !== '') {
-          setLocalAway('');
-          broadcastChangeToParent(null, false, index);
+        if (awayValue !== "") {
+          setLocalAway("")
+          broadcastChangeToParent(null, false, index)
         }
-        broadcastChangeToParent(null, true, index);
+        broadcastChangeToParent(null, true, index)
       } else {
         // Away field is empty, clear home too if it has value
-        if (homeValue !== '') {
-          setLocalHome('');
-          broadcastChangeToParent(null, true, index);
+        if (homeValue !== "") {
+          setLocalHome("")
+          broadcastChangeToParent(null, true, index)
         }
-        broadcastChangeToParent(null, false, index);
+        broadcastChangeToParent(null, false, index)
       }
     }
   }
 
   function predicationScore(home: any, away: any): number {
-    home = Number(home);
-    away = Number(away);
+    home = Number(home)
+    away = Number(away)
 
-    if (isNaN(home) || isNaN(away) || isNaN(matchLine.score.fullTime.home) || isNaN(matchLine.score.fullTime.away)) return 0;
+    if (isNaN(home) || isNaN(away) || isNaN(matchLine.score.fullTime.home) || isNaN(matchLine.score.fullTime.away))
+      return 0
 
     if (home - away === matchLine.score.fullTime.home - matchLine.score.fullTime.away) {
       if (home === matchLine.score.fullTime.home) {
-        return 3; // covers exact matches
+        return 3 // covers exact matches
       }
-      return 2; // covers all tie predictions
+      return 2 // covers all tie predictions
     } else {
       if ((home - away) * (matchLine.score.fullTime.home - matchLine.score.fullTime.away) > 0) {
-        return 1; // covers correct winner predictions
+        return 1 // covers correct winner predictions
       }
-      return 0; // covers whimpers :)
+      return 0 // covers whimpers :)
     }
   }
 
   function timeLeftToStartFormatted(): string {
-    let timeLeft = new Date(matchLine["utcDate"]).getTime() - Date.now();
-    if (timeLeft < 3600000) return `Starts in ` + Math.floor(timeLeft / 60000) + ` minute(s)`; // less than an hour
-    else if (timeLeft < 86400000) return `Starts in ` + Math.floor(timeLeft / 3600000) + ` hour(s)`; // less than a day
-    return `Starts at ${new Date(matchLine.utcDate).toLocaleString('en-US', {
-      dateStyle: 'short',
-      timeStyle: 'short'
-    })}`;
+    const timeLeft = new Date(matchLine["utcDate"]).getTime() - Date.now()
+    if (timeLeft < 3600000)
+      return `Starts in ` + Math.floor(timeLeft / 60000) + ` minute(s)` // less than an hour
+    else if (timeLeft < 86400000) return `Starts in ` + Math.floor(timeLeft / 3600000) + ` hour(s)` // less than a day
+    return `Starts at ${new Date(matchLine.utcDate).toLocaleString("en-US", {
+      dateStyle: "short",
+      timeStyle: "short",
+    })}`
   }
 
-  // First, add a function to format the impact value
+  // Format the impact value
   function formatImpact(impact: string | undefined): any {
-    if (!impact) return { percentage: '0', numeric: '0.0' };
-    const numericImpact = parseFloat(impact);
+    if (!impact) return { percentage: "0", numeric: "0.0" }
+    const numericImpact = Number.parseFloat(impact)
     return {
       percentage: (numericImpact * 50).toFixed(0),
-      numeric: numericImpact.toFixed(1)
+      numeric: numericImpact.toFixed(1),
     }
   }
 
-  let predictionScoreUser = predicationScore(homePrediction, awayPrediction);
-  let predictionScoreOp = predicationScore(homeOpPrediction, awayOpPrediction);
+  const predictionScoreUser = predicationScore(homePrediction, awayPrediction)
+  const predictionScoreOp = predicationScore(homeOpPrediction, awayOpPrediction)
+  const formattedImpact = formatImpact(predictionImpact)
 
   return (
-    <div className="border-b border-gray-200">
-      {/* desktop */}
-      <div className="flex items-center py-2 bg-light">
-        {(showOPPrediction) && <div className="flex-1 large-user-prediction fw-semibold">
-          <span className={'mx-3 ' + (predictionScoreOp > 0 && 'text-success')}> {homeOpPrediction} - {awayOpPrediction} </span>
-          {(predictionScoreOp > 0) &&
-            <p className="badge lh-lg fw-normal text-bg-success align-content-center">+{predictionScoreOp}</p>}
-        </div>}
-        {(showTeamName) && (
-          <div className="team d-none d-lg-block flex-1">
-            {matchLine.homeTeam.name}
-          </div>
-        )}
-        <div
-          className={`flex-1 scoreline
-            ${matchLine["status"] === "IN_PLAY" ? "scoreline-inplay" : ""}
-          `}
-        >
-          <img className="crest" alt={matchLine.homeTeam.shortName + " crest"} src={"./public/crest/" + matchLine.homeTeam.tla + ".png"} />
-
-          <div className="flex flex-col">
-            {(submissionDeadlineStatus !== "open") && <div>
-              {matchLine.score.fullTime.home} - {matchLine.score.fullTime.away}
-            </div>}
-            <div className="game-status text-xs">
-              {matchLine.status === "IN_PLAY" && 'IN PROGRESS'}
-              {(submissionDeadlineStatus === "open") && timeLeftToStartFormatted()}
+    <div className="rounded-lg border border-gray-100 shadow-sm mb-3 overflow-hidden transition-all hover:shadow-md">
+      {/* Match header */}
+      <div className="flex items-center p-3 bg-gradient-to-r from-gray-50 to-white">
+        {showOPPrediction && (
+          <div className="flex-1 text-center">
+            <div
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
+                predictionScoreOp > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
+              }`}
+            >
+              {homeOpPrediction} - {awayOpPrediction}
+              {predictionScoreOp > 0 && (
+                <span className="flex items-center justify-center w-5 h-5 bg-green-100 text-green-800 rounded-full text-xs ml-1">
+                  +{predictionScoreOp}
+                </span>
+              )}
             </div>
           </div>
+        )}
 
-          <img className="crest" alt={matchLine.awayTeam.shortName + " crest"} src={"./public/crest/" + matchLine.awayTeam.tla + ".png"} />
+        {showTeamName && (
+          <div className="hidden md:block flex-1 font-medium text-gray-700 truncate">{matchLine.homeTeam.name}</div>
+        )}
+
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center">
+              <img
+                className="w-10 h-10 object-contain"
+                alt={matchLine.homeTeam.shortName + " crest"}
+                src={"./public/crest/" + matchLine.homeTeam.tla + ".png"}
+              />
+              <span className="text-xs font-medium text-gray-600 mt-1 hidden md:block">
+                {matchLine.homeTeam.shortName}
+              </span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              {submissionDeadlineStatus !== "open" ? (
+                <div className="text-xl font-bold">
+                  {matchLine.score.fullTime.home} - {matchLine.score.fullTime.away}
+                </div>
+              ) : (
+                <div className="text-xl font-bold text-gray-300">vs</div>
+              )}
+
+              <div className="flex items-center gap-1 mt-1">
+                {matchLine.status === "IN_PLAY" ? (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700">
+                    LIVE
+                  </span>
+                ) : submissionDeadlineStatus === "open" ? (
+                  <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                    <Clock className="w-3 h-3" />
+                    {timeLeftToStartFormatted()}
+                  </span>
+                ) : (
+                  <span className="text-xs text-gray-500">FINISHED</span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <img
+                className="w-10 h-10 object-contain"
+                alt={matchLine.awayTeam.shortName + " crest"}
+                src={"./public/crest/" + matchLine.awayTeam.tla + ".png"}
+              />
+              <span className="text-xs font-medium text-gray-600 mt-1 hidden md:block">
+                {matchLine.awayTeam.shortName}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {(showTeamName) && (
-          <div className="team d-none d-lg-block flex-1">
+        {showTeamName && (
+          <div className="hidden md:block flex-1 font-medium text-gray-700 text-right truncate">
             {matchLine.awayTeam.name}
           </div>
         )}
 
-        {(showOPPrediction) && <div className="flex-1 large-user-prediction fw-semibold">
-          <span className={'mx-3 ' + (predictionScoreOp > 0 && 'text-success')}> {homePrediction} - {awayPrediction} </span>
-          {(predictionScoreUser > 0) &&
-            <p className="badge lh-lg fw-normal text-bg-success align-content-center">+{predictionScoreUser}</p>}
-        </div>}
-      </div>
-
-      {(submissionDeadlineStatus === "closesSoon") && <p className="badge text-bg-warning text-xs">CLOSES SOON</p>}
-
-      {(!showOPPrediction) && <div className="solo-prediction-line flex flex-row justify-center m-1">
-        {submissionDeadlineStatus == "closed" && (
-          <>
-            {(homePrediction && awayPrediction) && (
-              <>
-                <span className="text-sm self-center my-1 mx-2">You predicted:&nbsp; {homePrediction} - {awayPrediction} </span>
-                {predictionImpact && (
-                  <div className="relative w-24 h-4 mx-4 self-center">
-                    <div className="absolute inset-0 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
-                      <div
-                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400/25 to-blue-600/25 transition-all duration-300"
-                        style={{ width: `${formatImpact(predictionImpact).percentage}%` }}
-                      />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[9px] text-gray-400 select-none">
-                        IMPACT {formatImpact(predictionImpact).numeric}x
-                      </span>
-                    </div>
-                  </div>
-                )}                
-                {(predictionScoreUser > 0) &&
-                  <p className="badge text-bg-success align-content-center mx-2 self-center">+{predictionScoreUser}</p>}
-
-              </>
-            )}
-            {!(homePrediction && awayPrediction) &&
-              <span className="text-sm self-center m-2">No prediction made</span>
-            }
-          </>
-        )}
-
-        {submissionDeadlineStatus !== "closed" && (
-          <div className="flex flex-row justify-center">
-            <span className="text-sm self-center">Your prediction:&nbsp; </span>
-            <div className="input-container border border-gray-200 m-2">
-              <input
-                className="text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                min={0}
-                type="number"
-                name={`home-input-${index}`}
-                value={localHome}
-                onChange={(e) => handleChange(e.target.value, true)}
-              />
-              -
-              <input
-                type="number"
-                min={0}
-                className="text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                value={localAway}
-                name={`away-input-${index}`}
-                onChange={(e) => handleChange(e.target.value, false)}
-              />
+        {showOPPrediction && (
+          <div className="flex-1 text-center">
+            <div
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
+                predictionScoreUser > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
+              }`}
+            >
+              {homePrediction} - {awayPrediction}
+              {predictionScoreUser > 0 && (
+                <span className="flex items-center justify-center w-5 h-5 bg-green-100 text-green-800 rounded-full text-xs ml-1">
+                  +{predictionScoreUser}
+                </span>
+              )}
             </div>
           </div>
         )}
-      </div>}
+      </div>
+
+      {/* Warning banner */}
+      {submissionDeadlineStatus === "closesSoon" && (
+        <div className="bg-amber-50 text-amber-700 text-xs font-medium text-center py-1">CLOSES SOON</div>
+      )}
+
+      {/* Prediction section */}
+      {!showOPPrediction && (
+        <div className="p-3 bg-white flex items-center justify-center">
+          {submissionDeadlineStatus === "closed" ? (
+            <div className="flex items-center gap-2">
+              {homePrediction && awayPrediction ? (
+                <>
+                  <span className="text-sm text-gray-600">You predicted:</span>
+                  <div
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      predictionScoreUser > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
+                    }`}
+                  >
+                    {homePrediction} - {awayPrediction}
+                  </div>
+
+                  {predictionImpact && (
+                    <div className="relative w-24 h-4 mx-2">
+                      <div className="absolute inset-0 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-indigo-400 to-indigo-600 transition-all duration-300"
+                          style={{ width: `${formattedImpact.percentage}%` }}
+                        />
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-[9px] text-gray-600 font-medium select-none">
+                          IMPACT {formattedImpact.numeric}x
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {predictionScoreUser > 0 && (
+                    <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                      <Trophy className="w-3 h-3" />+{predictionScoreUser}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <span className="text-sm text-gray-500">No prediction made</span>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Your prediction:</span>
+              <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+                <input
+                  className="w-12 h-10 text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                  min={0}
+                  type="number"
+                  name={`home-input-${index}`}
+                  value={localHome}
+                  onChange={(e) => handleChange(e.target.value, true)}
+                />
+                <div className="flex items-center justify-center w-8 bg-gray-50 text-gray-400">-</div>
+                <input
+                  className="w-12 h-10 text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                  min={0}
+                  type="number"
+                  name={`away-input-${index}`}
+                  value={localAway}
+                  onChange={(e) => handleChange(e.target.value, false)}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
-  );
+  )
 }
+
