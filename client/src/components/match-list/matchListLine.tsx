@@ -208,7 +208,7 @@ export default function MatchListLine({
         </div>
 
         {showTeamName && (
-          <div className="hidden md:block flex-1 font-medium text-gray-700 text-right truncate">
+          <div className="hidden md:block flex-1 font-medium text-gray-700 truncate">
             {matchLine.awayTeam.name}
           </div>
         )}

@@ -119,13 +119,14 @@ export default function MatchListRender({
     const result = broadcastSubmissionToParent(convertFormToString(formData))
 
     result
-      .then((res) => {
+      .then(() => {
         setSubmitInProgress(false)
         setFormIsDirty(false)
         // Reset changed lines after successful submission
         setChangedLines(new Set())
       })
       .catch((err) => {
+        console.error("handleSubmit error", err)
         setSubmitInProgress(false)
         setFormIsDirty(true)
       })
@@ -212,7 +213,7 @@ export default function MatchListRender({
           <Button
             type="submit"
             form="predictionForm"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
             disabled={!formIsValid || !formIsDirty || !localStorage.getItem("socculi_user_email")}
           >
             {submitInProgress ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
