@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { Clock, Trophy } from "lucide-react"
+import { calculatePredictionScore } from '../../utils/scoring';
 
 export default function MatchListLine({
   index,
@@ -87,23 +88,7 @@ export default function MatchListLine({
   }
 
   function predicationScore(home: any, away: any): number {
-    home = Number(home)
-    away = Number(away)
-
-    if (isNaN(home) || isNaN(away) || isNaN(matchLine.score.fullTime.home) || isNaN(matchLine.score.fullTime.away))
-      return 0
-
-    if (home - away === matchLine.score.fullTime.home - matchLine.score.fullTime.away) {
-      if (home === matchLine.score.fullTime.home) {
-        return 3 // covers exact matches
-      }
-      return 2 // covers all tie predictions
-    } else {
-      if ((home - away) * (matchLine.score.fullTime.home - matchLine.score.fullTime.away) > 0) {
-        return 1 // covers correct winner predictions
-      }
-      return 0 // covers whimpers :)
-    }
+    return calculatePredictionScore(Number(home), Number(away), matchLine);
   }
 
   function timeLeftToStartFormatted(): string {
@@ -158,15 +143,12 @@ export default function MatchListLine({
 
         <div className="flex-1 flex items-center justify-center">
           <div className="flex items-center gap-3">
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-end">
               <img
                 className="w-10 h-10 object-contain"
                 alt={matchLine.homeTeam.shortName + " crest"}
                 src={"./public/crest/" + matchLine.homeTeam.tla + ".png"}
               />
-              <span className="text-xs font-medium text-gray-600 mt-1 hidden md:block">
-                {matchLine.homeTeam.shortName}
-              </span>
             </div>
 
             <div className="flex flex-col items-center">
@@ -194,15 +176,12 @@ export default function MatchListLine({
               </div>
             </div>
 
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-start">
               <img
                 className="w-10 h-10 object-contain"
                 alt={matchLine.awayTeam.shortName + " crest"}
                 src={"./public/crest/" + matchLine.awayTeam.tla + ".png"}
               />
-              <span className="text-xs font-medium text-gray-600 mt-1 hidden md:block">
-                {matchLine.awayTeam.shortName}
-              </span>
             </div>
           </div>
         </div>

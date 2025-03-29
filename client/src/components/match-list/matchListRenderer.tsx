@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Button, Nav } from "react-bootstrap"
 import { Loader2, Trophy } from "lucide-react"
 import MatchListLine from "./matchListLine";
+import { calculatePredictionScore } from '../../utils/scoring';
 
 export default function MatchListRender({
   vsop = false,
@@ -200,6 +201,19 @@ export default function MatchListRender({
     setExistingImpactsObj(impacts)
   }, [convertStringToObj, existingSubmissions, existingOpSubmissions])
 
+  function calculateTotalScore(matchList: any[], submissionsObj: Record<string, string>): number {
+    return matchList.reduce((total, matchLine, index) => {
+      const home = submissionsObj[`home-input-${index}`];
+      const away = submissionsObj[`away-input-${index}`];
+
+      if (!home || !away) return total;
+
+      const score = calculatePredictionScore(Number(home), Number(away), matchLine);
+      const impact = Number(existingImpactsObj[`impact-${index}`] || 1);
+      return total + (score * impact);
+    }, 0);
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4 bg-white rounded-xl shadow-sm">
       <div className="flex items-center justify-between mb-6">
@@ -242,6 +256,38 @@ export default function MatchListRender({
           <div className="p-2 bg-indigo-50 rounded-lg font-medium text-indigo-700">Your Predictions</div>
         </div>
       )}
+
+      {(
+        <div className="mt-6 mb-3 p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-100">
+          <div className="flex justify-between items-center">
+            {vsop ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-600">OP Total:</span>
+                  <span className="text-lg font-semibold text-gray-900">
+                    {calculateTotalScore(matchList, existingOpSubmissionsObj).toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-600">Your Total:</span>
+                  <span className="text-lg font-semibold text-gray-900">
+                    {calculateTotalScore(matchList, existingSubmissionsObj).toFixed(1)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-green-500" />
+                <span className="text-sm font-medium text-gray-600">Your Total Score:</span>
+                <span className="text-lg font-semibold text-gray-900">
+                  {calculateTotalScore(matchList, existingSubmissionsObj).toFixed(1)}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
 
       <form id="predictionForm" name="predictionForm" onSubmit={handleSubmit}>
         <div className="space-y-1">
