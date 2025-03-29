@@ -16,7 +16,7 @@ function About() {
                 <div className="text-center mb-16">
                     <img 
                         src={brandLogo} 
-                        className="w-24 h-24 mx-auto mb-8 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300" 
+                        className="w-48 h-48 mx-auto mb-8 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300" 
                         alt="Socculi logo" 
                     />
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">Socculi</h1>
@@ -45,25 +45,26 @@ function About() {
                             <h2 className="text-2xl font-semibold text-gray-900 mb-6">How It Works</h2>
                             <ol className="space-y-4 text-gray-700">
                                 <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">1</span>
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
                                     Submit predictions before second half begins
                                 </li>
                                 <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">2</span>
-                                    Earn 1 point for correct winner/tie
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
+                                    Receive partial score for predictions after match starts
+                                </li>                                
+                                <li className="flex items-start">
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
+                                    Earn 1 point for correct winner
                                 </li>
                                 <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">3</span>
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
                                     Get 2 points for correct goal difference
                                 </li>
                                 <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">4</span>
+                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
                                     Score 3 points for exact score prediction
                                 </li>
-                                <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3">5</span>
-                                    Impact multiplier: 2.0x to 1.0x based on submission timing
-                                </li>
+
                             </ol>
                         </div>
                     </Col>

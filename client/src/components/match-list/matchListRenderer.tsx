@@ -257,7 +257,7 @@ export default function MatchListRender({
         </div>
       )}
 
-      {(
+      {allFinished && (
         <div className="mt-6 mb-3 p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-100">
           <div className="flex justify-between items-center">
             {vsop ? (
