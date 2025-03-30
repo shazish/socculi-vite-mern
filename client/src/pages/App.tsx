@@ -4,6 +4,7 @@ import MatchListRender from "../components/match-list/matchListRenderer";
 import { FootballDataResponse, Match } from '../types/matchData.interface';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { fetchUserSubmissions } from '../utils/submissions';
 // todo:
 // *done* 1. add a loading spinner
 // 2. add caching of match data
@@ -28,8 +29,8 @@ function App({ vsop = false }: { vsop?: boolean }) {
   const [existingOpSubmissions, setExistingOpSubmissions] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = false;
-  const fakeMatchDay = 1;
+  const fakeDataEnabled = true;
+  const fakeMatchDay = 27;
   // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
@@ -106,47 +107,19 @@ function App({ vsop = false }: { vsop?: boolean }) {
   }
 
   async function fetchUserSubmissionsFromWP(matchDay: number, op?: boolean) {
-    if (fakeDataEnabled) {
-      try {
-        const response = await import('../assets/prediction-structure.json');
-        const fakePredictionData = response.data;
-        console.log('fakePredictionData', fakePredictionData);
-        op ? setExistingOpSubmissions(fakePredictionData) : setExistingSubmissions(fakePredictionData);
-      } catch (error) {
-        console.error('Error fetching the file:', error);
+    try {
+      const userId = op ? opUserId : (localStorage.getItem("socculi_user_email") ?? "");
+      const predictions = await fetchUserSubmissions(matchDay, userId, fakeDataEnabled);
+      
+      if (op) {
+        setExistingOpSubmissions(predictions);
+      } else {
+        setExistingSubmissions(predictions);
       }
-      return;
-    };
-
-    if (!matchDay || matchDay === 0) return;
-    console.log('fetchUserSubmissionsFromWP', matchDay)
-    const formData = new FormData();
-    formData.append("week_id", matchDay.toString());
-    formData.append("username", op ? opUserId : (localStorage.getItem("socculi_user_email") ?? ""));
-
-    await axios
-      .post(
-        `https://socculi.com/wp-admin/admin-ajax.php?action=get_user_week_submission`,
-        // WP has issues with receiving JSON format OOB, therefore we use formData
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Origin, Content-Type"
-          },
-        }
-      )
-      .then((res) => {
-        console.log("fetchUserSubmissionsFromWP result ", res);
-        op ? setExistingOpSubmissions(res.data.data.predictions) : setExistingSubmissions(res.data.data.predictions);
-        // console.log("existingSubmissions: ", existingSubmissions);
-        // setMatchList(res.data.matches);
-        // console.log("football-data: ", matchList);
-      })
-      .catch((err) => {
-        console.log("fetchUserSubmissionsFromWP err", err);
-      });
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
+      toast.error("Failed to load predictions");
+    }
   }
 
   useEffect(() => {
