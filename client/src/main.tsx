@@ -6,6 +6,7 @@ import Vsop from './pages/Vsop.tsx'
 import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './pages/App.tsx'
+import ArchivedWeeks from './pages/ArchivedWeeks.tsx'
 import './style/style.css'
 import './index.scss'
 import SocculiFooter from './components/footer/footer.js'
@@ -26,6 +27,7 @@ const routes = [
   { path: '/', element: <App />, title: 'Home | Socculi' },
   { path: '/about', element: <About />, title: 'About | Socculi' },
   { path: '/vsop', element: <Vsop />, title: 'Vs OP | Socculi' },
+  { path: '/archived', element: <ArchivedWeeks />, title: 'Archive | Socculi' },
   { path: '*', element: <App />, title: 'Home | Socculi' }    
 ];
 
