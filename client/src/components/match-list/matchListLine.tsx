@@ -257,7 +257,7 @@ export default function MatchListLine({
                 <span className="text-sm text-gray-500">No prediction made</span>
               )}
             </div>
-          ) : (
+          ) : localStorage.getItem("socculi_user_email") && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Your prediction:</span>
               <div className="flex border border-gray-200 rounded-lg overflow-hidden">

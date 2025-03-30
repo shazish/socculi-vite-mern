@@ -3,15 +3,13 @@ import { Auth0Provider } from '@auth0/auth0-react';
 import SocculiNavbar from './components/navbar/navbar.js'
 import About from './pages/About.tsx'
 import Vsop from './pages/Vsop.tsx'
-import React, { useEffect } from 'react'
+import React, { useEffect, ReactNode } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './pages/App.tsx'
 import ArchivedWeeks from './pages/ArchivedWeeks.tsx'
+import SocculiFooter from './components/footer/footer.js'
 import './style/style.css'
 import './index.scss'
-import SocculiFooter from './components/footer/footer.js'
-
-import { ReactNode } from 'react';
 
 const TitleManager = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
