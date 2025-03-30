@@ -4,6 +4,7 @@ import { Button, Nav } from "react-bootstrap"
 import { Loader2, Trophy } from "lucide-react"
 import MatchListLine from "./matchListLine";
 import { calculatePredictionScore } from '../../utils/scoring';
+import { useAuthStatus } from "../../utils/authStatus";
 
 export default function MatchListRender({
   vsop = false,
@@ -30,7 +31,7 @@ export default function MatchListRender({
   const [changedLines, setChangedLines] = useState<Set<number>>(new Set())
 
   const allFinished = matchList.every((matchLine: any) => matchLine.status === "FINISHED")
-
+  let isLoggedIn = useAuthStatus();
   function submissionDeadlineStatus(matchDate: string): string {
     if (Date.now() - new Date(matchDate).getTime() > 3600000) return "closed"
     if (Date.now() - new Date(matchDate).getTime() < 0) return "open"
@@ -228,7 +229,7 @@ export default function MatchListRender({
             type="submit"
             form="predictionForm"
             className="bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={!formIsValid || !formIsDirty || !localStorage.getItem("socculi_user_email")}
+            disabled={!formIsValid || !formIsDirty || !isLoggedIn}
           >
             {submitInProgress ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {getSubmitButtonText()}

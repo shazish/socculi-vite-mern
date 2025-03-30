@@ -3,14 +3,17 @@ import './navbar.scss'
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import { useAuthStatus } from '../../utils/authStatus';
 
 function SocculiNavbar() {
+  
+  const { isLoggedIn } = useAuthStatus();
   const navItems = [
     { path: '/', label: 'Home' },
+    ...(isLoggedIn ? [{ path: '/archived', label: 'Archived Weeks' }] : []),
     { path: '/about', label: 'About' },
-    { path: 'https://github.com/shazish/socculi-vite-mern' , label: 'Github' },
-    // { path: '/thisweek', label: 'Archived Weeks'}
-  ]
+    { path: 'https://github.com/shazish/socculi-vite-mern', label: 'Github' },
+  ];
 
   return (
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Clock, Trophy } from "lucide-react"
 import { calculatePredictionScore } from '../../utils/scoring';
+import { useAuthStatus } from "../../utils/authStatus";
 
 export default function MatchListLine({
   index,
@@ -27,6 +28,7 @@ export default function MatchListLine({
 }) {
   const [localHome, setLocalHome] = useState(homePrediction || "")
   const [localAway, setLocalAway] = useState(awayPrediction || "")
+  let { isLoggedIn } = useAuthStatus()
 
   useEffect(() => {
     setLocalHome(homePrediction || "")
@@ -257,7 +259,7 @@ export default function MatchListLine({
                 <span className="text-sm text-gray-500">No prediction made</span>
               )}
             </div>
-          ) : localStorage.getItem("socculi_user_email") && (
+          ) : isLoggedIn && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Your prediction:</span>
               <div className="flex border border-gray-200 rounded-lg overflow-hidden">
