@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "react-bootstrap";
-import { ChevronLeft, ChevronRight, Calendar, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import MatchListRender from "../components/match-list/matchListRenderer";
 import { fetchUserSubmissions } from '../utils/submissions';
 import { ToastContainer, toast } from 'react-toastify';
@@ -19,7 +19,7 @@ function ArchivedWeeks() {
   const [allMatchData, setAllMatchData] = useState<any[]>([]);
 
   // Use the same fake data settings as in App.tsx
-  const fakeDataEnabled = true;
+  const fakeDataEnabled = false;
   const fakeMatchDay = 27;
 
   // Initialize component with data
@@ -130,9 +130,9 @@ function ArchivedWeeks() {
     <div className="container mx-auto px-4 py-8">
       <ToastContainer position="top-center" autoClose={2000} />
       
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Archived Weeks</h1>
-        <p className="text-gray-600">View your predictions and results from previous weeks</p>
+      <div className="bg-indigo-50 rounded-lg p-4 text-sm text-indigo-800">
+        <p>This page shows archived match results and predictions from previous weeks. 
+        You can use the navigation controls to browse through past weeks.</p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
@@ -182,12 +182,7 @@ function ArchivedWeeks() {
             broadcastSubmissionToParent={placeholderSubmit}
           />
         )}
-      </div>
-      
-      <div className="bg-indigo-50 rounded-lg p-4 text-sm text-indigo-800">
-        <p>Note: This page shows archived match results and your predictions from previous weeks. 
-        You can use the navigation controls to browse through past weeks.</p>
-      </div>
+      </div>    
     </div>
   );
 }
