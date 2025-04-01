@@ -86,9 +86,9 @@ export default function MatchListRender({
 
   function calcImpact(submitTime: number, matchStart: number): number {
     const delta = submitTime - matchStart
-    if (delta < 0) return 2
-    if (delta < 2700000) return ((2700000 - delta) / 2700000) * 2
-    if (delta > 2700000 && delta < 3600000) return 1
+    if (delta < 0) return 1
+    if (delta < 2700000) return ((2700000 - delta) / 2700000) * 0.5 + 0.5
+    if (delta > 2700000 && delta < 3600000) return 0.5
     else return 0 // should not be happening
   }
 

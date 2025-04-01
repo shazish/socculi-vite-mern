@@ -109,7 +109,7 @@ export default function MatchListLine({
     if (!impact) return { percentage: "0", numeric: "0.0" }
     const numericImpact = Number.parseFloat(impact)
     return {
-      percentage: (numericImpact * 50).toFixed(0),
+      percentage: (numericImpact * 100).toFixed(0),
       numeric: numericImpact.toFixed(1),
     }
   }
@@ -163,7 +163,7 @@ export default function MatchListLine({
               )}
 
               <div className="flex items-center gap-1 mt-1">
-                {matchLine.status === "IN_PLAY" ? (
+                {matchLine.status === "IN_PLAY" || matchLine.status === "PAUSED" ? (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700">
                     LIVE
                   </span>
@@ -237,12 +237,12 @@ export default function MatchListLine({
                     <div className="relative w-24 h-4 mx-2">
                       <div className="absolute inset-0 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-indigo-400 to-indigo-600 transition-all duration-300"
+                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300"
                           style={{ width: `${formattedImpact.percentage}%` }}
                         />
                       </div>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-[9px] text-gray-600 font-medium select-none">
+                        <span className="text-[9px] text-gray font-medium select-none">
                           IMPACT {formattedImpact.numeric}x
                         </span>
                       </div>
