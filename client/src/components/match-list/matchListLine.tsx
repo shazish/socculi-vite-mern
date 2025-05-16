@@ -149,7 +149,7 @@ export default function MatchListLine({
               <img
                 className="w-10 h-10 object-contain"
                 alt={matchLine.homeTeam.shortName + " crest"}
-                src={"./public/crest/" + matchLine.homeTeam.tla + ".png"}
+                src={"./crest/" + matchLine.homeTeam.tla + ".png"}
               />
             </div>
 
@@ -182,7 +182,7 @@ export default function MatchListLine({
               <img
                 className="w-10 h-10 object-contain"
                 alt={matchLine.awayTeam.shortName + " crest"}
-                src={"./public/crest/" + matchLine.awayTeam.tla + ".png"}
+                src={"./crest/" + matchLine.awayTeam.tla + ".png"}
               />
             </div>
           </div>

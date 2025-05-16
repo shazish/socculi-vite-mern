@@ -16,8 +16,8 @@ import { fetchUserSubmissions } from '../utils/submissions';
 // 8. continuous prediction submission
 
 // place resources inside shaziblues.io/public folder
-const brandLogo = `./public/socculi.jpg`;
-const loadingAnimation2 = `./public/loadinganimation2.svg`; // Add the correct path to your loading animation
+const brandLogo = `./socculi.jpg`;
+const loadingAnimation2 = `./loadinganimation2.svg`; // Add the correct path to your loading animation
 const opUserId = 'shaahin@gmail.com';
 
 function App({ vsop = false }: { vsop?: boolean }) {
@@ -177,7 +177,7 @@ function App({ vsop = false }: { vsop?: boolean }) {
 
         </div>
         <div className="logo-container flex">
-          <img src={brandLogo} className="brand-logo fade-in" alt="Socc'nd logo" />
+          <img src={brandLogo} className="brand-logo fade-in" alt="Socculi logo" />
         </div>
       </div>
 

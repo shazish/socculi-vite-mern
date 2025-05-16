@@ -1,20 +1,34 @@
 {
-  "matches": [
-    {
-      "id": 1,
-      "matchday": 27,
-      "homeTeam": { "name": "Team A" },
-      "awayTeam": { "name": "Team B" },
-      "season": { "currentMatchday": 27 },
-      "status": "SCHEDULED"
-    },
-    {
-      "id": 2,
-      "matchday": 27,
-      "homeTeam": { "name": "Team C" },
-      "awayTeam": { "name": "Team D" },
-      "season": { "currentMatchday": 27 },
-      "status": "SCHEDULED"
-    }
-  ]
+  "data": {
+    "matches": [
+      {
+        "id": 1,
+        "matchday": 27,
+        "homeTeam": {
+          "name": "Team A"
+        },
+        "awayTeam": {
+          "name": "Team B"
+        },
+        "season": {
+          "currentMatchday": 27
+        },
+        "status": "SCHEDULED"
+      },
+      {
+        "id": 2,
+        "matchday": 27,
+        "homeTeam": {
+          "name": "Team C"
+        },
+        "awayTeam": {
+          "name": "Team D"
+        },
+        "season": {
+          "currentMatchday": 27
+        },
+        "status": "SCHEDULED"
+      }
+    ]
+  }
 }
