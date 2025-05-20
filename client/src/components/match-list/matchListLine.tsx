@@ -119,15 +119,14 @@ export default function MatchListLine({
   const formattedImpact = formatImpact(predictionImpact)
 
   return (
-    <div className="rounded-lg border border-gray-100 shadow-sm mb-3 overflow-hidden transition-all hover:shadow-md">
+    <div data-testid="match-line" className="rounded-lg border border-gray-100 shadow-sm mb-3 overflow-hidden transition-all hover:shadow-md">
       {/* Match header */}
       <div className="flex items-center p-3 bg-gradient-to-r from-gray-50 to-white">
         {showOPPrediction && (
           <div className="flex-1 text-center">
             <div
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
-                predictionScoreOp > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
-              }`}
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${predictionScoreOp > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
+                }`}
             >
               {homeOpPrediction} - {awayOpPrediction}
               {predictionScoreOp > 0 && (
@@ -197,9 +196,8 @@ export default function MatchListLine({
         {showOPPrediction && (
           <div className="flex-1 text-center">
             <div
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
-                predictionScoreUser > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
-              }`}
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${predictionScoreUser > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
+                }`}
             >
               {homePrediction} - {awayPrediction}
               {predictionScoreUser > 0 && (
@@ -226,9 +224,8 @@ export default function MatchListLine({
                 <>
                   <span className="text-sm text-gray-600">You predicted:</span>
                   <div
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      predictionScoreUser > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${predictionScoreUser > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
+                      }`}
                   >
                     {homePrediction} - {awayPrediction}
                   </div>
