@@ -3,8 +3,8 @@ export function calculatePredictionScore(
   predictedAway: number, 
   matchLine: any
 ): number {
-  const actualHome = Number(matchLine.score.fullTime.home);
-  const actualAway = Number(matchLine.score.fullTime.away);
+  const actualHome = Number(matchLine?.score?.fullTime?.home);
+  const actualAway = Number(matchLine?.score?.fullTime?.away);
 
   if (isNaN(predictedHome) || isNaN(predictedAway) || isNaN(actualHome) || isNaN(actualAway)) {
     return 0;

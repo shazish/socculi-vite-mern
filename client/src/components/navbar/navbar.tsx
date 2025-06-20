@@ -1,6 +1,6 @@
 import Profile from '../profile/profile';
 import './navbar.scss'
-import Container from 'react-bootstrap/Container';
+import { Container } from 'react-bootstrap';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { useAuthStatus } from '../../utils/authStatus';

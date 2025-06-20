@@ -8,29 +8,31 @@
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "sass": "sass --watch ./src/index.scss:./src/style/style.css"
+    "sass": "sass --watch ./src/index.scss:./src/style/style.css",
+    "test-ct": "playwright test -c playwright-ct.config.ts"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
     "@babel/traverse": "^7.23.2",
     "axios": "^1.8.2",
-    "bootstrap": "^5.3.0",
+    "bootstrap": "^5.3.6",
     "lucide-react": "^0.484.0",
     "path-to-regexp": "^0.1.12",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.10.8",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.27.0",
     "react-toastify": "^11.0.3"
   },
   "devDependencies": {
+    "@playwright/experimental-ct-react": "^1.52.0",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.18",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
-    "@vitejs/plugin-react": "^4.0.1",
+    "@vitejs/plugin-react": "^4.5.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.44.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -58,5 +60,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "@playwright/experimental-ct-core": {
+      "vite": "$vite"
+    }
   }
 }

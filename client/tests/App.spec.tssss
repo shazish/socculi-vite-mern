@@ -1,0 +1,459 @@
+import { test, expect } from '@playwright/test';
+import mockMatchData from './mocks/matchData.json' assert { type: 'json' }; // Add assert { type: 'json' }
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+// Extend the Window interface to include __REACT_DEVTOOLS_GLOBAL_HOOK__
+declare global {
+    interface Window {
+        __REACT_DEVTOOLS_GLOBAL_HOOK__?: any;
+    }
+}
+
+// Read mock data
+// const mockMatchData = JSON.parse(readFileSync(join(__dirname, './mocks/matchData.json'), 'utf-8'));
+
+// test.beforeEach(async ({ page }) => {
+
+//     // Mock API calls
+//     await page.route('**/wp-admin/admin-ajax.php?action=get_matchday_games', async (route) => {
+//         await route.fulfill({
+//             status: 200,
+//             contentType: 'application/json',
+//             body: JSON.stringify(mockMatchData),
+//         });
+//     });
+
+//     await page.route('**/wp-admin/admin-ajax.php?action=create_submissions_table', async (route) => {
+//         await route.fulfill({
+//             status: 200,
+//             contentType: 'application/json',
+//             body: JSON.stringify({ success: true }),
+//         });
+//     });
+
+//     await page.route('**/wp-admin/admin-ajax.php?action=submit_user_predictions', async (route) => {
+//         await route.fulfill({
+//             status: 200,
+//             contentType: 'application/json',
+//             body: JSON.stringify({ success: true }),
+//         });
+//     });
+
+//     await page.route('**/wp-admin/admin-ajax.php?action=get_user_submissions*', async (route) => {
+//         await route.fulfill({
+//             status: 200,
+//             contentType: 'application/json',
+//             body: JSON.stringify({
+//                 predictions: 'home-input-0=2&away-input-0=1&timestamp-0=1625097600000&impact-0=1',
+//             }),
+//         });
+//     });
+
+//     // Navigate to the app
+//     await page.goto('/', { waitUntil: 'networkidle' });
+//     // Mock localStorage for user email
+//     await page.evaluate((email) => {
+//         localStorage.setItem('socculi_user_email', email);
+//     }, 'test@example.com');
+// });
+
+// test.beforeEach(async ({ page }) => {
+
+//         await page.addInitScript(() => {
+//         // Prevent React conflicts in test environment
+//         if (typeof window !== 'undefined') {
+//             window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+//                 isDisabled: true,
+//                 supportsFiber: true,
+//                 inject: () => {},
+//                 onCommitFiberRoot: () => {},
+//                 onCommitFiberUnmount: () => {},
+//             };
+//         }
+//     });
+
+//     let mockHitCount = 0;
+
+//     await page.route('**/wp-admin/admin-ajax.php*', async (route) => {
+//         const url = new URL(route.request().url());
+//         const action = url.searchParams.get('action');
+
+//         mockHitCount++;
+//         console.log(`🔥 MOCK HIT #${mockHitCount} - Action: ${action}`);
+//         console.log(`🔥 Full URL: ${url.toString()}`);
+
+//         if (action === 'get_matchday_games') {
+//             console.log(`📤 Returning mock data with ${mockMatchData.data.matches.length} matches`);
+//             await route.fulfill({
+//                 status: 200,
+//                 contentType: 'application/json',
+//                 body: JSON.stringify(mockMatchData),
+//                 headers: {
+//                     'Access-Control-Allow-Origin': '*',
+//                     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+//                     'Access-Control-Allow-Headers': 'Content-Type',
+//                 }
+//             });
+//             return;
+//         }
+
+//         // For other actions, continue or mock as needed
+//         await route.continue();
+//     });
+
+//     // Log ALL network requests
+//     // page.on('request', request => {
+//     //     console.log(`➡️  REQUEST: ${request.method()} ${request.url()}`);
+//     // });
+
+//     // page.on('response', response => {
+//     //     console.log(`⬅️  RESPONSE: ${response.status()} ${response.url()}`);
+//     // });
+
+//     await page.goto('/', { waitUntil: 'networkidle' });
+
+//     console.log(`Total mocks hit: ${mockHitCount}`);
+// });
+
+
+test.beforeEach(async ({ page }) => {
+
+    await page.route('**/react-bootstrap.min.js', route => {
+        route.fulfill({
+            status: 200,
+            contentType: 'application/javascript',
+            // This mock is likely missing the 'Container' export
+            body: `
+      export const Button = () => {};
+      export const Nav = () => {};
+      // FIX: You need to add the missing export
+      export const Container = ({ children }) => children; // A simple mock
+    `
+        });
+    });
+
+    const consoleLogs: string[] = [];
+    const pageErrors: string[] = [];
+
+    page.on('console', msg => {
+        if (msg.type() === 'error') {
+            console.log('BROWSER CONSOLE ERROR:', msg.text());
+        }
+        consoleLogs.push(`${msg.type()}: ${msg.text()}`);
+    });
+
+    page.on('pageerror', error => {
+        console.log('JAVASCRIPT ERROR:', error.message);
+        pageErrors.push(error.message);
+    });
+
+    page.on('requestfailed', request => {
+        console.log('FAILED REQUEST:', request.url(), request.failure()?.errorText);
+    });
+
+    // Set up mocks BEFORE navigating to the page
+    await page.route('**/wp-admin/admin-ajax.php*', async (route) => {
+        const url = new URL(route.request().url());
+        const action = url.searchParams.get('action');
+        console.log(`Mocking action: ${action}`);
+        if (action === 'get_matchday_games') {
+            console.log('Mocking get_matchday_games');
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(mockMatchData),
+            });
+        } else if (action === 'create_submissions_table') {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ success: true }),
+            });
+        } else if (action === 'submit_user_predictions') {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ success: true }),
+            });
+        } else if (action === 'get_user_submissions') {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    predictions: 'home-input-0=2&away-input-0=1&timestamp-0=1625097600000&impact-0=1',
+                }),
+            });
+        } else {
+            // Let other requests pass through
+            await route.continue();
+        }
+    });
+
+    // Mock localStorage BEFORE navigation
+    await page.addInitScript((email) => {
+        localStorage.setItem('socculi_user_email', email);
+    }, 'test@example.com');
+
+    // Navigate AFTER setting up mocks
+    await page.goto('/', { waitUntil: 'networkidle' });
+});
+
+
+test.describe('App Component', () => {
+    test('should render Socculi branding', async ({ page }) => {
+        await expect(page.locator('img[alt="Socculi logo"]')).toBeVisible();
+        await expect(page.locator('h1', { hasText: 'Socculi' })).toBeVisible();
+        await expect(page.locator('h3', { hasText: 'Second Half Fantasy League' })).toBeVisible();
+    });
+
+    test('should display loading animation initially', async ({ page }) => {
+        await page.route('**/wp-admin/admin-ajax.php?action=get_matchday_games', async (route) => {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(mockMatchData),
+            });
+        });
+
+        await page.goto('/');
+        await expect(page.locator('img[alt="Animation logo"]')).toBeVisible();
+    });
+});
+
+test.describe('MatchListRender Component', () => {
+
+    test('debug - check page state and mock data', async ({ page }) => {
+        // Wait a bit for any async operations
+        await page.waitForTimeout(2000);
+
+        // Check if mock data is structured correctly
+        console.log('Mock data structure:', JSON.stringify(mockMatchData, null, 2));
+
+        // Check what's actually rendered on the page
+        const pageContent = await page.textContent('body');
+        console.log('Page content (first 1000 chars):', pageContent?.substring(0, 1000));
+
+        // Check for specific elements
+        const rootElement = await page.$('#root');
+        console.log('Root element exists:', !!rootElement);
+
+        // Check for any React components
+        const reactElements = await page.$$('[data-reactroot], [data-testid]');
+        console.log('React/test elements found:', reactElements.length);
+
+        // Get all elements with data-testid attribute
+        const testIdElements = await page.locator('[data-testid]').all();
+        for (const element of testIdElements) {
+            const testId = await element.getAttribute('data-testid');
+            const text = await element.textContent();
+            console.log(`Found element with testid: ${testId}, text: ${text?.substring(0, 50)}`);
+        }
+
+        // Take a screenshot for visual debugging
+        await page.screenshot({
+            path: 'debug-screenshot.png',
+            fullPage: true
+        });
+
+        // Check if the page has finished loading
+        const loadingElement = await page.$('img[alt="Animation logo"]');
+        console.log('Loading animation still visible:', !!loadingElement);
+    });
+
+    test('should render match list with correct number of matches', async ({ page }) => {
+
+        // console.log(mockMatchData.data.matches);
+
+        const matchElements = await page.locator('[data-testid="match-line"]').count();
+        const allTestIds = await page.locator('[data-testid]').allTextContents();
+
+        console.log('Match elements found:', matchElements);
+        console.log('All test IDs on page:', allTestIds);
+
+        await expect(page.locator('[data-testid="match-line"]')).toHaveCount(mockMatchData.data.matches.length);
+        const firstMatch = page.locator('[data-testid="match-line"]').first();
+        await expect(firstMatch).toContainText('Team A');
+        await expect(firstMatch).toContainText('Team B');
+    });
+
+    test('should allow entering and submitting predictions', async ({ page }) => {
+        // Mock open submission deadline
+        const openMatchData = {
+            matches: [
+                {
+                    id: 1,
+                    matchday: 27,
+                    homeTeam: { name: 'Team A' },
+                    awayTeam: { name: 'Team B' },
+                    season: { currentMatchday: 27 },
+                    status: 'SCHEDULED',
+                    utcDate: new Date(Date.now() + 3600000).toISOString(),
+                    score: { fullTime: { home: null, away: null } },
+                },
+            ],
+        };
+        await page.route('**/wp-admin/admin-ajax.php?action=get_matchday_games', async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(openMatchData),
+            });
+        });
+
+        await page.goto('/', { waitUntil: 'networkidle' });
+
+        // Enter predictions
+        await page.locator('input[name="home-input-0"]').fill('2');
+        await page.locator('input[name="away-input-0"]').fill('1');
+
+        // Submit form
+        await page.locator('button', { hasText: 'Submit Predictions' }).click();
+
+        // Check success toast
+        await expect(page.locator('.Toastify__toast--success', { hasText: 'Predictions submitted successfully' })).toBeVisible();
+    });
+
+    test('should show error toast on failed submission', async ({ page }) => {
+        // Mock open submission deadline
+        const openMatchData = {
+            matches: [
+                {
+                    id: 1,
+                    matchday: 27,
+                    homeTeam: { name: 'Team A' },
+                    awayTeam: { name: 'Team B' },
+                    season: { currentMatchday: 27 },
+                    status: 'SCHEDULED',
+                    utcDate: new Date(Date.now() + 3600000).toISOString(),
+                    score: { fullTime: { home: null, away: null } },
+                },
+            ],
+        };
+        await page.route('**/wp-admin/admin-ajax.php?action=get_matchday_games', async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(openMatchData),
+            });
+        });
+
+        // Mock failed submission
+        await page.route('**/wp-admin/admin-ajax.php?action=submit_user_predictions', async (route) => {
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                body: JSON.stringify({ error: 'Submission failed' }),
+            });
+        });
+
+        await page.goto('/', { waitUntil: 'networkidle' });
+
+        // Enter predictions
+        await page.locator('input[name="home-input-0"]').fill('2');
+        await page.locator('input[name="away-input-0"]').fill('1');
+
+        // Submit form
+        await page.locator('button', { hasText: 'Submit Predictions' }).click();
+
+        // Check error toast
+        await expect(page.locator('.Toastify__toast--error', { hasText: 'Error occured while submitting predictions' })).toBeVisible();
+    });
+
+    test('should display total score when matches are finished', async ({ page }) => {
+        // Mock finished matches
+        const finishedMatchData = {
+            matches: [
+                {
+                    id: 1,
+                    matchday: 27,
+                    homeTeam: { name: 'Team A' },
+                    awayTeam: { name: 'Team B' },
+                    season: { currentMatchday: 27 },
+                    status: 'FINISHED',
+                    utcDate: new Date(Date.now() - 3600000).toISOString(),
+                    score: { fullTime: { home: 2, away: 1 } },
+                },
+            ],
+        };
+        await page.route('**/wp-admin/admin-ajax.php?action=get_matchday_games', async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(finishedMatchData),
+            });
+        });
+
+        await page.goto('/', { waitUntil: 'networkidle' });
+
+        // Check total score
+        await expect(page.locator('text=Your Total Score')).toBeVisible();
+        await expect(page.locator('text=/\d+\.\d/')).toBeVisible(); // Dynamic score
+    });
+
+    test('should show VSOP link when matches are finished', async ({ page }) => {
+        // Mock finished matches
+        const finishedMatchData = {
+            matches: [
+                {
+                    id: 1,
+                    matchday: 27,
+                    homeTeam: { name: 'Team A' },
+                    awayTeam: { name: 'Team B' },
+                    season: { currentMatchday: 27 },
+                    status: 'FINISHED',
+                    utcDate: new Date(Date.now() - 3600000).toISOString(),
+                    score: { fullTime: { home: 2, away: 1 } },
+                },
+            ],
+        };
+        await page.route('**/wp-admin/admin-ajax.php?action=get_matchday_games', async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(finishedMatchData),
+            });
+        });
+
+        await page.goto('/', { waitUntil: 'networkidle' });
+
+        // Check VSOP link
+        await expect(page.locator('a[href="/vsop"]', { hasText: /See how you performed compared to OP on Week 27/ })).toBeVisible();
+    });
+
+    test('should display OP and user predictions in VSOP mode', async ({ page }) => {
+        // Mock finished matches for VSOP
+        const finishedMatchData = {
+            matches: [
+                {
+                    id: 1,
+                    matchday: 27,
+                    homeTeam: { name: 'Team A' },
+                    awayTeam: { name: 'Team B' },
+                    season: { currentMatchday: 27 },
+                    status: 'FINISHED',
+                    utcDate: new Date(Date.now() - 3600000).toISOString(),
+                    score: { fullTime: { home: 2, away: 1 } },
+                },
+            ],
+        };
+        await page.route('**/wp-admin/admin-ajax.php?action=get_matchday_games', async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(finishedMatchData),
+            });
+        });
+
+        await page.goto('/?vsop=true', { waitUntil: 'networkidle' });
+
+        // Check OP and user prediction headers
+        await expect(page.locator('text=OP Predictions')).toBeVisible();
+        await expect(page.locator('text=Your Predictions')).toBeVisible();
+
+        // Check scores
+        await expect(page.locator('text=OP Total')).toBeVisible();
+        await expect(page.locator('text=Your Total')).toBeVisible();
+    });
+});

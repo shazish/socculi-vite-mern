@@ -1,5 +1,5 @@
 import { Col, Row } from "react-bootstrap";
-import Container from "react-bootstrap/Container";
+import { Container } from 'react-bootstrap';
 
 const viteLogo = `./vite.svg`;
 const reactLogo = `./react.svg`;

@@ -1,4 +1,4 @@
-import Container from 'react-bootstrap/Container';
+import { Container } from 'react-bootstrap';
 
 declare const __LAST_COMMIT_DATE__: string;
 

@@ -148,14 +148,14 @@ export default function MatchListLine({
               <img
                 className="w-10 h-10 object-contain"
                 alt={matchLine.homeTeam.shortName + " crest"}
-                src={"./crest/" + matchLine.homeTeam.tla + ".png"}
+                src={"./public/crest/" + matchLine.homeTeam.tla + ".png"}
               />
             </div>
 
             <div className="flex flex-col items-center">
               {submissionDeadlineStatus !== "open" ? (
                 <div className="text-xl font-bold">
-                  {matchLine.score.fullTime.home} - {matchLine.score.fullTime.away}
+                  {matchLine?.score?.fullTime?.home} - {matchLine?.score?.fullTime?.away}
                 </div>
               ) : (
                 <div className="text-xl font-bold text-gray-300">vs</div>
@@ -181,7 +181,7 @@ export default function MatchListLine({
               <img
                 className="w-10 h-10 object-contain"
                 alt={matchLine.awayTeam.shortName + " crest"}
-                src={"./crest/" + matchLine.awayTeam.tla + ".png"}
+                src={"./public/crest/" + matchLine.awayTeam.tla + ".png"}
               />
             </div>
           </div>

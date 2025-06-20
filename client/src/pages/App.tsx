@@ -5,6 +5,7 @@ import { FootballDataResponse, Match } from '../types/matchData.interface';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { fetchUserSubmissions } from '../utils/submissions';
+import axiosRetry from "axios-retry";
 // todo:
 // *done* 1. add a loading spinner
 // 2. add caching of match data
@@ -16,8 +17,8 @@ import { fetchUserSubmissions } from '../utils/submissions';
 // 8. continuous prediction submission
 
 // place resources inside shaziblues.io/public folder
-const brandLogo = `./socculi.jpg`;
-const loadingAnimation2 = `./loadinganimation2.svg`; // Add the correct path to your loading animation
+const brandLogo = `./public/socculi.jpg`;
+const loadingAnimation2 = `./public/loadinganimation2.svg`; // Add the correct path to your loading animation
 const opUserId = 'shaahin@gmail.com';
 
 function App({ vsop = false }: { vsop?: boolean }) {
@@ -27,9 +28,10 @@ function App({ vsop = false }: { vsop?: boolean }) {
   const [appLoaded, setAppLoaded] = useState(false);
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
   const [existingOpSubmissions, setExistingOpSubmissions] = useState<string>('');
+  const [errorLoadingMatches, setErrorLoadingMatches] = useState<string>('');
 
   // ______ FAKE DATA TESTER ______
-  const fakeDataEnabled = true;
+  const fakeDataEnabled = false;
   const fakeMatchDay = 27;
   // ______ FAKE DATA TESTER ______
 
@@ -77,6 +79,15 @@ function App({ vsop = false }: { vsop?: boolean }) {
     }
   }, [renderMatchDay, appLoaded]);
 
+  axiosRetry(axios, {
+    retries: 3, // Number of retries
+    retryDelay: axiosRetry.exponentialDelay, // Use exponential backoff
+    // attach callback to each retry to handle logging or tracking
+    onRetry: (err) => console.log(`axiosRetry Retrying request. Error: ${err}`),
+    // Specify conditions to retry on, this is the default
+    // which will retry on network errors or idempotent requests (5xx)
+    retryCondition: (error) => axiosRetry.isNetworkOrIdempotentRequestError(error)
+  });
 
   async function submitToBackend(formDataStr: string) {
     // console.log('submitToBackend', formDataStr);
@@ -110,7 +121,7 @@ function App({ vsop = false }: { vsop?: boolean }) {
     try {
       const userId = op ? opUserId : (localStorage.getItem("socculi_user_email") ?? "");
       const predictions = await fetchUserSubmissions(matchDay, userId, fakeDataEnabled);
-      
+
       if (op) {
         setExistingOpSubmissions(predictions);
       } else {
@@ -159,6 +170,7 @@ function App({ vsop = false }: { vsop?: boolean }) {
       })
       .catch((err) => {
         console.log("getMatchDayGames err", err);
+        setErrorLoadingMatches(err);
       });
 
     // resume reminder: need to create an interface for matchlist so that the above works
@@ -190,6 +202,13 @@ function App({ vsop = false }: { vsop?: boolean }) {
         <ToastContainer
           position="top-center"
           autoClose={2000} />
+
+        {errorLoadingMatches?.length > 0 && (
+          <div className="alert alert-danger">
+            <strong>Error:</strong> {errorLoadingMatches}
+          </div>
+        )}
+
         {matchList && matchList.length > 0 && (
           <>
             <MatchListRender
