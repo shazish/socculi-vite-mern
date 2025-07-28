@@ -1,14 +1,11 @@
-import { useState, useEffect, useCallback, Suspense, lazy } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { ToastContainer } from 'react-toastify';
+import MatchListRender from "../components/match-list/matchListRenderer";
+import { FootballDataResponse, Match } from '../types/matchData.interface';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useMatchData } from '../hooks/useMatchData';
-import { useSubmissions } from '../hooks/useSubmissions';
-import { ErrorBoundary } from '../components/ErrorBoundary';
-import OptimizedImage from '../components/OptimizedImage';
-
-// Lazy load components
-const MatchListRender = lazy(() => import("../components/match-list/matchListRenderer"));
+import { fetchUserSubmissions } from '../utils/submissions';
+import axiosRetry from "axios-retry";
 // todo:
 // *done* 1. add a loading spinner
 // 2. add caching of match data
@@ -19,63 +16,171 @@ const MatchListRender = lazy(() => import("../components/match-list/matchListRen
 // 7. selective game predictions
 // 8. continuous prediction submission
 
-// Environment variables
-const brandLogo = import.meta.env.VITE_BRAND_LOGO_PATH || './public/socculi.jpg';
-const loadingAnimation2 = import.meta.env.VITE_LOADING_ANIMATION_PATH || './public/loadinganimation2.svg';
-const fakeDataEnabled = import.meta.env.VITE_FAKE_DATA_ENABLED === 'true';
-const fakeMatchDay = Number(import.meta.env.VITE_FAKE_MATCH_DAY) || 27;
-const toastAutoClose = Number(import.meta.env.VITE_TOAST_AUTO_CLOSE) || 2000;
+// place resources inside shaziblues.io/public folder
+const brandLogo = `./public/socculi.jpg`;
+const loadingAnimation2 = `./public/loadinganimation2.svg`; // Add the correct path to your loading animation
+const opUserId = 'shaahin@gmail.com';
 
-interface AppProps {
-  vsop?: boolean;
-}
-
-function App({ vsop = false }: AppProps) {
+function App({ vsop = false }: { vsop?: boolean }) {
+  // const [allMatchData, setAllMatchData] = useState<Match[]>();
+  const [renderMatchDay, setRenderMatchDay] = useState(0);
+  const [matchList, setMatchList] = useState<Match[]>();
   const [appLoaded, setAppLoaded] = useState(false);
-  
-  // Custom hooks for data management
-  const { matchList, renderMatchDay, errorLoadingMatches, getMatchDayGames } = useMatchData(fakeDataEnabled, fakeMatchDay);
-  const { existingSubmissions, existingOpSubmissions, submitToBackend } = useSubmissions(renderMatchDay, fakeDataEnabled);
+  const [existingSubmissions, setExistingSubmissions] = useState<string>('');
+  const [existingOpSubmissions, setExistingOpSubmissions] = useState<string>('');
+  const [errorLoadingMatches, setErrorLoadingMatches] = useState<string>('');
+
+  // ______ FAKE DATA TESTER ______
+  const fakeDataEnabled = false;
+  const fakeMatchDay = 27;
+  // ______ FAKE DATA TESTER ______
 
   const initPredictionTable = useCallback(async () => {
     if (fakeDataEnabled) {
+      setRenderMatchDay(fakeMatchDay);
       return 'fake data enabled';
     }
 
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
-    const wpAdminUrl = import.meta.env.VITE_WP_ADMIN_URL || '/wp-admin/admin-ajax.php';
-
     try {
       const response = await axios.get(
-        `${apiBaseUrl}${wpAdminUrl}?action=create_submissions_table`
+        "/wp-admin/admin-ajax.php?action=create_submissions_table"
       );
       console.log('no error spotted creating table', response);
     } catch (error) {
-      console.error("Failed to initialize prediction table:", error);
+      console.error("Failed to fetch match day:", error);
+      // Consider adding error state handling here
     }
   }, []);
 
-  // Initialize app data on mount
   useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        await initPredictionTable();
-        await getMatchDayGames();
-        setAppLoaded(true);
-      } catch (error) {
-        console.error("Failed to initialize app:", error);
-      }
-    };
+    initPredictionTable().then((res) => {
+      console.log(res);
+    })
+      .catch((err) => {
+        console.log(err)
+      });
 
     if (!appLoaded) {
-      initializeApp();
+      getMatchDayGames()
+        .then(() => {
+          setAppLoaded(true);
+        })
+        .catch((error) => {
+          console.error("Failed to load match day:", error);
+        });
     }
-  }, [appLoaded, initPredictionTable, getMatchDayGames]);
+  }, [appLoaded, renderMatchDay]);
+
+  // Suggested by Claude, so that we fetch user submissions only after the matchday is set
+  useEffect(() => {
+    if (renderMatchDay && appLoaded) {
+      fetchUserSubmissionsFromWP(renderMatchDay);
+      fetchUserSubmissionsFromWP(renderMatchDay, true);
+    }
+  }, [renderMatchDay, appLoaded]);
+
+  axiosRetry(axios, {
+    retries: 3, // Number of retries
+    retryDelay: axiosRetry.exponentialDelay, // Use exponential backoff
+    // attach callback to each retry to handle logging or tracking
+    onRetry: (err) => console.log(`axiosRetry Retrying request. Error: ${err}`),
+    // Specify conditions to retry on, this is the default
+    // which will retry on network errors or idempotent requests (5xx)
+    retryCondition: (error) => axiosRetry.isNetworkOrIdempotentRequestError(error)
+  });
+
+  async function submitToBackend(formDataStr: string) {
+    // console.log('submitToBackend', formDataStr);
+    const formData = new FormData();
+    formData.append("dataStr", formDataStr);
+    formData.append("matchDay", renderMatchDay.toString());
+    formData.append("userId", localStorage.getItem("socculi_user_email") ?? "");
+    console.log('App.tsx submitToBackend: ', formData);
+    try {
+      const res = await axios.post(
+        `https://socculi.com/wp-admin/admin-ajax.php?action=submit_user_predictions`,
+        // WP has issues with receiving JSON format OOB, therefore we use formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(res);
+      toast.success("Predictions submitted successfully.");
+      return true;
+    } catch (err) {
+      console.log("submitToBackend error", err);
+      toast.error("Error occured while submitting predictions. Please try again.");
+      return false;
+    }
+  }
+
+  async function fetchUserSubmissionsFromWP(matchDay: number, op?: boolean) {
+    try {
+      const userId = op ? opUserId : (localStorage.getItem("socculi_user_email") ?? "");
+      const predictions = await fetchUserSubmissions(matchDay, userId, fakeDataEnabled);
+
+      if (op) {
+        setExistingOpSubmissions(predictions);
+      } else {
+        setExistingSubmissions(predictions);
+      }
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
+      toast.error("Failed to load predictions");
+    }
+  }
+
+  useEffect(() => {
+    console.log("existingSubmissions updated to: ", existingSubmissions);
+    console.log("existingOpSubmissions updated to: ", existingOpSubmissions);
+  }, [existingSubmissions, existingOpSubmissions]);
+
+  async function getMatchDayGames(day?: number) {
+    console.log('getMatchDayGames', day);
+    if (fakeDataEnabled) {
+      const fakedata = await import('../assets/data-structure.json');
+      console.log('fakedata', fakedata)
+      console.log("day: ", day);
+      setMatchList(fakedata.default.data.matches.filter((match) => match.matchday === fakeMatchDay) as Match[]);
+      return;
+    }
+
+    const formData = new FormData();
+    await axios
+      .post<FootballDataResponse>(
+        `/wp-admin/admin-ajax.php?action=get_matchday_games`,
+        // WP has issues with receiving JSON format OOB, therefore we use formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        let currMatchDay = res.data.matches?.[0].season?.currentMatchday;
+        setRenderMatchDay(currMatchDay);
+        // setAllMatchData(res.data.matches);
+        setMatchList(res.data.matches.filter((match) => match.matchday == currMatchDay));
+        console.log("football-data for this week: ", matchList);
+      })
+      .catch((err) => {
+        console.log("getMatchDayGames err", err);
+        setErrorLoadingMatches(err);
+      });
+
+    // resume reminder: need to create an interface for matchlist so that the above works
+    console.log(matchList)
+  }
 
   console.log("app.tsx ran!", window.location.origin);
 
   return (
-    <ErrorBoundary>
+    <>
       <div className="flex flex-row justify-around bg-light">
 
         <div className="content-center d-none d-lg-block">
@@ -84,19 +189,19 @@ function App({ vsop = false }: AppProps) {
 
         </div>
         <div className="logo-container flex">
-          <OptimizedImage src={brandLogo} className="brand-logo fade-in" alt="Socculi logo" loading="eager" />
+          <img src={brandLogo} className="brand-logo fade-in" alt="Socculi logo" />
         </div>
       </div>
 
       <div className="card p-0">
         {!appLoaded && (
           <div className="flex flex-row justify-around">
-            <OptimizedImage src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" loading="eager" />
+            <img src={loadingAnimation2} className="flex-1 p-0 m-0 w-10 h-10" alt="Animation logo" />
           </div>
         )}
         <ToastContainer
           position="top-center"
-          autoClose={toastAutoClose} />
+          autoClose={2000} />
 
         {errorLoadingMatches?.length > 0 && (
           <div className="alert alert-danger">
@@ -105,24 +210,19 @@ function App({ vsop = false }: AppProps) {
         )}
 
         {matchList && matchList.length > 0 && (
-          <Suspense fallback={
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-2 text-gray-600">Loading match list...</span>
-            </div>
-          }>
+          <>
             <MatchListRender
               vsop={vsop}
               matchList={matchList}
               existingSubmissions={existingSubmissions}
               existingOpSubmissions={existingOpSubmissions}
               renderedMatchDay={renderMatchDay}
-              broadcastSubmissionToParent={submitToBackend}
+              broadcastSubmissionToParent={(data) => submitToBackend(data)}
             />
-          </Suspense>
+          </>
         )}
       </div>
-    </ErrorBoundary>
+    </>
   );
 }
 

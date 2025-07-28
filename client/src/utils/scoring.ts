@@ -1,9 +1,7 @@
-import { Match } from '../types/matchData.interface';
-
 export function calculatePredictionScore(
   predictedHome: number, 
   predictedAway: number, 
-  matchLine: Match
+  matchLine: any
 ): number {
   const actualHome = Number(matchLine?.score?.fullTime?.home);
   const actualAway = Number(matchLine?.score?.fullTime?.away);

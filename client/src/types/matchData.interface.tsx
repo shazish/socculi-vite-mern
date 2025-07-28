@@ -74,7 +74,7 @@ export interface Match {
     season: Season;
     id: number;
     utcDate: string;
-    status: 'FINISHED' | 'IN_PLAY' | 'TIMED' | 'SCHEDULED' | string;
+    status: 'FINISHED' | 'IN_PLAY' | 'TIMED' | string;
     matchday: number;
     stage: string;
     group: string | null;
@@ -84,60 +84,4 @@ export interface Match {
     score: Score;
     odds: Odds;
     referees: Referee[];
-}
-
-export interface UserSubmission {
-    matchDay: number;
-    userId: string;
-    predictions: Record<string, string>;
-    timestamp: number;
-}
-
-export interface PredictionData {
-    homeScore: number;
-    awayScore: number;
-    timestamp: number;
-    impact: number;
-}
-
-export interface SubmissionResponse {
-    success: boolean;
-    message?: string;
-    data?: Record<string, unknown>;
-}
-
-export interface FormattedImpact {
-    percentage: string;
-    numeric: string;
-}
-
-export interface MatchListLineProps {
-    index: number;
-    matchLine: Match;
-    submissionDeadlineStatus: string;
-    homePrediction?: string | null;
-    awayPrediction?: string | null;
-    homeOpPrediction?: string | null;
-    awayOpPrediction?: string | null;
-    predictionImpact?: string;
-    vsop?: boolean;
-    broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void;
-}
-
-export interface MatchListRendererProps {
-    vsop?: boolean;
-    matchList: Match[];
-    renderedMatchDay: number;
-    existingSubmissions: string;
-    existingOpSubmissions: string;
-    broadcastSubmissionToParent: (data: string) => Promise<boolean>;
-}
-
-export interface AppState {
-    renderMatchDay: number;
-    matchList: Match[];
-    appLoaded: boolean;
-    existingSubmissions: string;
-    existingOpSubmissions: string;
-    errorLoadingMatches: string;
-}
+}   

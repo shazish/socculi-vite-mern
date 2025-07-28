@@ -1,23 +1,31 @@
-import { useEffect, useState, memo, useMemo, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { Clock, Trophy } from "lucide-react"
 import { calculatePredictionScore } from '../../utils/scoring';
 import { useAuthStatus } from "../../utils/authStatus";
-import { MatchListLineProps, FormattedImpact } from "../../types/matchData.interface";
-import OptimizedImage from "../OptimizedImage";
 
-function MatchListLine(props: MatchListLineProps) {
-  const {
-    index,
-    matchLine,
-    submissionDeadlineStatus,
-    homePrediction,
-    awayPrediction,
-    homeOpPrediction,
-    awayOpPrediction,
-    predictionImpact,
-    vsop = false,
-    broadcastChangeToParent,
-  } = props;
+export default function MatchListLine({
+  index,
+  matchLine,
+  submissionDeadlineStatus,
+  homePrediction,
+  awayPrediction,
+  homeOpPrediction,
+  awayOpPrediction,
+  predictionImpact,
+  vsop = false,
+  broadcastChangeToParent,
+}: {
+  index: number
+  matchLine: any
+  submissionDeadlineStatus: string
+  homePrediction?: string | null
+  awayPrediction?: string | null
+  homeOpPrediction?: string | null
+  awayOpPrediction?: string | null
+  predictionImpact?: string
+  vsop?: boolean
+  broadcastChangeToParent: (value: number | null, isHome: boolean, index: number) => void
+}) {
   const [localHome, setLocalHome] = useState(homePrediction || "")
   const [localAway, setLocalAway] = useState(awayPrediction || "")
   let { isLoggedIn } = useAuthStatus()
@@ -31,7 +39,7 @@ function MatchListLine(props: MatchListLineProps) {
   const showTeamName = !vsop
 
   // Improved handle change function to enforce "both or neither" rule
-  const handleChange = useCallback((value: string, isHome: boolean) => {
+  function handleChange(value: string, isHome: boolean) {
     // Update the local state for the current field
     if (isHome) {
       setLocalHome(value)
@@ -79,15 +87,14 @@ function MatchListLine(props: MatchListLineProps) {
         broadcastChangeToParent(null, false, index)
       }
     }
-  }, [localHome, localAway, index, broadcastChangeToParent]);
+  }
 
-  const predicationScore = useCallback((home: string | null | undefined, away: string | null | undefined): number => {
-    if (!home || !away) return 0;
+  function predicationScore(home: any, away: any): number {
     return calculatePredictionScore(Number(home), Number(away), matchLine);
-  }, [matchLine]);
+  }
 
-  const timeLeftToStartFormatted = useMemo(() => {
-    const timeLeft = new Date(matchLine.utcDate).getTime() - Date.now()
+  function timeLeftToStartFormatted(): string {
+    const timeLeft = new Date(matchLine["utcDate"]).getTime() - Date.now()
     if (timeLeft < 3600000)
       return `Starts in ` + Math.floor(timeLeft / 60000) + ` minute(s)` // less than an hour
     else if (timeLeft < 86400000) return `Starts in ` + Math.floor(timeLeft / 3600000) + ` hour(s)` // less than a day
@@ -95,21 +102,21 @@ function MatchListLine(props: MatchListLineProps) {
       dateStyle: "short",
       timeStyle: "short",
     })}`
-  }, [matchLine.utcDate]);
+  }
 
   // Format the impact value
-  const formatImpact = useCallback((impact: string | undefined): FormattedImpact => {
+  function formatImpact(impact: string | undefined): any {
     if (!impact) return { percentage: "0", numeric: "0.0" }
     const numericImpact = Number.parseFloat(impact)
     return {
       percentage: (numericImpact * 100).toFixed(0),
       numeric: numericImpact.toFixed(1),
     }
-  }, []);
+  }
 
-  const predictionScoreUser = useMemo(() => predicationScore(homePrediction, awayPrediction), [predicationScore, homePrediction, awayPrediction])
-  const predictionScoreOp = useMemo(() => predicationScore(homeOpPrediction, awayOpPrediction), [predicationScore, homeOpPrediction, awayOpPrediction])
-  const formattedImpact = useMemo(() => formatImpact(predictionImpact), [formatImpact, predictionImpact])
+  const predictionScoreUser = predicationScore(homePrediction, awayPrediction)
+  const predictionScoreOp = predicationScore(homeOpPrediction, awayOpPrediction)
+  const formattedImpact = formatImpact(predictionImpact)
 
   return (
     <div data-testid="match-line" className="rounded-lg border border-gray-100 shadow-sm mb-3 overflow-hidden transition-all hover:shadow-md">
@@ -138,7 +145,7 @@ function MatchListLine(props: MatchListLineProps) {
         <div className="flex-1 flex items-center justify-center">
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-end">
-              <OptimizedImage
+              <img
                 className="w-10 h-10 object-contain"
                 alt={matchLine.homeTeam.shortName + " crest"}
                 src={"./public/crest/" + matchLine.homeTeam.tla + ".png"}
@@ -162,7 +169,7 @@ function MatchListLine(props: MatchListLineProps) {
                 ) : submissionDeadlineStatus === "open" ? (
                   <span className="inline-flex items-center gap-1 text-xs text-gray-500">
                     <Clock className="w-3 h-3" />
-                    {timeLeftToStartFormatted}
+                    {timeLeftToStartFormatted()}
                   </span>
                 ) : (
                   <span className="text-xs text-gray-500">FINISHED</span>
@@ -171,7 +178,7 @@ function MatchListLine(props: MatchListLineProps) {
             </div>
 
             <div className="flex flex-col items-start">
-              <OptimizedImage
+              <img
                 className="w-10 h-10 object-contain"
                 alt={matchLine.awayTeam.shortName + " crest"}
                 src={"./public/crest/" + matchLine.awayTeam.tla + ".png"}
@@ -279,4 +286,3 @@ function MatchListLine(props: MatchListLineProps) {
   )
 }
 
-export default memo(MatchListLine);

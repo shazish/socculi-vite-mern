@@ -1,20 +1,15 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
-import SocculiNavbar from './components/navbar/navbar.tsx'
+import SocculiNavbar from './components/navbar/navbar.js'
 import About from './pages/About.tsx'
 import Vsop from './pages/Vsop.tsx'
 import React, { useEffect, ReactNode } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './pages/App.tsx'
 import ArchivedWeeks from './pages/ArchivedWeeks.tsx'
-import SocculiFooter from './components/footer/footer.tsx'
-import { initPerformanceObserver, logBundleInfo } from './utils/performance';
+import SocculiFooter from './components/footer/footer.js'
 import './style/style.css'
 import './index.scss'
-
-// Initialize performance monitoring
-initPerformanceObserver();
-logBundleInfo();
 
 const TitleManager = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
