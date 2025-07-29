@@ -1,26 +1,21 @@
 import type React from "react"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, memo, useMemo } from "react"
 import { Button, Nav } from "react-bootstrap"
 import { Loader2, Trophy } from "lucide-react"
 import MatchListLine from "./matchListLine";
 import { calculatePredictionScore } from '../../utils/scoring';
 import { useAuthStatus } from "../../utils/authStatus";
+import { MatchListRendererProps, Match } from "../../types/matchData.interface";
 
-export default function MatchListRender({
-  vsop = false,
-  matchList,
-  renderedMatchDay,
-  existingSubmissions,
-  existingOpSubmissions,
-  broadcastSubmissionToParent,
-}: {
-  vsop?: boolean
-  matchList: any
-  renderedMatchDay: number
-  existingSubmissions: any
-  existingOpSubmissions: any
-  broadcastSubmissionToParent: (data: any) => Promise<boolean>
-}) {
+function MatchListRender(props: MatchListRendererProps) {
+  const {
+    vsop = false,
+    matchList,
+    renderedMatchDay,
+    existingSubmissions,
+    existingOpSubmissions,
+    broadcastSubmissionToParent,
+  } = props;
   const [formIsDirty, setFormIsDirty] = useState(false)
   const [formIsValid, setFormIsValid] = useState(false)
   const [submitInProgress, setSubmitInProgress] = useState(false)
@@ -30,15 +25,16 @@ export default function MatchListRender({
   const [existingImpactsObj, setExistingImpactsObj] = useState<Record<string, string>>({})
   const [changedLines, setChangedLines] = useState<Set<number>>(new Set())
 
-  const allFinished = matchList.every((matchLine: any) => matchLine.status === "FINISHED")
-  let isLoggedIn = useAuthStatus();
-  function submissionDeadlineStatus(matchDate: string): string {
+  const allFinished = useMemo(() => matchList.every((matchLine: Match) => matchLine.status === "FINISHED"), [matchList])
+  const isLoggedIn = useAuthStatus();
+  
+  const submissionDeadlineStatus = useCallback((matchDate: string): string => {
     if (Date.now() - new Date(matchDate).getTime() > 3600000) return "closed"
     if (Date.now() - new Date(matchDate).getTime() < 0) return "open"
     return "closesSoon"
-  }
+  }, []);
 
-  function handleChildChange(result: number | null, isHome: boolean, index: number) {
+  const handleChildChange = useCallback((result: number | null, isHome: boolean, index: number) => {
     const newSubmissions = { ...existingSubmissionsObj }
 
     if (isHome) {
@@ -82,15 +78,15 @@ export default function MatchListRender({
 
     // Set state with the new objects
     setExistingSubmissionsObj(newSubmissions)
-  }
+  }, [existingSubmissionsObj]);
 
-  function calcImpact(submitTime: number, matchStart: number): number {
+  const calcImpact = useCallback((submitTime: number, matchStart: number): number => {
     const delta = submitTime - matchStart
     if (delta < 0) return 1
     if (delta < 2700000) return ((2700000 - delta) / 2700000) * 0.5 + 0.5
     if (delta > 2700000 && delta < 3600000) return 0.5
     else return 0 // should not be happening
-  }
+  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     setSubmitInProgress(true)
@@ -103,7 +99,7 @@ export default function MatchListRender({
     formData.append("renderedMatchDay", renderedMatchDay.toString())
 
     // Add timestamp for each match line
-    matchList.forEach((_: any, index: any) => {
+    matchList.forEach((_: Match, index: number) => {
       // If this line was changed during this session, use current timestamp
       // Otherwise, use existing timestamp or current timestamp if none exists
       const timestamp = changedLines.has(index)
@@ -134,16 +130,16 @@ export default function MatchListRender({
       })
   }
 
-  function convertFormToString(formData: FormData) {
+  const convertFormToString = useCallback((formData: FormData) => {
     const formDataString = Array.from(formData.entries())
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value.toString())}`)
       .join("&")
     return formDataString
-  }
+  }, []);
 
-  function getSubmitButtonText() {
+  const getSubmitButtonText = useMemo(() => {
     const atLeastOneSubmittableMatch = matchList.some(
-      (matchLine: any) => submissionDeadlineStatus(matchLine["utcDate"]) !== "closed",
+      (matchLine: Match) => submissionDeadlineStatus(matchLine.utcDate) !== "closed",
     )
 
     if (!atLeastOneSubmittableMatch) {
@@ -153,10 +149,10 @@ export default function MatchListRender({
       return "Submit Predictions"
     }
     return "Login to Submit"
-  }
+  }, [matchList, submissionDeadlineStatus]);
 
-  const convertStringToObj = useCallback((formDataString: string): any => {
-    const formDataObj: any = {}
+  const convertStringToObj = useCallback((formDataString: string): Record<string, string> => {
+    const formDataObj: Record<string, string> = {}
 
     // Handle empty string case
     if (!formDataString) {
@@ -202,7 +198,7 @@ export default function MatchListRender({
     setExistingImpactsObj(impacts)
   }, [convertStringToObj, existingSubmissions, existingOpSubmissions])
 
-  function calculateTotalScore(matchList: any[], submissionsObj: Record<string, string>): number {
+  const calculateTotalScore = useCallback((matchList: Match[], submissionsObj: Record<string, string>): number => {
     return matchList.reduce((total, matchLine, index) => {
       const home = submissionsObj[`home-input-${index}`];
       const away = submissionsObj[`away-input-${index}`];
@@ -213,7 +209,7 @@ export default function MatchListRender({
       const impact = Number(existingImpactsObj[`impact-${index}`] || 1);
       return total + (score * impact);
     }, 0);
-  }
+  }, [existingImpactsObj]);
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 bg-white rounded-xl shadow-sm">
@@ -232,7 +228,7 @@ export default function MatchListRender({
             disabled={!formIsValid || !formIsDirty || !isLoggedIn}
           >
             {submitInProgress ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            {getSubmitButtonText()}
+            {getSubmitButtonText}
           </Button>
         )}
       </div>
@@ -292,7 +288,7 @@ export default function MatchListRender({
 
       <form id="predictionForm" name="predictionForm" onSubmit={handleSubmit}>
         <div className="space-y-1" data-testid="match-list">
-          {matchList.map((matchLine: any, index: number) => (
+          {matchList.map((matchLine: Match, index: number) => (
             <MatchListLine
               key={index}
               index={index}
@@ -302,8 +298,8 @@ export default function MatchListRender({
               homeOpPrediction={existingOpSubmissionsObj?.[`home-input-${index}`]}
               awayOpPrediction={existingOpSubmissionsObj?.[`away-input-${index}`]}
               predictionImpact={existingImpactsObj?.[`impact-${index}`]}
-              submissionDeadlineStatus={submissionDeadlineStatus(matchLine["utcDate"])}
-              broadcastChangeToParent={(a, b, i) => handleChildChange(a, b, i)}
+              submissionDeadlineStatus={submissionDeadlineStatus(matchLine.utcDate)}
+              broadcastChangeToParent={handleChildChange}
               vsop={vsop}
             />
           ))}
@@ -312,4 +308,6 @@ export default function MatchListRender({
     </div>
   )
 }
+
+export default memo(MatchListRender);
 
