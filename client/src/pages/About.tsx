@@ -1,12 +1,12 @@
 import { Col, Row } from "react-bootstrap";
 import { Container } from 'react-bootstrap';
 
-const brandLogo = './public/socculi.jpg';
-const viteLogo = `./public/vite.svg`;
-const reactLogo = `./public/react.svg`;
-const footballDataLogo = `./public/football-data-logo.jpg`;
-const auth0Logo = `./public/auth0.png`;
-const wpLogo = `./public/wp-logo.png`;
+const brandLogo = '/public/socculi.jpg';
+const viteLogo = `/public/vite.svg`;
+const reactLogo = `/public/react.svg`;
+const footballDataLogo = `/public/football-data-logo.jpg`;
+const auth0Logo = `/public/auth0.png`;
+const wpLogo = `/public/wp-logo.png`;
 
 function About() {
     return (

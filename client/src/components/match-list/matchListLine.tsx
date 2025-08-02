@@ -141,7 +141,7 @@ function MatchListLine(props: MatchListLineProps) {
               <OptimizedImage
                 className="w-10 h-10 object-contain"
                 alt={matchLine.homeTeam.shortName + " crest"}
-                src={"./public/crest/" + matchLine.homeTeam.tla + ".png"}
+                src={"/public/crest/" + matchLine.homeTeam.tla + ".png"}
               />
             </div>
 
@@ -174,7 +174,7 @@ function MatchListLine(props: MatchListLineProps) {
               <OptimizedImage
                 className="w-10 h-10 object-contain"
                 alt={matchLine.awayTeam.shortName + " crest"}
-                src={"./public/crest/" + matchLine.awayTeam.tla + ".png"}
+                src={"/public/crest/" + matchLine.awayTeam.tla + ".png"}
               />
             </div>
           </div>

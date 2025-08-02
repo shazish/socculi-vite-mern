@@ -6,8 +6,8 @@ import { fetchUserSubmissions } from '../utils/submissions';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const opUserId = 'shaahin@gmail.com';
-const loadingAnimation = `./loadinganimation2.svg`;
+const opUserId = import.meta.env.VITE_OP_USER_ID || 'shaahin@gmail.com';
+const loadingAnimation = import.meta.env.VITE_LOADING_ANIMATION_PATH || '/public/loadinganimation2.svg';
 
 function ArchivedWeeks() {
   const [currentMatchDay, setCurrentMatchDay] = useState<number>(0);

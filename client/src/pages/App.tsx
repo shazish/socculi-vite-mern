@@ -20,8 +20,8 @@ const MatchListRender = lazy(() => import("../components/match-list/matchListRen
 // 8. continuous prediction submission
 
 // Environment variables
-const brandLogo = import.meta.env.VITE_BRAND_LOGO_PATH || './public/socculi.jpg';
-const loadingAnimation2 = import.meta.env.VITE_LOADING_ANIMATION_PATH || './public/loadinganimation2.svg';
+const brandLogo = import.meta.env.VITE_BRAND_LOGO_PATH || '/public/socculi.jpg';
+const loadingAnimation2 = import.meta.env.VITE_LOADING_ANIMATION_PATH || '/public/loadinganimation2.svg';
 const fakeDataEnabled = import.meta.env.VITE_FAKE_DATA_ENABLED === 'true';
 const fakeMatchDay = Number(import.meta.env.VITE_FAKE_MATCH_DAY) || 27;
 const toastAutoClose = Number(import.meta.env.VITE_TOAST_AUTO_CLOSE) || 2000;
