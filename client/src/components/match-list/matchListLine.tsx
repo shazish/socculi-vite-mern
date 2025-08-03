@@ -1,6 +1,6 @@
 import { useEffect, useState, memo, useMemo, useCallback } from "react"
 import { Clock, Trophy } from "lucide-react"
-import { calculatePredictionScore } from '../../utils/scoring';
+import { calculatePredictionScore, getTrashTalkMessage } from '../../utils/scoring';
 import { useAuthStatus } from "../../utils/authStatus";
 import { MatchListLineProps, FormattedImpact } from "../../types/matchData.interface";
 import OptimizedImage from "../OptimizedImage";
@@ -110,6 +110,13 @@ function MatchListLine(props: MatchListLineProps) {
   const predictionScoreUser = useMemo(() => predicationScore(homePrediction, awayPrediction), [predicationScore, homePrediction, awayPrediction])
   const predictionScoreOp = useMemo(() => predicationScore(homeOpPrediction, awayOpPrediction), [predicationScore, homeOpPrediction, awayOpPrediction])
   const formattedImpact = useMemo(() => formatImpact(predictionImpact), [formatImpact, predictionImpact])
+  
+  const trashTalkMessage = useMemo(() => {
+    if (homePrediction && awayPrediction && matchLine.status === "FINISHED") {
+      return getTrashTalkMessage(Number(homePrediction), Number(awayPrediction), matchLine);
+    }
+    return null;
+  }, [homePrediction, awayPrediction, matchLine]);
 
   return (
     <div data-testid="match-line" className="rounded-lg border border-gray-100 shadow-sm mb-3 overflow-hidden transition-all hover:shadow-md">
@@ -273,6 +280,15 @@ function MatchListLine(props: MatchListLineProps) {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Trash talk message for terrible predictions */}
+      {trashTalkMessage && (
+        <div className="px-3 py-2 bg-red-50 border-t border-red-100">
+          <div className="flex items-center justify-center text-sm text-red-600 font-medium">
+            {trashTalkMessage}
+          </div>
         </div>
       )}
     </div>
