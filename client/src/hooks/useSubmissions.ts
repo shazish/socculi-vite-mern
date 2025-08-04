@@ -12,7 +12,8 @@ export interface UseSubmissionsReturn {
 
 export function useSubmissions(
   renderMatchDay: number, 
-  fakeDataEnabled = false
+  fakeDataEnabled = false,
+  seasonYear?: number
 ): UseSubmissionsReturn {
   const [existingSubmissions, setExistingSubmissions] = useState('');
   const [existingOpSubmissions, setExistingOpSubmissions] = useState('');
@@ -26,6 +27,7 @@ export function useSubmissions(
     formData.append("dataStr", formDataStr);
     formData.append("matchDay", renderMatchDay.toString());
     formData.append("userId", localStorage.getItem("socculi_user_email") ?? "");
+    formData.append("seasonYear", (seasonYear || new Date().getFullYear()).toString());
     
     console.log('submitToBackend formData: ', formData);
     
@@ -48,12 +50,12 @@ export function useSubmissions(
       toast.error("Error occurred while submitting predictions. Please try again.");
       return false;
     }
-  }, [renderMatchDay, apiBaseUrl, wpAdminUrl]);
+  }, [renderMatchDay, apiBaseUrl, wpAdminUrl, seasonYear]);
 
   const fetchUserSubmissionsFromWP = useCallback(async (matchDay: number, op = false): Promise<void> => {
     try {
       const userId = op ? opUserId : (localStorage.getItem("socculi_user_email") ?? "");
-      const predictions = await fetchUserSubmissions(matchDay, userId, fakeDataEnabled);
+      const predictions = await fetchUserSubmissions(matchDay, userId, fakeDataEnabled, seasonYear);
 
       if (op) {
         setExistingOpSubmissions(predictions);
@@ -64,7 +66,7 @@ export function useSubmissions(
       console.error('Error fetching submissions:', error);
       toast.error("Failed to load predictions");
     }
-  }, [opUserId, fakeDataEnabled]);
+  }, [opUserId, fakeDataEnabled, seasonYear]);
 
   // Auto-fetch submissions when matchDay changes
   useEffect(() => {

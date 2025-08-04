@@ -91,6 +91,45 @@ function get_matchday_games()
 add_action('wp_ajax_get_matchday_games', 'get_matchday_games');
 add_action('wp_ajax_nopriv_get_matchday_games', 'get_matchday_games');
 
+function get_season_matches()
+{
+	$headers = array('X-Auth-Token' => 'b4ae459ba6da4b6887a47d5788c64c88');
+	$args = array('headers' => $headers);
+	error_log('POST Data: ' . var_export($_POST, true));
+
+	$year = isset($_POST['year']) ? sanitize_text_field($_POST['year']) : '';
+	
+	if (empty($year)) {
+		wp_send_json_error('Year parameter is required');
+		wp_die();
+	}
+
+	// Validate year range (Premier League data available from recent years)
+	$currentYear = date('Y');
+	if ($year < 2020 || $year > $currentYear) {
+		wp_send_json_error('Year must be between 2020 and ' . $currentYear);
+		wp_die();
+	}
+
+	// Use PL competition code with season parameter (year is the starting year of the season)
+	$url = 'https://api.football-data.org/v4/competitions/PL/matches?season=' . $year;
+
+	error_log(' >>>> Season URL: ' . $url);
+
+	$response = wp_remote_get($url, $args);
+
+	if (is_array($response) && !is_wp_error($response)) {
+		$body = wp_remote_retrieve_body($response);
+		$data = json_decode($body);
+		wp_send_json($data);
+	} else {
+		wp_send_json_error('Error fetching data');
+	}
+	wp_die();
+}
+add_action('wp_ajax_get_season_matches', 'get_season_matches');
+add_action('wp_ajax_nopriv_get_season_matches', 'get_season_matches');
+
 function submit_user_predictions() {
 	error_log('submit_user_predictions POST Data: ' . var_export($_POST, true));
     global $wpdb;
@@ -99,11 +138,12 @@ function submit_user_predictions() {
 	// works for both insertions and updates
 	$result = $wpdb->query(
 		$wpdb->prepare(
-			"INSERT INTO $table_name (username, week_id, predictions) 
-			 VALUES (%s, %d, %s) 
+			"INSERT INTO $table_name (username, week_id, season_year, predictions) 
+			 VALUES (%s, %d, %d, %s) 
 			 ON DUPLICATE KEY UPDATE predictions = VALUES(predictions)",
 			isset($_POST['userId']) ? sanitize_text_field($_POST['userId']) : '',
 			isset($_POST['matchDay']) ? intval(sanitize_text_field($_POST['matchDay'])) : 0,
+			isset($_POST['seasonYear']) ? intval(sanitize_text_field($_POST['seasonYear'])) : date('Y'),
 			isset($_POST['dataStr']) ? sanitize_text_field($_POST['dataStr']) : ''
 		)
 	);
@@ -127,6 +167,7 @@ function get_user_week_submission() {
 
 	$username = isset($_POST['username']) ? $_POST['username'] : '';
     $week_id = isset($_POST['week_id']) ? intval($_POST['week_id']) : 0;
+    $season_year = isset($_POST['season_year']) ? intval($_POST['season_year']) : date('Y');
 
     global $wpdb;
     $table_name = $wpdb->prefix . 'user_submissions';
@@ -134,21 +175,23 @@ function get_user_week_submission() {
     // Sanitize and validate inputs
     $username = sanitize_text_field($username);
     $week_id = intval(sanitize_text_field($week_id));
+    $season_year = intval(sanitize_text_field($season_year));
     
-	error_log('get_user_week_submission: username: ' . $username . ' week_id: ' . $week_id);
+	error_log('get_user_week_submission: username: ' . $username . ' week_id: ' . $week_id . ' season_year: ' . $season_year);
 
     if ($week_id <= 0) {
         return false;
     }
     
-    // Fetch specific week submission
+    // Fetch specific week submission for the given season
     $query = $wpdb->prepare(
         "SELECT * FROM $table_name 
-        WHERE username = %s AND week_id = %d 
+        WHERE username = %s AND week_id = %d AND season_year = %d 
         ORDER BY id DESC 
         LIMIT 1",
         $username,
-        $week_id
+        $week_id,
+        $season_year
     );
     
     $result = $wpdb->get_row($query);
@@ -176,9 +219,11 @@ function create_submissions_table()
         id bigint(20) NOT NULL AUTO_INCREMENT,
 		username TEXT NOT NULL,
 		week_id INT NOT NULL,
+		season_year INT NOT NULL DEFAULT 2024,
 		predictions TEXT NOT NULL,
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY  (id)
+        PRIMARY KEY  (id),
+        UNIQUE KEY unique_submission (username(100), week_id, season_year)
     ) $charset_collate;";
 
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -187,6 +232,32 @@ function create_submissions_table()
 }
 add_action('wp_ajax_create_submissions_table', 'create_submissions_table');
 add_action('wp_ajax_nopriv_create_submissions_table', 'create_submissions_table');
+
+// Migration function to add season_year column to existing tables
+function migrate_submissions_table()
+{
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'user_submissions';
+	
+	// Check if season_year column exists
+	$column_exists = $wpdb->get_results("SHOW COLUMNS FROM $table_name LIKE 'season_year'");
+	
+	if (empty($column_exists)) {
+		// Add the season_year column
+		$wpdb->query("ALTER TABLE $table_name ADD COLUMN season_year INT NOT NULL DEFAULT 2024 AFTER week_id");
+		
+		// Drop the old unique key if it exists and add the new one
+		$wpdb->query("ALTER TABLE $table_name DROP INDEX IF EXISTS unique_submission");
+		$wpdb->query("ALTER TABLE $table_name ADD UNIQUE KEY unique_submission (username(100), week_id, season_year)");
+		
+		wp_send_json_success('Migration completed successfully');
+	} else {
+		wp_send_json_success('Migration not needed - column already exists');
+	}
+	wp_die();
+}
+add_action('wp_ajax_migrate_submissions_table', 'migrate_submissions_table');
+add_action('wp_ajax_nopriv_migrate_submissions_table', 'migrate_submissions_table');
 
 
 // inject react app

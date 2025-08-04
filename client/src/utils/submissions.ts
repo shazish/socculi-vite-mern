@@ -9,7 +9,8 @@ interface SubmissionResponse {
 export async function fetchUserSubmissions(
   matchDay: number, 
   userId: string, 
-  fakeDataEnabled = false
+  fakeDataEnabled = false,
+  seasonYear?: number
 ): Promise<string> {
   if (fakeDataEnabled) {
     try {
@@ -28,6 +29,7 @@ export async function fetchUserSubmissions(
   const formData = new FormData();
   formData.append("week_id", matchDay.toString());
   formData.append("username", userId);
+  formData.append("season_year", (seasonYear || new Date().getFullYear()).toString());
 
   try {
     const response = await axios.post<SubmissionResponse>(

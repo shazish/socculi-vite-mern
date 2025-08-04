@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { Button } from "react-bootstrap";
-import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { Button, Dropdown } from "react-bootstrap";
+import { ChevronLeft, ChevronRight, Calendar, CalendarDays } from "lucide-react";
 import MatchListRender from "../components/match-list/matchListRenderer";
 import { fetchUserSubmissions } from '../utils/submissions';
 import { ToastContainer, toast } from 'react-toastify';
@@ -12,11 +12,13 @@ const loadingAnimation = import.meta.env.VITE_LOADING_ANIMATION_PATH || '/public
 function ArchivedWeeks() {
   const [currentMatchDay, setCurrentMatchDay] = useState<number>(0);
   const [selectedMatchDay, setSelectedMatchDay] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [matchList, setMatchList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [existingSubmissions, setExistingSubmissions] = useState<string>('');
   const [existingOpSubmissions, setExistingOpSubmissions] = useState<string>('');
   const [allMatchData, setAllMatchData] = useState<any[]>([]);
+  const [availableYears] = useState<number[]>([2024, 2023, 2022, 2021, 2020]);
 
   // Use the same fake data settings as in App.tsx
   const fakeDataEnabled = false;
@@ -27,6 +29,17 @@ function ArchivedWeeks() {
     const loadData = async () => {
       try {
         setIsLoading(true);
+        
+        // Run database migration to ensure season_year column exists
+        if (!fakeDataEnabled) {
+          try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+            const wpAdminUrl = import.meta.env.VITE_WP_ADMIN_URL || '/wp-admin/admin-ajax.php';
+            await fetch(`${apiBaseUrl}${wpAdminUrl}?action=migrate_submissions_table`);
+          } catch (migrationError) {
+            console.warn('Migration check failed:', migrationError);
+          }
+        }
         
         // Fetch match data
         let matchData;
@@ -41,15 +54,35 @@ function ArchivedWeeks() {
           // Set selected week to previous week
           setSelectedMatchDay(currentWeek - 1);
         } else {
-          // In a real environment, you would fetch the data from your API
-          const response = await fetch('/wp-admin/admin-ajax.php?action=get_matchday_games');
+          // Fetch data for the selected year
+          const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+          const wpAdminUrl = import.meta.env.VITE_WP_ADMIN_URL || '/wp-admin/admin-ajax.php';
+          
+          const formData = new FormData();
+          formData.append('year', selectedYear.toString());
+          
+          const response = await fetch(`${apiBaseUrl}${wpAdminUrl}?action=get_season_matches`, {
+            method: 'POST',
+            body: formData
+          });
           const data = await response.json();
           matchData = data.matches;
-          currentWeek = matchData[0]?.season?.currentMatchday;
-          setAllMatchData(matchData);
-          setCurrentMatchDay(currentWeek);
-          // Set selected week to previous week
-          setSelectedMatchDay(currentWeek - 1);
+          
+          if (matchData && matchData.length > 0) {
+            // Find the last completed matchday for this season
+            const completedMatchdays = [...new Set(matchData
+              .filter((match: any) => match.status === 'FINISHED')
+              .map((match: any) => match.matchday as number)
+            )] as number[];
+            completedMatchdays.sort((a, b) => b - a);
+            
+            currentWeek = completedMatchdays[0] || 1;
+            setAllMatchData(matchData);
+            setCurrentMatchDay(currentWeek);
+            setSelectedMatchDay(currentWeek);
+          } else {
+            throw new Error('No matches found for this season');
+          }
         }
         
         setIsLoading(false);
@@ -61,7 +94,7 @@ function ArchivedWeeks() {
     };
 
     loadData();
-  }, []);
+  }, [selectedYear]);
 
   // Update match list when selected match day changes
   useEffect(() => {
@@ -88,7 +121,8 @@ function ArchivedWeeks() {
       const predictions = await fetchUserSubmissions(
         matchDay, 
         userId, 
-        fakeDataEnabled
+        fakeDataEnabled,
+        selectedYear
       );
       setExistingSubmissions(predictions);
       
@@ -96,7 +130,8 @@ function ArchivedWeeks() {
       const opPredictions = await fetchUserSubmissions(
         matchDay, 
         opUserId, 
-        fakeDataEnabled
+        fakeDataEnabled,
+        selectedYear
       );
       setExistingOpSubmissions(opPredictions);
       
@@ -106,7 +141,7 @@ function ArchivedWeeks() {
       toast.error("Failed to load predictions for this week");
       setIsLoading(false);
     }
-  }, []);
+  }, [selectedYear]);
 
   // Navigation functions
   const goToPreviousWeek = () => {
@@ -116,7 +151,10 @@ function ArchivedWeeks() {
   };
 
   const goToNextWeek = () => {
-    if (selectedMatchDay < currentMatchDay - 1) {
+    // For past seasons, allow navigation to the final matchday (38 for Premier League)
+    // For current season, stop at current matchday - 1
+    const maxMatchDay = selectedYear === new Date().getFullYear() ? currentMatchDay - 1 : 38;
+    if (selectedMatchDay < maxMatchDay) {
       setSelectedMatchDay(selectedMatchDay + 1);
     }
   };
@@ -130,9 +168,33 @@ function ArchivedWeeks() {
     <div className="container mx-auto px-4 py-8">
       <ToastContainer position="top-center" autoClose={2000} />
       
-      <div className="bg-indigo-50 rounded-lg p-4 text-sm text-indigo-800">
-        <p>This page shows archived match results and predictions from previous weeks. 
-        You can use the navigation controls to browse through past weeks.</p>
+      <div className="bg-indigo-50 rounded-lg p-4 text-sm text-indigo-800 mb-4">
+        <p>Browse archived match results and predictions from previous weeks and seasons. 
+        Select a year and use the navigation controls to explore past results.</p>
+      </div>
+
+      {/* Year Selection */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
+        <div className="flex items-center justify-center gap-4">
+          <CalendarDays className="w-5 h-5 text-indigo-600" />
+          <span className="text-sm font-medium text-gray-700">Season:</span>
+          <Dropdown>
+            <Dropdown.Toggle variant="outline-primary" size="sm" className="d-flex align-items-center gap-2">
+              {selectedYear}-{selectedYear + 1}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {availableYears.map(year => (
+                <Dropdown.Item 
+                  key={year}
+                  active={year === selectedYear}
+                  onClick={() => setSelectedYear(year)}
+                >
+                  {year}-{year + 1} Season
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
@@ -151,13 +213,13 @@ function ArchivedWeeks() {
               {isLoading ? "Loading..." : `Week ${selectedMatchDay}`}
             </span>
             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              {selectedMatchDay === currentMatchDay - 1 ? "Previous Week" : ""}
+              {selectedYear}-{selectedYear + 1} Season
             </span>
           </div>
           
           <Button 
             onClick={goToNextWeek}
-            disabled={selectedMatchDay >= currentMatchDay - 1 || isLoading}
+            disabled={selectedMatchDay >= (selectedYear === new Date().getFullYear() ? currentMatchDay - 1 : 38) || isLoading}
             className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
           >
             <ChevronRight className="w-5 h-5" />

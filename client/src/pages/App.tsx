@@ -35,7 +35,7 @@ function App({ vsop = false }: AppProps) {
   
   // Custom hooks for data management
   const { matchList, renderMatchDay, errorLoadingMatches, getMatchDayGames } = useMatchData(fakeDataEnabled, fakeMatchDay);
-  const { existingSubmissions, existingOpSubmissions, submitToBackend } = useSubmissions(renderMatchDay, fakeDataEnabled);
+  const { existingSubmissions, existingOpSubmissions, submitToBackend } = useSubmissions(renderMatchDay, fakeDataEnabled, new Date().getFullYear());
 
   const initPredictionTable = useCallback(async () => {
     if (fakeDataEnabled) {
