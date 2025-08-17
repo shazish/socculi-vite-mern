@@ -4,10 +4,10 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useMatchData } from '../hooks/useMatchData';
 import { useSubmissions } from '../hooks/useSubmissions';
-import { useUserPreferences } from '../hooks/useUserPreferences';
+// import { useUserPreferences } from '../hooks/useUserPreferences';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import OptimizedImage from '../components/OptimizedImage';
-import FavoriteTeamPopup from '../components/FavoriteTeamPopup';
+// import FavoriteTeamPopup from '../components/FavoriteTeamPopup';
 
 // Lazy load components
 const MatchListRender = lazy(() => import("../components/match-list/matchListRenderer"));
@@ -38,12 +38,12 @@ function App({ vsop = false }: AppProps) {
   // Custom hooks for data management
   const { matchList, renderMatchDay, errorLoadingMatches, getMatchDayGames } = useMatchData(fakeDataEnabled, fakeMatchDay);
   const { existingSubmissions, existingOpSubmissions, submitToBackend } = useSubmissions(renderMatchDay, fakeDataEnabled, new Date().getFullYear());
-  const { 
-    setFavoriteTeam, 
-    skipFavoriteTeamSelection, 
-    disableFavoriteTeamPopupPermanently,
-    shouldShowFavoriteTeamPopup 
-  } = useUserPreferences();
+  // const { 
+  //   setFavoriteTeam, 
+  //   skipFavoriteTeamSelection, 
+  //   disableFavoriteTeamPopupPermanently,
+  //   shouldShowFavoriteTeamPopup 
+  // } = useUserPreferences();
 
   const initPredictionTable = useCallback(async () => {
     if (fakeDataEnabled) {

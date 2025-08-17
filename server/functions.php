@@ -259,6 +259,186 @@ function migrate_submissions_table()
 add_action('wp_ajax_migrate_submissions_table', 'migrate_submissions_table');
 add_action('wp_ajax_nopriv_migrate_submissions_table', 'migrate_submissions_table');
 
+// Create user preferences table
+function create_user_preferences_table()
+{
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'user_preferences';
+	$charset_collate = $wpdb->get_charset_collate();
+
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        username VARCHAR(255) NOT NULL,
+        favorite_team_id INT NULL,
+        favorite_team_name VARCHAR(255) NULL,
+        disable_favorite_popup BOOLEAN DEFAULT FALSE,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP,
+        updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY unique_user (username(255))
+    ) $charset_collate;";
+
+	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	dbDelta($sql);
+	
+	wp_send_json_success('User preferences table created successfully');
+	wp_die();
+}
+add_action('wp_ajax_create_user_preferences_table', 'create_user_preferences_table');
+add_action('wp_ajax_nopriv_create_user_preferences_table', 'create_user_preferences_table');
+
+// Get user preferences
+function get_user_preferences()
+{
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'user_preferences';
+	
+	$username = sanitize_text_field($_POST['username']);
+	
+	if (!$username) {
+		wp_send_json_error('Username is required');
+		wp_die();
+	}
+	
+	$query = $wpdb->prepare(
+		"SELECT * FROM $table_name WHERE username = %s",
+		$username
+	);
+	
+	$result = $wpdb->get_row($query);
+	
+	if ($result) {
+		wp_send_json_success([
+			'favorite_team_id' => $result->favorite_team_id,
+			'favorite_team_name' => $result->favorite_team_name,
+			'disable_favorite_popup' => (bool) $result->disable_favorite_popup,
+		]);
+	} else {
+		// Return default preferences if user not found
+		wp_send_json_success([
+			'favorite_team_id' => null,
+			'favorite_team_name' => null,
+			'disable_favorite_popup' => false,
+		]);
+	}
+	
+	wp_die();
+}
+add_action('wp_ajax_get_user_preferences', 'get_user_preferences');
+add_action('wp_ajax_nopriv_get_user_preferences', 'get_user_preferences');
+
+// Update user favorite team
+function update_user_favorite_team()
+{
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'user_preferences';
+	
+	$username = sanitize_text_field($_POST['username']);
+	$favorite_team_id = intval($_POST['favorite_team_id']);
+	$favorite_team_name = sanitize_text_field($_POST['favorite_team_name']);
+	
+	if (!$username) {
+		wp_send_json_error('Username is required');
+		wp_die();
+	}
+	
+	// Check if user preferences exist
+	$existing = $wpdb->get_row($wpdb->prepare(
+		"SELECT id FROM $table_name WHERE username = %s",
+		$username
+	));
+	
+	if ($existing) {
+		// Update existing record
+		$result = $wpdb->update(
+			$table_name,
+			[
+				'favorite_team_id' => $favorite_team_id,
+				'favorite_team_name' => $favorite_team_name,
+				'updated_at' => current_time('mysql')
+			],
+			['username' => $username],
+			['%d', '%s', '%s'],
+			['%s']
+		);
+	} else {
+		// Insert new record
+		$result = $wpdb->insert(
+			$table_name,
+			[
+				'username' => $username,
+				'favorite_team_id' => $favorite_team_id,
+				'favorite_team_name' => $favorite_team_name
+			],
+			['%s', '%d', '%s']
+		);
+	}
+	
+	if ($result !== false) {
+		wp_send_json_success('Favorite team updated successfully');
+	} else {
+		wp_send_json_error('Failed to update favorite team: ' . $wpdb->last_error);
+	}
+	
+	wp_die();
+}
+add_action('wp_ajax_update_user_favorite_team', 'update_user_favorite_team');
+add_action('wp_ajax_nopriv_update_user_favorite_team', 'update_user_favorite_team');
+
+// Disable favorite team popup
+function disable_favorite_team_popup()
+{
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'user_preferences';
+	
+	$username = sanitize_text_field($_POST['username']);
+	
+	if (!$username) {
+		wp_send_json_error('Username is required');
+		wp_die();
+	}
+	
+	// Check if user preferences exist
+	$existing = $wpdb->get_row($wpdb->prepare(
+		"SELECT id FROM $table_name WHERE username = %s",
+		$username
+	));
+	
+	if ($existing) {
+		// Update existing record
+		$result = $wpdb->update(
+			$table_name,
+			[
+				'disable_favorite_popup' => true,
+				'updated_at' => current_time('mysql')
+			],
+			['username' => $username],
+			['%d', '%s'],
+			['%s']
+		);
+	} else {
+		// Insert new record with popup disabled
+		$result = $wpdb->insert(
+			$table_name,
+			[
+				'username' => $username,
+				'disable_favorite_popup' => true
+			],
+			['%s', '%d']
+		);
+	}
+	
+	if ($result !== false) {
+		wp_send_json_success('Popup disabled successfully');
+	} else {
+		wp_send_json_error('Failed to disable popup: ' . $wpdb->last_error);
+	}
+	
+	wp_die();
+}
+add_action('wp_ajax_disable_favorite_team_popup', 'disable_favorite_team_popup');
+add_action('wp_ajax_nopriv_disable_favorite_team_popup', 'disable_favorite_team_popup');
+
 
 // inject react app
 function enqueue_react_app()
