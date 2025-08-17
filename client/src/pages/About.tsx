@@ -20,7 +20,7 @@ function About() {
                         alt="Socculi logo" 
                     />
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">Socculi</h1>
-                    <p className="text-xl text-gray-600 mb-2">Second Half Fantasy League</p>
+                    <p className="text-xl text-gray-600 mb-2">{import.meta.env.VITE_APP_DESCRIPTION}</p>
                     <p className="text-sm text-gray-500 italic">A passion project by Shaun Shahbazi</p>
                 </div>
 
@@ -30,9 +30,9 @@ function About() {
                         <div className="prose max-w-none">
                             <p className="text-gray-700 leading-relaxed mb-6">
                                 <strong className="text-gray-900">Socculi</strong> is a unique fantasy league 
-                                experience based on the English Premier League. Born from a passion for football 
-                                and web development, it offers a fresh take on match predictions with a focus 
-                                on second-half gameplay.
+                                experience based on the English Premier League. Passion for football, 
+                                web development, and a bit of humor, led me to a playful take on match predictions with a focus 
+                                on second-half gameplay. Enjoy!
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-6">
                                 Socculi is powered by React and Vite on the frontend, with MySQL and WordPress handling the 
@@ -44,25 +44,25 @@ function About() {
                         <div className="bg-white rounded-xl shadow-sm p-8 mb-12">
                             <h2 className="text-2xl font-semibold text-gray-900 mb-6">How It Works</h2>
                             <ol className="space-y-4 text-gray-700">
-                                <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
+                                <li className="flex items-start text-start">
+                                    <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
                                     Submit predictions before second half begins
                                 </li>
-                                <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
-                                    Receive partial score for predictions after match starts
+                                <li className="flex items-start text-start">
+                                    <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
+                                    Receive partial points (and some snark) for predictions after match starts
                                 </li>                                
-                                <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
-                                    Earn 1 point for correct winner
+                                <li className="flex items-start text-start">
+                                    <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
+                                    Earn 1 point for correct winner, 2 points for correct goal difference, and 3 points for exact score prediction.
                                 </li>
                                 <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
-                                    Get 2 points for correct goal difference
+                                    <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
+                                    Prepare to get roasted based on your performace!
                                 </li>
                                 <li className="flex items-start">
-                                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
-                                    Score 3 points for exact score prediction
+                                    <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center bg-blue-100 rounded-full text-blue-600 font-semibold mr-3"></span>
+                                    Now go have fun! 
                                 </li>
 
                             </ol>

@@ -15,7 +15,7 @@ function SocculiFooter() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-blue-400 font-semibold">Socculi</span>
-            <span className="text-gray-400 text-sm">2nd-Half Fantasy League Predictions</span>
+            <span className="text-gray-400 text-sm">{import.meta.env.VITE_APP_DESCRIPTION}</span>
           </div>
           
           {/* <div className="flex items-center gap-6 text-gray-400">

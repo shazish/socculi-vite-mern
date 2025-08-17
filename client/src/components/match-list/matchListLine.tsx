@@ -1,11 +1,11 @@
 import { useEffect, useState, memo, useMemo, useCallback } from "react"
-import { Clock, Trophy } from "lucide-react"
+import { Trophy, ChevronRight } from "lucide-react"
 import { calculatePredictionScore, getTrashTalkMessage } from '../../utils/scoring';
 import { useAuthStatus } from "../../utils/authStatus";
 import { MatchListLineProps, FormattedImpact } from "../../types/matchData.interface";
 import OptimizedImage from "../OptimizedImage";
 
-function MatchListLine(props: MatchListLineProps) {
+function MatchListLineDesign5(props: MatchListLineProps) {
   const {
     index,
     matchLine,
@@ -20,6 +20,7 @@ function MatchListLine(props: MatchListLineProps) {
   } = props;
   const [localHome, setLocalHome] = useState(homePrediction || "")
   const [localAway, setLocalAway] = useState(awayPrediction || "")
+  const [expanded, setExpanded] = useState(false)
   let { isLoggedIn } = useAuthStatus()
 
   useEffect(() => {
@@ -30,31 +31,24 @@ function MatchListLine(props: MatchListLineProps) {
   const showOPPrediction = vsop
   const showTeamName = !vsop
 
-  // Improved handle change function to enforce "both or neither" rule
   const handleChange = useCallback((value: string, isHome: boolean) => {
-    // Update the local state for the current field
     if (isHome) {
       setLocalHome(value)
     } else {
       setLocalAway(value)
     }
 
-    // Get current values for validation
     const homeValue = isHome ? value : localHome
     const awayValue = isHome ? localAway : value
 
-    // Apply the "both or neither" rule
     if (value !== "") {
-      // This field has a value
       if (isHome) {
-        // Home field has value, ensure away also has value
         if (awayValue === "") {
           setLocalAway("0")
           broadcastChangeToParent(0, false, index)
         }
         broadcastChangeToParent(Number.parseInt(value) || 0, true, index)
       } else {
-        // Away field has value, ensure home also has value
         if (homeValue === "") {
           setLocalHome("0")
           broadcastChangeToParent(0, true, index)
@@ -62,16 +56,13 @@ function MatchListLine(props: MatchListLineProps) {
         broadcastChangeToParent(Number.parseInt(value) || 0, false, index)
       }
     } else {
-      // This field is empty
       if (isHome) {
-        // Home field is empty, clear away too if it has value
         if (awayValue !== "") {
           setLocalAway("")
           broadcastChangeToParent(null, false, index)
         }
         broadcastChangeToParent(null, true, index)
       } else {
-        // Away field is empty, clear home too if it has value
         if (homeValue !== "") {
           setLocalHome("")
           broadcastChangeToParent(null, true, index)
@@ -89,15 +80,16 @@ function MatchListLine(props: MatchListLineProps) {
   const timeLeftToStartFormatted = useMemo(() => {
     const timeLeft = new Date(matchLine.utcDate).getTime() - Date.now()
     if (timeLeft < 3600000)
-      return `Starts in ` + Math.floor(timeLeft / 60000) + ` minute(s)` // less than an hour
-    else if (timeLeft < 86400000) return `Starts in ` + Math.floor(timeLeft / 3600000) + ` hour(s)` // less than a day
-    return `Starts at ${new Date(matchLine.utcDate).toLocaleString("en-US", {
-      dateStyle: "short",
-      timeStyle: "short",
-    })}`
+      return `${Math.floor(timeLeft / 60000)}m`
+    else if (timeLeft < 86400000) return `${Math.floor(timeLeft / 3600000)}h`
+    return new Date(matchLine.utcDate).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
   }, [matchLine.utcDate]);
 
-  // Format the impact value
   const formatImpact = useCallback((impact: string | undefined): FormattedImpact => {
     if (!impact) return { percentage: "0", numeric: "0.0" }
     const numericImpact = Number.parseFloat(impact)
@@ -119,180 +111,237 @@ function MatchListLine(props: MatchListLineProps) {
   }, [homePrediction, awayPrediction, matchLine]);
 
   return (
-    <div data-testid="match-line" className="rounded-lg border border-gray-100 shadow-sm mb-3 overflow-hidden transition-all hover:shadow-md">
-      {/* Match header */}
-      <div className="flex items-center p-3 bg-gradient-to-r from-gray-50 to-white">
-        {showOPPrediction && (
-          <div className="flex-1 text-center">
-            <div
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${predictionScoreOp > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
-                }`}
-            >
-              {homeOpPrediction} - {awayOpPrediction}
-              {predictionScoreOp > 0 && (
-                <span className="flex items-center justify-center w-5 h-5 bg-green-100 text-green-800 rounded-full text-xs ml-1">
-                  +{predictionScoreOp}
-                </span>
-              )}
-            </div>
+    <div data-testid="match-line" className="border border-gray-200 rounded-lg mb-2 overflow-hidden hover:border-blue-300 transition-colors bg-white">
+      
+      {/* Compact Main Row */}
+      <div 
+        className="flex items-center p-3 cursor-pointer hover:bg-gray-50"
+        onClick={() => setExpanded(!expanded)}
+      >
+        
+        {/* Timeline dot and connector */}
+        <div className="flex flex-col items-center mr-4">
+          <div className={`w-3 h-3 rounded-full border-2 ${
+            matchLine.status === "IN_PLAY" || matchLine.status === "PAUSED" 
+              ? "bg-red-500 border-red-500 animate-pulse" 
+              : submissionDeadlineStatus === "open"
+              ? "bg-blue-500 border-blue-500"
+              : "bg-gray-400 border-gray-400"
+          }`}>
           </div>
-        )}
+          {index !== 0 && <div className="w-0.5 h-4 bg-gray-200 -mt-1"></div>}
+        </div>
 
-        {showTeamName && (
-          <div className="hidden md:block flex-1 font-medium text-gray-700 truncate">{matchLine.homeTeam.name}</div>
-        )}
+        {/* Match time/status */}
+        <div className="w-20 text-xs text-gray-600 font-medium">
+          {matchLine.status === "IN_PLAY" || matchLine.status === "PAUSED" ? (
+            <span className="text-red-600 font-bold">● LIVE</span>
+          ) : submissionDeadlineStatus === "open" ? (
+            timeLeftToStartFormatted
+          ) : (
+            "FINAL"
+          )}
+        </div>
 
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col items-end">
-              <OptimizedImage
-                className="w-10 h-10 object-contain"
-                alt={matchLine.homeTeam.shortName + " crest"}
-                src={"/public/crest/" + matchLine.homeTeam.tla + ".png"}
-              />
-            </div>
+        {/* Teams and score */}
+        <div className="flex-1 flex items-center justify-center space-x-3">
+          <div className="flex items-center space-x-2">
+            <OptimizedImage
+              className="w-6 h-6 object-contain"
+              alt={matchLine.homeTeam.shortName + " crest"}
+              src={"/public/crest/" + matchLine.homeTeam.tla + ".png"}
+            />
+            <span className="text-sm font-medium text-gray-900">{matchLine.homeTeam.shortName}</span>
+          </div>
 
-            <div className="flex flex-col items-center">
-              {submissionDeadlineStatus !== "open" ? (
-                <div className="text-xl font-bold">
-                  {matchLine?.score?.fullTime?.home} - {matchLine?.score?.fullTime?.away}
-                </div>
-              ) : (
-                <div className="text-xl font-bold text-gray-300">vs</div>
-              )}
+          <div className="text-center">
+            {submissionDeadlineStatus !== "open" ? (
+              <span className="text-lg font-bold text-gray-900">
+                {matchLine?.score?.fullTime?.home} - {matchLine?.score?.fullTime?.away}
+              </span>
+            ) : (
+              <span className="text-sm text-gray-400 font-medium">vs</span>
+            )}
+          </div>
 
-              <div className="flex items-center gap-1 mt-1">
-                {matchLine.status === "IN_PLAY" || matchLine.status === "PAUSED" ? (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700">
-                    LIVE
-                  </span>
-                ) : submissionDeadlineStatus === "open" ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                    <Clock className="w-3 h-3" />
-                    {timeLeftToStartFormatted}
-                  </span>
-                ) : (
-                  <span className="text-xs text-gray-500">FINISHED</span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col items-start">
-              <OptimizedImage
-                className="w-10 h-10 object-contain"
-                alt={matchLine.awayTeam.shortName + " crest"}
-                src={"/public/crest/" + matchLine.awayTeam.tla + ".png"}
-              />
-            </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-900">{matchLine.awayTeam.shortName}</span>
+            <OptimizedImage
+              className="w-6 h-6 object-contain"
+              alt={matchLine.awayTeam.shortName + " crest"}
+              src={"/public/crest/" + matchLine.awayTeam.tla + ".png"}
+            />
           </div>
         </div>
 
-        {showTeamName && (
-          <div className="hidden md:block flex-1 font-medium text-gray-700 truncate">
-            {matchLine.awayTeam.name}
-          </div>
-        )}
-
-        {showOPPrediction && (
-          <div className="flex-1 text-center">
-            <div
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${predictionScoreUser > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
-                }`}
-            >
-              {homePrediction} - {awayPrediction}
-              {predictionScoreUser > 0 && (
-                <span className="flex items-center justify-center w-5 h-5 bg-green-100 text-green-800 rounded-full text-xs ml-1">
-                  +{predictionScoreUser}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Warning banner */}
-      {submissionDeadlineStatus === "closesSoon" && (
-        <div className="bg-amber-50 text-amber-700 text-xs font-medium text-center py-1">CLOSES SOON</div>
-      )}
-
-      {/* Prediction section */}
-      {!showOPPrediction && (
-        <div className="p-3 bg-white flex items-center justify-center">
-          {submissionDeadlineStatus === "closed" ? (
-            <div className="flex items-center gap-2">
-              {homePrediction && awayPrediction ? (
-                <>
-                  <span className="text-sm text-gray-600">You predicted:</span>
-                  <div
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${predictionScoreUser > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
-                      }`}
-                  >
-                    {homePrediction} - {awayPrediction}
-                  </div>
-
-                  {predictionImpact && (
-                    <div className="relative w-24 h-4 mx-2">
-                      <div className="absolute inset-0 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300"
-                          style={{ width: `${formattedImpact.percentage}%` }}
-                        />
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-[9px] text-gray font-medium select-none">
-                          IMPACT {formattedImpact.numeric}x
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {predictionScoreUser > 0 && (
-                    <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">
-                      <Trophy className="w-3 h-3" />+{predictionScoreUser}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <span className="text-sm text-gray-500">No prediction made</span>
-              )}
-            </div>
-          ) : isLoggedIn && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Your prediction:</span>
-              <div className="flex border border-gray-200 rounded-lg overflow-hidden">
-                <input
-                  className="w-12 h-10 text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                  min={0}
-                  type="number"
-                  name={`home-input-${index}`}
-                  value={localHome}
-                  onChange={(e) => handleChange(e.target.value, true)}
-                />
-                <div className="flex items-center justify-center w-8 bg-gray-50 text-gray-400">-</div>
-                <input
-                  className="w-12 h-10 text-center bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                  min={0}
-                  type="number"
-                  name={`away-input-${index}`}
-                  value={localAway}
-                  onChange={(e) => handleChange(e.target.value, false)}
-                />
+        {/* Quick prediction display */}
+        <div className="w-24 text-center">
+          {showOPPrediction ? (
+            <div className="text-xs space-y-1">
+              <div className={`${predictionScoreOp > 0 ? "text-green-600" : "text-gray-400"}`}>
+                OP: {homeOpPrediction}-{awayOpPrediction}
               </div>
+              <div className={`${predictionScoreUser > 0 ? "text-blue-600" : "text-gray-400"}`}>
+                YOU: {homePrediction}-{awayPrediction}
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-gray-600">
+              {homePrediction && awayPrediction ? (
+                <span className={predictionScoreUser > 0 ? "text-green-600 font-medium" : ""}>
+                  {homePrediction}-{awayPrediction}
+                  {predictionScoreUser > 0 && <span className="ml-1">+{predictionScoreUser}</span>}
+                </span>
+              ) : submissionDeadlineStatus === "open" && isLoggedIn ? (
+                <span className="text-blue-600">Predict</span>
+              ) : (
+                <span className="text-gray-400">—</span>
+              )}
             </div>
           )}
         </div>
-      )}
 
-      {/* Trash talk message for terrible predictions */}
-      {trashTalkMessage && (
-        <div className="px-3 py-2 bg-red-50 border-t border-red-100">
-          <div className="flex items-center justify-center text-sm text-red-600 font-medium">
-            {trashTalkMessage}
-          </div>
+        {/* Expand indicator */}
+        <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${expanded ? "rotate-90" : ""}`} />
+      </div>
+
+      {/* Expanded Details */}
+      {expanded && (
+        <div className="border-t border-gray-100 bg-gray-50">
+          
+          {/* Team names (if not VSOP) */}
+          {showTeamName && (
+            <div className="flex justify-between px-4 py-2 text-sm text-gray-600 border-b border-gray-200">
+              <span className="truncate max-w-40">{matchLine.homeTeam.name}</span>
+              <span className="truncate max-w-40 text-right">{matchLine.awayTeam.name}</span>
+            </div>
+          )}
+
+          {/* VSOP detailed predictions */}
+          {showOPPrediction && (
+            <div className="grid grid-cols-2 gap-4 p-4">
+              <div className="bg-white rounded-lg p-3 border">
+                <div className="text-xs text-gray-500 mb-1">Opponent Prediction</div>
+                <div className={`text-lg font-bold ${predictionScoreOp > 0 ? "text-green-600" : "text-gray-600"}`}>
+                  {homeOpPrediction} - {awayOpPrediction}
+                  {predictionScoreOp > 0 && (
+                    <span className="block text-sm text-green-600">+{predictionScoreOp} points</span>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-3 border">
+                <div className="text-xs text-gray-500 mb-1">Your Prediction</div>
+                <div className={`text-lg font-bold ${predictionScoreUser > 0 ? "text-blue-600" : "text-gray-600"}`}>
+                  {homePrediction} - {awayPrediction}
+                  {predictionScoreUser > 0 && (
+                    <span className="block text-sm text-blue-600">+{predictionScoreUser} points</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Prediction input/details (if not VSOP) */}
+          {!showOPPrediction && (
+            <div className="p-4">
+              {submissionDeadlineStatus === "closed" ? (
+                <div className="bg-white rounded-lg p-3 border">
+                  {homePrediction && awayPrediction ? (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">Your Prediction</div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {homePrediction} - {awayPrediction}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        {predictionImpact && (
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500">Impact</div>
+                            <div className="text-sm font-bold text-purple-600">
+                              {formattedImpact.numeric}x
+                            </div>
+                          </div>
+                        )}
+                        
+                        {predictionScoreUser > 0 && (
+                          <div className="bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-bold flex items-center">
+                            <Trophy className="w-3 h-3 mr-1" />
+                            +{predictionScoreUser}
+                          </div>
+                        )}
+
+                        {/* Trash talk speech bubble positioned near prediction */}
+                        {trashTalkMessage && (
+                          <div className="relative ml-3">
+                            <div className="bg-red-100 border border-red-200 rounded-lg px-3 py-2 text-xs font-medium shadow-sm max-w-60">
+                              <div className="flex items-center gap-1">
+                                <img src="/public/smirk02.png" alt="Smirky guy" className="w-12 h-12" />
+                                <span>{trashTalkMessage}</span>
+                              </div>
+                              {/* Speech bubble tail */}
+                              <div className="absolute left-0 top-1/2 transform -translate-x-1 -translate-y-1/2">
+                                <div className="w-2 h-2 bg-red-50 border-l border-b border-red-200 rotate-45"></div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500">
+                      <div className="text-sm">No prediction made</div>
+                    </div>
+                  )}
+                </div>
+              ) : isLoggedIn && (
+                <div className="bg-white rounded-lg p-4 border">
+                  <div className="text-xs text-gray-500 mb-3 text-center">Make Your Prediction</div>
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="text-center">
+                      <div className="text-xs text-gray-500 mb-1">{matchLine.homeTeam.shortName}</div>
+                      <input
+                        className="w-12 h-10 bg-white text-center text-lg font-bold border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                        min={0}
+                        type="number"
+                        name={`home-input-${index}`}
+                        value={localHome}
+                        onChange={(e) => handleChange(e.target.value, true)}
+                      />
+                    </div>
+                    
+                    <span className="text-xl font-bold text-gray-400 pt-6">-</span>
+                    
+                    <div className="text-center">
+                      <div className="text-xs text-gray-500 mb-1">{matchLine.awayTeam.shortName}</div>
+                      <input
+                        className="w-12 h-10 bg-white text-center text-lg font-bold border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                        min={0}
+                        type="number"
+                        name={`away-input-${index}`}
+                        value={localAway}
+                        onChange={(e) => handleChange(e.target.value, false)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Warnings */}
+          {submissionDeadlineStatus === "closesSoon" && (
+            <div className="bg-amber-100 text-amber-800 px-4 py-2 text-sm font-medium text-center">
+              ⚠ Closes soon
+            </div>
+          )}
+
         </div>
       )}
     </div>
   )
 }
 
-export default memo(MatchListLine);
+export default memo(MatchListLineDesign5);

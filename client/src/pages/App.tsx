@@ -4,8 +4,10 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useMatchData } from '../hooks/useMatchData';
 import { useSubmissions } from '../hooks/useSubmissions';
+import { useUserPreferences } from '../hooks/useUserPreferences';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import OptimizedImage from '../components/OptimizedImage';
+import FavoriteTeamPopup from '../components/FavoriteTeamPopup';
 
 // Lazy load components
 const MatchListRender = lazy(() => import("../components/match-list/matchListRenderer"));
@@ -36,6 +38,12 @@ function App({ vsop = false }: AppProps) {
   // Custom hooks for data management
   const { matchList, renderMatchDay, errorLoadingMatches, getMatchDayGames } = useMatchData(fakeDataEnabled, fakeMatchDay);
   const { existingSubmissions, existingOpSubmissions, submitToBackend } = useSubmissions(renderMatchDay, fakeDataEnabled, new Date().getFullYear());
+  const { 
+    setFavoriteTeam, 
+    skipFavoriteTeamSelection, 
+    disableFavoriteTeamPopupPermanently,
+    shouldShowFavoriteTeamPopup 
+  } = useUserPreferences();
 
   const initPredictionTable = useCallback(async () => {
     if (fakeDataEnabled) {
@@ -80,11 +88,11 @@ function App({ vsop = false }: AppProps) {
 
         <div className="content-center d-none d-lg-block">
           <h1 className="display-1">Socculi</h1>
-          <h3 className="display-5">Second Half Fantasy League</h3>
+          <h3 className="display-5">{import.meta.env.VITE_APP_DESCRIPTION}</h3>
 
         </div>
         <div className="logo-container flex">
-          <OptimizedImage src={brandLogo} className="brand-logo fade-in" alt="Socculi logo" loading="eager" />
+          <OptimizedImage src={brandLogo} className="brand-logo rounded-xl fade-in" alt="Socculi logo" loading="eager" />
         </div>
       </div>
 
@@ -122,6 +130,14 @@ function App({ vsop = false }: AppProps) {
           </Suspense>
         )}
       </div>
+
+      {/* <FavoriteTeamPopup
+        isOpen={shouldShowFavoriteTeamPopup()}
+        onClose={skipFavoriteTeamSelection}
+        onTeamSelect={setFavoriteTeam}
+        onSkip={skipFavoriteTeamSelection}
+        onDisablePermanently={disableFavoriteTeamPopupPermanently}
+      /> */}
     </ErrorBoundary>
   );
 }
