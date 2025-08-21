@@ -42,7 +42,7 @@ const Profile = () => {
      
       {isAuthenticated && (
         <div className="profile-info flex flex-row items-center text-white">
-          <p className="text-sm mx-3">Hello, {user?.name}</p>
+          <text className="text-sm mx-3">Hello, {user?.name}</text>
           <LogoutButton />
         </div>
       )}

@@ -26,7 +26,7 @@ function MatchListRender(props: MatchListRendererProps) {
   const [changedLines, setChangedLines] = useState<Set<number>>(new Set())
 
   const allFinished = useMemo(() => matchList.every((matchLine: Match) => matchLine.status === "FINISHED"), [matchList])
-  const isLoggedIn = useAuthStatus();
+  const { isLoggedIn } = useAuthStatus();
   
   const submissionDeadlineStatus = useCallback((matchDate: string): string => {
     if (Date.now() - new Date(matchDate).getTime() > 3600000) return "closed"
@@ -82,10 +82,11 @@ function MatchListRender(props: MatchListRendererProps) {
 
   const calcImpact = useCallback((submitTime: number, matchStart: number): number => {
     const delta = submitTime - matchStart
+    console.log("calcImpact delta", delta)
     if (delta < 0) return 1
     if (delta < 2700000) return ((2700000 - delta) / 2700000) * 0.5 + 0.5
-    if (delta > 2700000 && delta < 3600000) return 0.5
-    else return 0 // should not be happening
+    if (delta >= 2700000 && delta < 3600000) return 0.5
+    else return 0.5 // return minimum allowed value instead of 0
   }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -108,7 +109,7 @@ function MatchListRender(props: MatchListRendererProps) {
 
       const impact = changedLines.has(index)
         ? calcImpact(currentTimestamp, new Date(matchList[index].utcDate).getTime())
-        : existingImpactsObj[`impact-${index}`] || -1
+        : existingImpactsObj[`impact-${index}`] || 1
 
       formData.append(`timestamp-${index}`, timestamp.toString())
       formData.append(`impact-${index}`, impact.toString())
@@ -233,7 +234,7 @@ function MatchListRender(props: MatchListRendererProps) {
         )}
       </div>
 
-      {!vsop && allFinished && (
+      {!vsop && allFinished && isLoggedIn && (
         <Nav.Link
           href="/vsop"
           className="block w-full mb-6 p-4 bg-gradient-to-r from-green-100 to-green-50 border border-indigo-100 rounded-lg text-center transition-all hover:shadow-md"
@@ -254,7 +255,7 @@ function MatchListRender(props: MatchListRendererProps) {
         </div>
       )}
 
-      {allFinished && (
+      {allFinished && isLoggedIn && (
         <div className="mt-6 mb-3 p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-100">
           <div className="flex justify-between items-center">
             {vsop ? (

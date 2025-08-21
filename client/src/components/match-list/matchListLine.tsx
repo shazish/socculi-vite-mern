@@ -1,9 +1,10 @@
 import { useEffect, useState, memo, useMemo, useCallback } from "react"
-import { Trophy, ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { calculatePredictionScore, getTrashTalkMessage } from '../../utils/scoring';
 import { useAuthStatus } from "../../utils/authStatus";
 import { MatchListLineProps, FormattedImpact } from "../../types/matchData.interface";
 import OptimizedImage from "../OptimizedImage";
+import PredictionScore from "./PredictionScore";
 
 function MatchListLineDesign5(props: MatchListLineProps) {
   const {
@@ -21,7 +22,7 @@ function MatchListLineDesign5(props: MatchListLineProps) {
   const [localHome, setLocalHome] = useState(homePrediction || "")
   const [localAway, setLocalAway] = useState(awayPrediction || "")
   const [expanded, setExpanded] = useState(false)
-  let { isLoggedIn } = useAuthStatus()
+  const { isLoggedIn } = useAuthStatus()
 
   useEffect(() => {
     setLocalHome(homePrediction || "")
@@ -110,6 +111,14 @@ function MatchListLineDesign5(props: MatchListLineProps) {
     return null;
   }, [homePrediction, awayPrediction, matchLine]);
 
+  const shouldShowScore = useCallback((status: string) => {
+    return status === "FINISHED";
+  }, []);
+
+  const isPredictionSuccessful = useCallback((score: number) => {
+    return score > 0;
+  }, []);
+
   return (
     <div data-testid="match-line" className="border border-gray-200 rounded-lg mb-2 overflow-hidden hover:border-blue-300 transition-colors bg-white">
       
@@ -178,19 +187,19 @@ function MatchListLineDesign5(props: MatchListLineProps) {
         <div className="w-24 text-center">
           {showOPPrediction ? (
             <div className="text-xs space-y-1">
-              <div className={`${predictionScoreOp > 0 ? "text-green-600" : "text-gray-400"}`}>
+              <div className={`${isPredictionSuccessful(predictionScoreOp) && shouldShowScore(matchLine.status) ? "text-green-600" : "text-gray-400"}`}>
                 OP: {homeOpPrediction}-{awayOpPrediction}
               </div>
-              <div className={`${predictionScoreUser > 0 ? "text-blue-600" : "text-gray-400"}`}>
+              <div className={`${isPredictionSuccessful(predictionScoreUser) && shouldShowScore(matchLine.status) ? "text-blue-600" : "text-gray-400"}`}>
                 YOU: {homePrediction}-{awayPrediction}
               </div>
             </div>
           ) : (
             <div className="text-xs text-gray-600">
               {homePrediction && awayPrediction ? (
-                <span className={predictionScoreUser > 0 ? "text-green-600 font-medium" : ""}>
+                <span className={isPredictionSuccessful(predictionScoreUser) && shouldShowScore(matchLine.status) ? "text-green-600 font-medium" : ""}>
                   {homePrediction}-{awayPrediction}
-                  {predictionScoreUser > 0 && <span className="ml-1">+{predictionScoreUser}</span>}
+                  {shouldShowScore(matchLine.status) && <PredictionScore score={predictionScoreUser} matchStatus={matchLine.status} variant="inline" />}
                 </span>
               ) : submissionDeadlineStatus === "open" && isLoggedIn ? (
                 <span className="text-blue-600">Predict</span>
@@ -222,21 +231,17 @@ function MatchListLineDesign5(props: MatchListLineProps) {
             <div className="grid grid-cols-2 gap-4 p-4">
               <div className="bg-white rounded-lg p-3 border">
                 <div className="text-xs text-gray-500 mb-1">Opponent Prediction</div>
-                <div className={`text-lg font-bold ${predictionScoreOp > 0 ? "text-green-600" : "text-gray-600"}`}>
+                <div className={`text-lg font-bold ${isPredictionSuccessful(predictionScoreOp) && shouldShowScore(matchLine.status) ? "text-green-600" : "text-gray-600"}`}>
                   {homeOpPrediction} - {awayOpPrediction}
-                  {predictionScoreOp > 0 && (
-                    <span className="block text-sm text-green-600">+{predictionScoreOp} points</span>
-                  )}
+                  <PredictionScore score={predictionScoreOp} matchStatus={matchLine.status} variant="text" color="green" />
                 </div>
               </div>
               
               <div className="bg-white rounded-lg p-3 border">
                 <div className="text-xs text-gray-500 mb-1">Your Prediction</div>
-                <div className={`text-lg font-bold ${predictionScoreUser > 0 ? "text-blue-600" : "text-gray-600"}`}>
+                <div className={`text-lg font-bold ${isPredictionSuccessful(predictionScoreUser) && shouldShowScore(matchLine.status) ? "text-blue-600" : "text-gray-600"}`}>
                   {homePrediction} - {awayPrediction}
-                  {predictionScoreUser > 0 && (
-                    <span className="block text-sm text-blue-600">+{predictionScoreUser} points</span>
-                  )}
+                  <PredictionScore score={predictionScoreUser} matchStatus={matchLine.status} variant="text" color="blue" />
                 </div>
               </div>
             </div>
@@ -266,12 +271,13 @@ function MatchListLineDesign5(props: MatchListLineProps) {
                           </div>
                         )}
                         
-                        {predictionScoreUser > 0 && (
-                          <div className="bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-bold flex items-center">
-                            <Trophy className="w-3 h-3 mr-1" />
-                            +{predictionScoreUser}
-                          </div>
-                        )}
+                        <PredictionScore 
+                          score={predictionScoreUser} 
+                          matchStatus={matchLine.status} 
+                          variant="badge" 
+                          color="green" 
+                          showTrophy={true} 
+                        />
 
                         {/* Trash talk speech bubble positioned near prediction */}
                         {trashTalkMessage && (
