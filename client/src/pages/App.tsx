@@ -36,7 +36,7 @@ function App({ vsop = false }: AppProps) {
   const [appLoaded, setAppLoaded] = useState(false);
   
   // Custom hooks for data management
-  const { matchList, renderMatchDay, errorLoadingMatches, getMatchDayGames } = useMatchData(fakeDataEnabled, fakeMatchDay);
+  const { matchList, renderMatchDay, errorLoadingMatches, getMatchDayGames, isRefreshing } = useMatchData(fakeDataEnabled, fakeMatchDay);
   const { existingSubmissions, existingOpSubmissions, submitToBackend } = useSubmissions(renderMatchDay, fakeDataEnabled, new Date().getFullYear());
   // const { 
   //   setFavoriteTeam, 
@@ -119,14 +119,18 @@ function App({ vsop = false }: AppProps) {
               <span className="ml-2 text-gray-600">Loading match list...</span>
             </div>
           }>
-            <MatchListRender
-              vsop={vsop}
-              matchList={matchList}
-              existingSubmissions={existingSubmissions}
-              existingOpSubmissions={existingOpSubmissions}
-              renderedMatchDay={renderMatchDay}
-              broadcastSubmissionToParent={submitToBackend}
-            />
+            <div 
+              className={`transition-opacity duration-1000 ${isRefreshing ? 'opacity-50' : 'opacity-100'}`}
+            >
+              <MatchListRender
+                vsop={vsop}
+                matchList={matchList}
+                existingSubmissions={existingSubmissions}
+                existingOpSubmissions={existingOpSubmissions}
+                renderedMatchDay={renderMatchDay}
+                broadcastSubmissionToParent={submitToBackend}
+              />
+            </div>
           </Suspense>
         )}
       </div>
