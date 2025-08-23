@@ -138,7 +138,6 @@ function MatchListLineDesign5(props: MatchListLineProps) {
               : "bg-gray-400 border-gray-400"
           }`}>
           </div>
-          {index !== 0 && <div className="w-0.5 h-4 bg-gray-200 -mt-1"></div>}
         </div>
 
         {/* Match time/status */}
